@@ -11,7 +11,7 @@ public class PlayerInputManage : MonoBehaviour
     [SerializeField] private Transform[] spawnPoints;
     private bool wasdjoined=false;
     private bool arrowsjoined=false;
-    private int pAmount=0;
+    public int pAmount=0;
     private List<Gamepad> usedGamepads = new List<Gamepad>();
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
