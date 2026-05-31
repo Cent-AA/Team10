@@ -13,12 +13,15 @@ public class MainMenuController : MonoBehaviour
 
     private void Start()
     {
-        // При старте игры подтягиваем в интерфейс те значения, которые уже настроены в системе
+        // Исправлено: теперь имя переменной совпадает с объявленным выше
         if (volumeSlider != null)
             volumeSlider.value = AudioListener.volume;
 
         if (muteToggle != null)
-            muteToggle.isOn = AudioListener.pause;
+        {
+            // Галочка горит (true), если AudioListener НЕ на паузе
+            muteToggle.isOn = !AudioListener.pause; 
+        }
     }
 
     // --- Переключение окон ---
@@ -42,9 +45,9 @@ public class MainMenuController : MonoBehaviour
         AudioListener.volume = value;
     }
 
-    // Полное отключение звука (Mute)
-    public void ToggleMute(bool isMuted)
+    // Твоя новая логика: галочка есть — звук играет, галочки нет — тишина
+    public void ToggleSound(bool soundOn)
     {
-        AudioListener.pause = isMuted;
+        AudioListener.pause = !soundOn;
     }
 }
