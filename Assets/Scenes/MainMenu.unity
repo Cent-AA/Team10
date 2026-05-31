@@ -380,7 +380,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0.1496529, g: 0.30057397, b: 0.5377358, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1122,14 +1122,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66dc65591d2755b45822bd3cf1cb3dd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuTransition
-  buttons: []
   logo: {fileID: 1099191095}
+  buttons: []
   moon: {fileID: 191897670}
   forestOverlay: {fileID: 639115852}
+  logoSlideDuration: 1.2
   buttonsSlideDuration: 1.5
+  buttonsDelay: 0.5
   moonMoveDuration: 2
   forestSlideDuration: 2
-  delayBeforeForest: 0.5
   nextSceneName: CharacterSelect
 --- !u!4 &1096651595
 Transform:
