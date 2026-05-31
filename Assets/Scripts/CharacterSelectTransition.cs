@@ -8,13 +8,31 @@ public class CharacterSelectTransition : MonoBehaviour
     public RectTransform forestOverlay;
     public RectTransform moon;
     public RectTransform characterPanel;
+    public RectTransform[] characterCards;
+
+    [Header("Игрок 1")]
+    public RectTransform p1Arrow;
+    public RectTransform p1Letter;
+    public RectTransform p1Number;
+
+    [Header("Игрок 2")]
+    public RectTransform p2Arrow;
+    public RectTransform p2Letter;
+    public RectTransform p2Number;
 
     [Header("Настройки входа")]
     public float forestSlideDuration = 2f;
     public float moonMoveDuration = 2f;
     public float panelFadeDuration = 1f;
+    public float cardsSlideDuration = 1f;
+    public float cardsDelay = 0.15f;
+    public float arrowSlideDuration = 0.8f;
+    public float arrowDelay = 0.3f;
 
     [Header("Настройки выхода")]
+    public float exitCardsDuration = 0.8f;
+    public float exitCardsDelay = 0.1f;
+    public float exitArrowDuration = 0.5f;
     public float exitPanelFadeDuration = 0.5f;
     public float exitMoonDuration = 2f;
     public float exitForestDuration = 2f;
@@ -28,6 +46,9 @@ public class CharacterSelectTransition : MonoBehaviour
     public Vector2 moonEndPos = new Vector2(-600, 236);
 
     private CanvasGroup panelCanvasGroup;
+    private Vector2[] cardTargets;
+    private Vector2 p1ArrowTarget, p1LetterTarget, p1NumberTarget;
+    private Vector2 p2ArrowTarget, p2LetterTarget, p2NumberTarget;
     private bool isTransitioning = false;
 
     void Start()
@@ -43,12 +64,44 @@ public class CharacterSelectTransition : MonoBehaviour
             panelCanvasGroup.alpha = 0f;
         }
 
+        // Прячем карты вниз
+        cardTargets = new Vector2[characterCards.Length];
+        for (int i = 0; i < characterCards.Length; i++)
+        {
+            cardTargets[i] = characterCards[i].anchoredPosition;
+            characterCards[i].anchoredPosition = new Vector2(cardTargets[i].x, cardTargets[i].y - 1200f);
+        }
+
+        // Прячем P1 элементы вверх
+        HideUp(p1Arrow, out p1ArrowTarget, 800f);
+        HideUp(p1Letter, out p1LetterTarget, 800f);
+        HideUp(p1Number, out p1NumberTarget, 800f);
+
+        // Прячем P2 элементы вверх
+        HideUp(p2Arrow, out p2ArrowTarget, 800f);
+        HideUp(p2Letter, out p2LetterTarget, 800f);
+        HideUp(p2Number, out p2NumberTarget, 800f);
+
         StartCoroutine(PlayEntryAnimation());
     }
 
-    // === ВХОД: разгон → замедление → остановка ===
+    void HideUp(RectTransform rt, out Vector2 target, float offset)
+    {
+        if (rt != null)
+        {
+            target = rt.anchoredPosition;
+            rt.anchoredPosition = new Vector2(target.x, target.y + offset);
+        }
+        else
+        {
+            target = Vector2.zero;
+        }
+    }
+
+    // === ВХОД ===
     IEnumerator PlayEntryAnimation()
     {
+        // Фаза 1: Лес + луна
         float elapsed = 0f;
         float phase1Duration = Mathf.Max(forestSlideDuration, moonMoveDuration);
 
@@ -65,20 +118,64 @@ public class CharacterSelectTransition : MonoBehaviour
             yield return null;
         }
 
+        // Фаза 2: Карты снизу + стрелки/буквы сверху
         if (panelCanvasGroup != null)
-        {
-            elapsed = 0f;
-            while (elapsed < panelFadeDuration)
-            {
-                elapsed += Time.deltaTime;
-                panelCanvasGroup.alpha = Mathf.Clamp01(elapsed / panelFadeDuration);
-                yield return null;
-            }
             panelCanvasGroup.alpha = 1f;
+
+        elapsed = 0f;
+        float totalCardsTime = cardsSlideDuration + characterCards.Length * cardsDelay;
+        float arrowStartTime = totalCardsTime * 0.5f;
+        float phase2Duration = Mathf.Max(totalCardsTime, arrowStartTime + arrowSlideDuration + arrowDelay) + 0.3f;
+
+        while (elapsed < phase2Duration)
+        {
+            elapsed += Time.deltaTime;
+
+            // Карты снизу каскадно
+            for (int i = 0; i < characterCards.Length; i++)
+            {
+                float delay = i * cardsDelay;
+                float cardElapsed = elapsed - delay;
+                if (cardElapsed > 0)
+                {
+                    float t = EaseOutBack(Mathf.Clamp01(cardElapsed / cardsSlideDuration));
+                    Vector2 from = new Vector2(cardTargets[i].x, cardTargets[i].y - 1200f);
+                    characterCards[i].anchoredPosition = Vector2.Lerp(from, cardTargets[i], t);
+                }
+            }
+
+            // P1 элементы сверху
+            float p1Elapsed = elapsed - arrowStartTime;
+            if (p1Elapsed > 0)
+            {
+                float t = EaseOutBack(Mathf.Clamp01(p1Elapsed / arrowSlideDuration));
+                SlideDown(p1Arrow, p1ArrowTarget, 800f, t);
+                SlideDown(p1Letter, p1LetterTarget, 800f, t);
+                SlideDown(p1Number, p1NumberTarget, 800f, t);
+            }
+
+            // P2 элементы сверху (с задержкой)
+            float p2Elapsed = elapsed - arrowStartTime - arrowDelay;
+            if (p2Elapsed > 0)
+            {
+                float t = EaseOutBack(Mathf.Clamp01(p2Elapsed / arrowSlideDuration));
+                SlideDown(p2Arrow, p2ArrowTarget, 800f, t);
+                SlideDown(p2Letter, p2LetterTarget, 800f, t);
+                SlideDown(p2Number, p2NumberTarget, 800f, t);
+            }
+
+            yield return null;
         }
     }
 
-    // === ВЫХОД: разгон → замедление → остановка → пауза → переход ===
+    void SlideDown(RectTransform rt, Vector2 target, float offset, float t)
+    {
+        if (rt == null) return;
+        Vector2 from = new Vector2(target.x, target.y + offset);
+        rt.anchoredPosition = Vector2.Lerp(from, target, t);
+    }
+
+    // === ВЫХОД ===
     public void ExitToMenu()
     {
         if (isTransitioning) return;
@@ -88,34 +185,69 @@ public class CharacterSelectTransition : MonoBehaviour
 
     IEnumerator PlayExitAnimation()
     {
-        if (panelCanvasGroup != null)
+        // Фаза 1: Стрелки/буквы вверх + карты вниз
+        Vector2 p1ArrCur = GetPos(p1Arrow);
+        Vector2 p1LetCur = GetPos(p1Letter);
+        Vector2 p1NumCur = GetPos(p1Number);
+        Vector2 p2ArrCur = GetPos(p2Arrow);
+        Vector2 p2LetCur = GetPos(p2Letter);
+        Vector2 p2NumCur = GetPos(p2Number);
+
+        Vector2[] cardCurs = new Vector2[characterCards.Length];
+        for (int i = 0; i < characterCards.Length; i++)
+            cardCurs[i] = characterCards[i].anchoredPosition;
+
+        float elapsed = 0f;
+        float phase1Duration = Mathf.Max(exitArrowDuration, exitCardsDuration + characterCards.Length * exitCardsDelay);
+
+        while (elapsed < phase1Duration)
         {
-            float elapsed = 0f;
-            float startAlpha = panelCanvasGroup.alpha;
-            while (elapsed < exitPanelFadeDuration)
+            elapsed += Time.deltaTime;
+
+            // Стрелки/буквы вверх
+            float arrowT = EaseInCubic(Mathf.Clamp01(elapsed / exitArrowDuration));
+            SlideUp(p1Arrow, p1ArrCur, 800f, arrowT);
+            SlideUp(p1Letter, p1LetCur, 800f, arrowT);
+            SlideUp(p1Number, p1NumCur, 800f, arrowT);
+            SlideUp(p2Arrow, p2ArrCur, 800f, arrowT);
+            SlideUp(p2Letter, p2LetCur, 800f, arrowT);
+            SlideUp(p2Number, p2NumCur, 800f, arrowT);
+
+            // Карты вниз каскадно
+            for (int i = 0; i < characterCards.Length; i++)
             {
-                elapsed += Time.deltaTime;
-                panelCanvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, elapsed / exitPanelFadeDuration);
-                yield return null;
+                float delay = i * exitCardsDelay;
+                float cardElapsed = elapsed - delay;
+                if (cardElapsed > 0)
+                {
+                    float t = EaseInCubic(Mathf.Clamp01(cardElapsed / exitCardsDuration));
+                    Vector2 target = new Vector2(cardCurs[i].x, cardCurs[i].y - 1200f);
+                    characterCards[i].anchoredPosition = Vector2.Lerp(cardCurs[i], target, t);
+                }
             }
-            panelCanvasGroup.alpha = 0f;
+
+            yield return null;
         }
 
-        Vector2 moonCurrent = moon.anchoredPosition;
-        Vector2 forestCurrent = forestOverlay.anchoredPosition;
+        // Фаза 2: Луна + лес
+        if (panelCanvasGroup != null)
+            panelCanvasGroup.alpha = 0f;
 
-        float elapsed2 = 0f;
+        Vector2 moonCur = moon.anchoredPosition;
+        Vector2 forestCur = forestOverlay.anchoredPosition;
+
+        elapsed = 0f;
         float phase2Duration = Mathf.Max(exitMoonDuration, exitForestDuration);
 
-        while (elapsed2 < phase2Duration)
+        while (elapsed < phase2Duration)
         {
-            elapsed2 += Time.deltaTime;
+            elapsed += Time.deltaTime;
 
-            float moonT = EaseInOutSine(Mathf.Clamp01(elapsed2 / exitMoonDuration));
-            moon.anchoredPosition = Vector2.Lerp(moonCurrent, moonStartPos, moonT);
+            float moonT = EaseInOutSine(Mathf.Clamp01(elapsed / exitMoonDuration));
+            moon.anchoredPosition = Vector2.Lerp(moonCur, moonStartPos, moonT);
 
-            float forestT = EaseInOutSine(Mathf.Clamp01(elapsed2 / exitForestDuration));
-            forestOverlay.anchoredPosition = Vector2.Lerp(forestCurrent, forestStartPos, forestT);
+            float forestT = EaseInOutSine(Mathf.Clamp01(elapsed / exitForestDuration));
+            forestOverlay.anchoredPosition = Vector2.Lerp(forestCur, forestStartPos, forestT);
 
             yield return null;
         }
@@ -125,5 +257,23 @@ public class CharacterSelectTransition : MonoBehaviour
         SceneManager.LoadScene(menuSceneName);
     }
 
+    void SlideUp(RectTransform rt, Vector2 from, float offset, float t)
+    {
+        if (rt == null) return;
+        Vector2 target = new Vector2(from.x, from.y + offset);
+        rt.anchoredPosition = Vector2.Lerp(from, target, t);
+    }
+
+    Vector2 GetPos(RectTransform rt)
+    {
+        return rt != null ? rt.anchoredPosition : Vector2.zero;
+    }
+
     float EaseInOutSine(float t) { return -(Mathf.Cos(Mathf.PI * t) - 1f) / 2f; }
+    float EaseInCubic(float t) { return t * t * t; }
+    float EaseOutBack(float t)
+    {
+        float c = 1.7f;
+        return 1f + (c + 1f) * Mathf.Pow(t - 1f, 3f) + c * Mathf.Pow(t - 1f, 2f);
+    }
 }
