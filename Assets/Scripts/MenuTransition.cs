@@ -44,7 +44,7 @@ public class MenuTransition : MonoBehaviour
         Vector2 moonStart = moon.anchoredPosition;
         Vector2 moonEnd = new Vector2(0, moonStart.y);
         Vector2 forestStart = forestOverlay.anchoredPosition;
-        Vector2 forestEnd = new Vector2(0, 0);
+        Vector2 forestEnd = new Vector2(0, 160);
 
         Vector2[] btnStarts = new Vector2[buttons.Length];
         for (int i = 0; i < buttons.Length; i++)
