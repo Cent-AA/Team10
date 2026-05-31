@@ -1126,12 +1126,19 @@ MonoBehaviour:
   buttons: []
   moon: {fileID: 191897670}
   forestOverlay: {fileID: 639115852}
-  logoSlideDuration: 1.2
-  buttonsSlideDuration: 1.5
-  buttonsDelay: 0.5
+  logoSlideDuration: 0.7
+  buttonsSlideDuration: 7
+  buttonsDelay: 0.2
   moonMoveDuration: 2
   forestSlideDuration: 2
+  pauseBehindForest: 0
   nextSceneName: CharacterSelect
+  entryForestDuration: 2
+  entryMoonDuration: 2
+  entryElementsDuration: 0.5
+  entryElementsDelay: 0.08
+  moonCenterPos: {x: 0, y: 236}
+  forestCoverPos: {x: 0, y: 160}
 --- !u!4 &1096651595
 Transform:
   m_ObjectHideFlags: 0
