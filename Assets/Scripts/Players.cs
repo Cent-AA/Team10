@@ -32,11 +32,13 @@ public class PlayerInputManage : MonoBehaviour
                 var player =PlayerInput.Instantiate(playerPrefab,controlScheme: "Gamepad",pairWithDevice:gamePad);
                 pAmount++;
                 usedGamepads.Add(gamePad);
+                Registry.Register(player.transform);
                 }else if (pAmount ==1)
                 {
                     var player =PlayerInput.Instantiate(playerPrefab2,controlScheme: "Gamepad",pairWithDevice:gamePad);
                     pAmount++;
                     usedGamepads.Add(gamePad);
+                    Registry.Register(player.transform);
                 }
             }
         }
@@ -46,6 +48,7 @@ public class PlayerInputManage : MonoBehaviour
         if(Keyboard.current ==null) return;
         if(!wasdjoined && Keyboard.current.spaceKey.wasPressedThisFrame && pAmount < 2)
         {
+            Debug.Log("pressed");
             if(pAmount ==0)
             {
             var player =PlayerInput.Instantiate(playerPrefab,controlScheme: "Keyboard1",
@@ -56,6 +59,10 @@ public class PlayerInputManage : MonoBehaviour
                 player.transform.position =spawnPoints[0].position;
             }
             wasdjoined=true;
+            Debug.Log("Spawn start");
+
+            Registry.Register(player.transform);
+            Debug.Log("Spawn finished");
             }
             else if(pAmount ==1)
             {
@@ -67,6 +74,7 @@ public class PlayerInputManage : MonoBehaviour
                 player.transform.position =spawnPoints[0].position;
             }
             wasdjoined=true;
+            Registry.Register(player.transform);
             }
         }
 
@@ -82,6 +90,7 @@ public class PlayerInputManage : MonoBehaviour
                 player.transform.position =spawnPoints[0].position;
             }
             arrowsjoined=true;
+            Registry.Register(player.transform);
             }
             else if(pAmount ==1)
             {
@@ -93,8 +102,10 @@ public class PlayerInputManage : MonoBehaviour
                 player.transform.position =spawnPoints[0].position;
             }
             arrowsjoined=true;
+            Registry.Register(player.transform);
             }
         }
     }
+
 }
 

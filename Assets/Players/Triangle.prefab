@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 4579558069683865044}
   - component: {fileID: 7306604810203339148}
   - component: {fileID: 7426696622255188856}
+  - component: {fileID: -6873554504518595962}
   m_Layer: 0
   m_Name: Triangle
   m_TagString: Player
@@ -151,6 +152,10 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: b3606dd0-49cf-4b5e-a1cd-158d9bdc2dfd
     m_ActionName: 'New action map/Move[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d,/Keyboard/upArrow,/Keyboard/downArrow,/Keyboard/leftArrow,/Keyboard/rightArrow]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 8b1936a4-3f20-4b64-aa38-1db0d5c4626b
+    m_ActionName: 'New action map/TestCard[/Keyboard/o]'
   m_NeverAutoSwitchControlSchemes: 1
   m_DefaultControlScheme: 
   m_DefaultActionMap: New action map
@@ -196,3 +201,15 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-6873554504518595962
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5310874838601147033}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 006ee8717880eab43af67dddc2e90a96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Registry

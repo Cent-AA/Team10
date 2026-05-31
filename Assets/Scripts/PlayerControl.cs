@@ -12,6 +12,7 @@ public class PlayerControl : MonoBehaviour
     {
         moveInput =context.ReadValue<Vector2>();
     }
+
     void Awake()
     {
         controller = GetComponent<CharacterController>();
@@ -25,5 +26,6 @@ public class PlayerControl : MonoBehaviour
     {
         Vector2 move = new Vector2(moveInput.x,moveInput.y);
         controller.Move(move * speed * Time.deltaTime);
+        //Debug.Log(Registry.Players.Count);
     }
 }
