@@ -150,6 +150,10 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: b3606dd0-49cf-4b5e-a1cd-158d9bdc2dfd
     m_ActionName: 'New action map/Move[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d,/Keyboard/upArrow,/Keyboard/downArrow,/Keyboard/leftArrow,/Keyboard/rightArrow]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 8b1936a4-3f20-4b64-aa38-1db0d5c4626b
+    m_ActionName: 'New action map/TestCard[/Keyboard/o]'
   m_NeverAutoSwitchControlSchemes: 1
   m_DefaultControlScheme: 
   m_DefaultActionMap: New action map
