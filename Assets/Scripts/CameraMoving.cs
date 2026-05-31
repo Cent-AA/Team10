@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-public class Camera : MonoBehaviour
+public class CameraMoving : MonoBehaviour
 {
     private Camera Cam;
     public Transform player1, player2;
@@ -13,6 +13,7 @@ public class Camera : MonoBehaviour
     void Start()
     {
     Cam= GetComponent<Camera>();
+     GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
     //Vector3 cameraPos = transform.position;
     }
     void SetCameraPos()
@@ -34,9 +35,11 @@ public class Camera : MonoBehaviour
 		//multiplying by 0.5, because the ortographicSize is actually half the height
         //Debug.Log(player1.position.x);
         //Debug.Log(player1.name);
-		float width = Mathf.Abs(player1.position.x - player2.position.x) * 0.5f;
-		float height = Mathf.Abs(player1.position.y - player2.position.y) * 0.5f;
-        Debug.Log(player1.position);
+		float width = +0.8f + Mathf.Abs(player1.position.x - player2.position.x) * 0.5f;
+		float height = +1.2f + Mathf.Abs(player1.position.y - player2.position.y) * 0.5f;
+        //Debug.Log(player1.position);
+        //Debug.Log(width);
+        //Debug.Log(height);
 		//computing the size
 		float camSizeX = Mathf.Max(width, minSizeX);
 		//camera.orthographicSize = Mathf.Max(height,
@@ -49,13 +52,13 @@ public class Camera : MonoBehaviour
     void Update()
     {
         GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
-
+        //Debug.Log(players.Length);
         if (players.Length >= 2)
         {
             player1 = players[0].transform;
             player2 = players[1].transform;
-                SetCameraPos();
-    SetCameraSize();
+            SetCameraPos();
+            SetCameraSize();
         }
             if (player1 == null || player2 == null)
         {
