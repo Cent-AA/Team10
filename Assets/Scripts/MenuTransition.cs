@@ -46,7 +46,7 @@ public class MenuTransition : MonoBehaviour
         }
     }
 
-    // === ВХОДНАЯ АНИМАЦИЯ (возврат из CharacterSelect) ===
+    // === ВХОДНАЯ АНИМАЦИЯ — всё одновременно ===
     IEnumerator PlayEntryAnimation()
     {
         Vector2 logoTarget = logo.anchoredPosition;
@@ -62,37 +62,35 @@ public class MenuTransition : MonoBehaviour
         Vector2 moonOriginal = moon.anchoredPosition;
         moon.anchoredPosition = moonCenterPos;
         forestOverlay.anchoredPosition = forestCoverPos;
+        Vector2 forestOffscreen = new Vector2(2500f, forestCoverPos.y);
 
         float elapsed = 0f;
-        Vector2 forestOffscreen = new Vector2(2500f, forestCoverPos.y);
-        float phase1Duration = Mathf.Max(entryForestDuration, entryMoonDuration);
+        float totalDuration = Mathf.Max(
+            entryForestDuration,
+            entryMoonDuration,
+            entryElementsDuration + buttons.Length * entryElementsDelay
+        );
 
-        while (elapsed < phase1Duration)
+        while (elapsed < totalDuration)
         {
             elapsed += Time.deltaTime;
 
+            // Лес уезжает
             float forestT = EaseInOutSine(Mathf.Clamp01(elapsed / entryForestDuration));
             forestOverlay.anchoredPosition = Vector2.Lerp(forestCoverPos, forestOffscreen, forestT);
 
+            // Луна возвращается
             float moonT = EaseInOutSine(Mathf.Clamp01(elapsed / entryMoonDuration));
             moon.anchoredPosition = Vector2.Lerp(moonCenterPos, moonOriginal, moonT);
 
-            yield return null;
-        }
-
-        elapsed = 0f;
-        float phase2Duration = entryElementsDuration + buttons.Length * entryElementsDelay + 0.5f;
-
-        while (elapsed < phase2Duration)
-        {
-            elapsed += Time.deltaTime;
-
+            // Логотип заезжает
             float logoT = EaseOutCubic(Mathf.Clamp01(elapsed / entryElementsDuration));
             logo.anchoredPosition = Vector2.Lerp(
                 new Vector2(logoTarget.x - 2000f, logoTarget.y),
                 logoTarget, logoT
             );
 
+            // Кнопки каскадно
             for (int i = 0; i < buttons.Length; i++)
             {
                 float delay = entryElementsDelay + i * entryElementsDelay;
@@ -161,7 +159,6 @@ public class MenuTransition : MonoBehaviour
                 }
             }
 
-            // Луна и лес: разгон → замедление → плавная остановка
             float moonT = EaseInOutSine(Mathf.Clamp01(elapsed / moonMoveDuration));
             moon.anchoredPosition = Vector2.Lerp(moonStart, moonCenterPos, moonT);
 

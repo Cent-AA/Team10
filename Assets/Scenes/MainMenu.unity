@@ -515,7 +515,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 2731.7, y: 161}
-  m_SizeDelta: {x: 3464.735, y: 1785.295}
+  m_SizeDelta: {x: 3119.228, y: 1820.116}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &639115853
 MonoBehaviour:
@@ -1131,7 +1131,7 @@ MonoBehaviour:
   moon: {fileID: 191897670}
   forestOverlay: {fileID: 639115852}
   logoSlideDuration: 0.7
-  buttonsSlideDuration: 7
+  buttonsSlideDuration: 0.7
   buttonsDelay: 0.2
   moonMoveDuration: 2
   forestSlideDuration: 2
@@ -1139,7 +1139,7 @@ MonoBehaviour:
   nextSceneName: CharacterSelect
   entryForestDuration: 2
   entryMoonDuration: 2
-  entryElementsDuration: 0.5
+  entryElementsDuration: 0.3
   entryElementsDelay: 0.08
   moonCenterPos: {x: 0, y: 236}
   forestCoverPos: {x: 0, y: 160}
