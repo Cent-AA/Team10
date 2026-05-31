@@ -547,6 +547,15 @@ MonoBehaviour:
   forestSlideDuration: 2
   moonMoveDuration: 1.5
   panelFadeDuration: 1
+  exitPanelFadeDuration: 0
+  exitMoonDuration: 2
+  exitForestDuration: 2
+  pauseBehindForest: 0
+  menuSceneName: MainMenu
+  forestStartPos: {x: 0, y: 160}
+  forestEndPos: {x: -2700, y: 0}
+  moonStartPos: {x: 0, y: 236}
+  moonEndPos: {x: -600, y: 236}
 --- !u!4 &753744262
 Transform:
   m_ObjectHideFlags: 0
@@ -752,7 +761,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -719, y: -465}
+  m_AnchoredPosition: {x: -602, y: -401}
   m_SizeDelta: {x: 411.147, y: 102.262}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1366056649
@@ -798,7 +807,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1366056650}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 753744261}
+        m_TargetAssemblyTypeName: CharacterSelectTransition, Assembly-CSharp
+        m_MethodName: ExitToMenu
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1366056650
 MonoBehaviour:
   m_ObjectHideFlags: 0

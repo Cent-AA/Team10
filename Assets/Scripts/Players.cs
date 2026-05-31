@@ -25,7 +25,7 @@ public class PlayerInputManage : MonoBehaviour
         foreach (var gamePad in Gamepad.all)
         {
             if (usedGamepads.Contains(gamePad)) continue;
-            if(gamePad.buttonSouth.wasPressedThisFrame)
+            if (Gamepad.current.rightTrigger.wasPressedThisFrame)
             {
                 if(pAmount ==0)
                 {

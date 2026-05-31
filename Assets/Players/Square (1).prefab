@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 4324739528404049881}
   - component: {fileID: 746122811424483858}
   - component: {fileID: -7823587031039847719}
-  - component: {fileID: 628721053068352357}
+  - component: {fileID: -4335525399897810312}
   m_Layer: 0
   m_Name: Square (1)
   m_TagString: Player
@@ -155,6 +155,10 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 8b1936a4-3f20-4b64-aa38-1db0d5c4626b
     m_ActionName: 'New action map/TestCard[/Keyboard/o]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 3899c979-beda-4aa7-b1e5-ed838fbaf961
+    m_ActionName: 'New action map/Sprint[/DualShock4GamepadHID/buttonSouth,/DualShock4GamepadHID1/buttonSouth]'
   m_NeverAutoSwitchControlSchemes: 1
   m_DefaultControlScheme: 
   m_DefaultActionMap: New action map
@@ -185,7 +189,7 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &628721053068352357
+--- !u!114 &-4335525399897810312
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -194,6 +198,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2265437305769598174}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 006ee8717880eab43af67dddc2e90a96, type: 3}
+  m_Script: {fileID: 11500000, guid: 95afe4475d877440fad9d10f2bb26976, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Registry
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSprint
+  sprintMultiplier: 1.8
