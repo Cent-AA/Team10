@@ -1123,7 +1123,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuTransition
   logo: {fileID: 1099191095}
-  buttons: []
+  buttons:
+  - {fileID: 516116588}
+  - {fileID: 721160743}
+  - {fileID: 1091563772}
+  - {fileID: 1366056648}
   moon: {fileID: 191897670}
   forestOverlay: {fileID: 639115852}
   logoSlideDuration: 0.7
