@@ -1,22 +1,40 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class CharacterSelectTransition : MonoBehaviour
 {
     [Header("Элементы сцены")]
-    public RectTransform forestOverlay;   // Лес (закрывает экран при старте)
-    public RectTransform moon;            // Луна (в центре при старте)
-    public RectTransform characterPanel;  // Панель выбора персонажей
+    public RectTransform forestOverlay;
+    public RectTransform moon;
+    public RectTransform characterPanel;
 
-    [Header("Настройки")]
+    [Header("Настройки входа")]
     public float forestSlideDuration = 2f;
-    public float moonMoveDuration = 2f;    // Одновременно с лесом
+    public float moonMoveDuration = 2f;
     public float panelFadeDuration = 1f;
 
+    [Header("Настройки выхода")]
+    public float exitPanelFadeDuration = 0.5f;
+    public float exitMoonDuration = 2f;
+    public float exitForestDuration = 2f;
+    public float pauseBehindForest = 0.5f;
+    public string menuSceneName = "MainMenu";
+
+    [Header("Позиции")]
+    public Vector2 forestStartPos = new Vector2(0, 160);
+    public Vector2 forestEndPos = new Vector2(-2700, 0);
+    public Vector2 moonStartPos = new Vector2(0, 236);
+    public Vector2 moonEndPos = new Vector2(-600, 236);
+
     private CanvasGroup panelCanvasGroup;
+    private bool isTransitioning = false;
 
     void Start()
     {
+        forestOverlay.anchoredPosition = forestStartPos;
+        moon.anchoredPosition = moonStartPos;
+
         if (characterPanel != null)
         {
             panelCanvasGroup = characterPanel.GetComponent<CanvasGroup>();
@@ -28,42 +46,84 @@ public class CharacterSelectTransition : MonoBehaviour
         StartCoroutine(PlayEntryAnimation());
     }
 
+    // === ВХОД: разгон → замедление → остановка ===
     IEnumerator PlayEntryAnimation()
     {
-        Vector2 forestStart = new Vector2(0, 160);
-        Vector2 forestEnd = new Vector2(-2700f, 0);
-
-        Vector2 moonStart = moon.anchoredPosition;          // Центр
-        Vector2 moonEnd = new Vector2(-600f, moonStart.y);  // Влево
-
         float elapsed = 0f;
         float phase1Duration = Mathf.Max(forestSlideDuration, moonMoveDuration);
 
-        // === Лес уезжает влево + луна влево (одновременно) ===
         while (elapsed < phase1Duration)
         {
             elapsed += Time.deltaTime;
 
-            float forestT = EaseInOutCubic(Mathf.Clamp01(elapsed / forestSlideDuration));
-            forestOverlay.anchoredPosition = Vector2.Lerp(forestStart, forestEnd, forestT);
+            float forestT = EaseInOutSine(Mathf.Clamp01(elapsed / forestSlideDuration));
+            forestOverlay.anchoredPosition = Vector2.Lerp(forestStartPos, forestEndPos, forestT);
 
             float moonT = EaseInOutSine(Mathf.Clamp01(elapsed / moonMoveDuration));
-            moon.anchoredPosition = Vector2.Lerp(moonStart, moonEnd, moonT);
+            moon.anchoredPosition = Vector2.Lerp(moonStartPos, moonEndPos, moonT);
 
             yield return null;
         }
 
-        // === Панель персонажей появляется ===
-        elapsed = 0f;
-        while (elapsed < panelFadeDuration)
+        if (panelCanvasGroup != null)
         {
-            elapsed += Time.deltaTime;
-            panelCanvasGroup.alpha = Mathf.Clamp01(elapsed / panelFadeDuration);
-            yield return null;
+            elapsed = 0f;
+            while (elapsed < panelFadeDuration)
+            {
+                elapsed += Time.deltaTime;
+                panelCanvasGroup.alpha = Mathf.Clamp01(elapsed / panelFadeDuration);
+                yield return null;
+            }
+            panelCanvasGroup.alpha = 1f;
         }
-        panelCanvasGroup.alpha = 1f;
     }
 
-    float EaseInOutCubic(float t) { return t < 0.5f ? 4f * t * t * t : 1f - Mathf.Pow(-2f * t + 2f, 3f) / 2f; }
+    // === ВЫХОД: разгон → замедление → остановка → пауза → переход ===
+    public void ExitToMenu()
+    {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        StartCoroutine(PlayExitAnimation());
+    }
+
+    IEnumerator PlayExitAnimation()
+    {
+        if (panelCanvasGroup != null)
+        {
+            float elapsed = 0f;
+            float startAlpha = panelCanvasGroup.alpha;
+            while (elapsed < exitPanelFadeDuration)
+            {
+                elapsed += Time.deltaTime;
+                panelCanvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, elapsed / exitPanelFadeDuration);
+                yield return null;
+            }
+            panelCanvasGroup.alpha = 0f;
+        }
+
+        Vector2 moonCurrent = moon.anchoredPosition;
+        Vector2 forestCurrent = forestOverlay.anchoredPosition;
+
+        float elapsed2 = 0f;
+        float phase2Duration = Mathf.Max(exitMoonDuration, exitForestDuration);
+
+        while (elapsed2 < phase2Duration)
+        {
+            elapsed2 += Time.deltaTime;
+
+            float moonT = EaseInOutSine(Mathf.Clamp01(elapsed2 / exitMoonDuration));
+            moon.anchoredPosition = Vector2.Lerp(moonCurrent, moonStartPos, moonT);
+
+            float forestT = EaseInOutSine(Mathf.Clamp01(elapsed2 / exitForestDuration));
+            forestOverlay.anchoredPosition = Vector2.Lerp(forestCurrent, forestStartPos, forestT);
+
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(pauseBehindForest);
+        MenuTransition.SetEntryAnimation();
+        SceneManager.LoadScene(menuSceneName);
+    }
+
     float EaseInOutSine(float t) { return -(Mathf.Cos(Mathf.PI * t) - 1f) / 2f; }
 }
