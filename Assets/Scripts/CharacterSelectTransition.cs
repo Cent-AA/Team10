@@ -30,8 +30,8 @@ public class CharacterSelectTransition : MonoBehaviour
 
     IEnumerator PlayEntryAnimation()
     {
-        Vector2 forestStart = new Vector2(0, 0);
-        Vector2 forestEnd = new Vector2(-2500f, 0);
+        Vector2 forestStart = new Vector2(0, 160);
+        Vector2 forestEnd = new Vector2(-2700f, 0);
 
         Vector2 moonStart = moon.anchoredPosition;          // Центр
         Vector2 moonEnd = new Vector2(-600f, moonStart.y);  // Влево
