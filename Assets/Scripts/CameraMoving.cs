@@ -35,8 +35,8 @@ public class CameraMoving : MonoBehaviour
 		//multiplying by 0.5, because the ortographicSize is actually half the height
         //Debug.Log(player1.position.x);
         //Debug.Log(player1.name);
-		float width = +0.8f + Mathf.Abs(player1.position.x - player2.position.x) * 0.5f;
-		float height = +1.2f + Mathf.Abs(player1.position.y - player2.position.y) * 0.5f;
+		float width = +3f + Mathf.Abs(player1.position.x - player2.position.x) * 0.5f;
+		float height = +3f + Mathf.Abs(player1.position.y - player2.position.y) * 0.5f;
         //Debug.Log(player1.position);
         //Debug.Log(width);
         //Debug.Log(height);
