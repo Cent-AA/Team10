@@ -6,26 +6,26 @@ public class CharacterSelector : MonoBehaviour
     [Header("Карты персонажей")]
     public RectTransform[] characterCards;
 
-    [Header("Игрок 1 — элементы стрелки")]
-    public RectTransform p1Arrow;        // Стрелка (шеврон)
-    public RectTransform p1Letter;       // Буква P
-    public RectTransform p1Number;       // Цифра 1
+    [Header("Игрок 1")]
+    public RectTransform p1Arrow;
+    public RectTransform p1Letter;
+    public RectTransform p1Number;
 
-    [Header("Игрок 2 — элементы стрелки")]
-    public RectTransform p2Arrow;        // Стрелка (шеврон)
-    public RectTransform p2Letter;       // Буква P
-    public RectTransform p2Number;       // Цифра 2
+    [Header("Игрок 2")]
+    public RectTransform p2Arrow;
+    public RectTransform p2Letter;
+    public RectTransform p2Number;
 
-    [Header("Парение П и цифры")]
-    public float floatAmplitude = 15f;   // Высота парения (пикселей)
-    public float floatSpeed = 2f;        // Скорость парения
-    public float stopSmooth = 5f;        // Плавность остановки
+    [Header("Парение")]
+    public float floatAmplitude = 15f;
+    public float floatSpeed = 2f;
+    public float stopSmooth = 5f;
 
-    [Header("Настройки выбора")]
+    [Header("Настройки")]
     public float arrowMoveSpeed = 10f;
     public float arrowOffsetY = 80f;
-    public float letterOffsetY = 50f;    // Отступ П и цифры над стрелкой
-    public float numberOffsetX = 25f;    // Расстояние цифры от П
+    public float letterOffsetY = 50f;
+    public float numberOffsetX = 25f;
     public float selectedScale = 1.15f;
     public float scaleSpeed = 8f;
 
@@ -38,12 +38,22 @@ public class CharacterSelector : MonoBehaviour
     private int p2Selection = 1;
     private bool p1Confirmed = false;
     private bool p2Confirmed = false;
-    private float p1FloatAmount = 1f;    // 1 = парит, 0 = остановился
+    private float p1FloatAmount = 1f;
     private float p2FloatAmount = 1f;
+    private bool active = false;
+
+    // Вызывается после завершения фазы подключения
+    public void Activate()
+    {
+        active = true;
+    }
 
     void Update()
     {
-        HandleInput();
+        if (!active) return;
+
+        HandleP1Input();
+        HandleP2Input();
         UpdateArrows();
         UpdateFloating();
         UpdateCardVisuals();
@@ -52,77 +62,137 @@ public class CharacterSelector : MonoBehaviour
             OnBothConfirmed();
     }
 
-    void HandleInput()
+    void HandleP1Input()
     {
-        // Игрок 1: A/D + W
-        if (!p1Confirmed)
+        if (p1Confirmed) return;
+
+        var type = InputJoinManager.player1Input;
+        int pad = InputJoinManager.player1GamepadIndex;
+
+        bool left = false, right = false, confirm = false;
+
+        switch (type)
         {
-            if (Input.GetKeyDown(KeyCode.A))
-                p1Selection = Mathf.Max(0, p1Selection - 1);
-            if (Input.GetKeyDown(KeyCode.D))
-                p1Selection = Mathf.Min(characterCards.Length - 1, p1Selection + 1);
-            if (Input.GetKeyDown(KeyCode.W))
-                p1Confirmed = true;
+            case InputJoinManager.InputType.KeyboardWASD:
+                left = Input.GetKeyDown(KeyCode.A);
+                right = Input.GetKeyDown(KeyCode.D);
+                confirm = Input.GetKeyDown(KeyCode.W);
+                break;
+            case InputJoinManager.InputType.KeyboardArrows:
+                left = Input.GetKeyDown(KeyCode.LeftArrow);
+                right = Input.GetKeyDown(KeyCode.RightArrow);
+                confirm = Input.GetKeyDown(KeyCode.UpArrow);
+                break;
+            case InputJoinManager.InputType.Gamepad:
+                left = GetGamepadLeft(pad);
+                right = GetGamepadRight(pad);
+                confirm = GetGamepadConfirm(pad);
+                break;
         }
 
-        // Игрок 2: Стрелки + Up
-        if (!p2Confirmed)
+        if (left) p1Selection = Mathf.Max(0, p1Selection - 1);
+        if (right) p1Selection = Mathf.Min(characterCards.Length - 1, p1Selection + 1);
+        if (confirm) p1Confirmed = true;
+    }
+
+    void HandleP2Input()
+    {
+        if (p2Confirmed) return;
+
+        var type = InputJoinManager.player2Input;
+        int pad = InputJoinManager.player2GamepadIndex;
+
+        bool left = false, right = false, confirm = false;
+
+        switch (type)
         {
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
-                p2Selection = Mathf.Max(0, p2Selection - 1);
-            if (Input.GetKeyDown(KeyCode.RightArrow))
-                p2Selection = Mathf.Min(characterCards.Length - 1, p2Selection + 1);
-            if (Input.GetKeyDown(KeyCode.UpArrow))
-                p2Confirmed = true;
+            case InputJoinManager.InputType.KeyboardWASD:
+                left = Input.GetKeyDown(KeyCode.A);
+                right = Input.GetKeyDown(KeyCode.D);
+                confirm = Input.GetKeyDown(KeyCode.W);
+                break;
+            case InputJoinManager.InputType.KeyboardArrows:
+                left = Input.GetKeyDown(KeyCode.LeftArrow);
+                right = Input.GetKeyDown(KeyCode.RightArrow);
+                confirm = Input.GetKeyDown(KeyCode.UpArrow);
+                break;
+            case InputJoinManager.InputType.Gamepad:
+                left = GetGamepadLeft(pad);
+                right = GetGamepadRight(pad);
+                confirm = GetGamepadConfirm(pad);
+                break;
         }
+
+        if (left) p2Selection = Mathf.Max(0, p2Selection - 1);
+        if (right) p2Selection = Mathf.Min(characterCards.Length - 1, p2Selection + 1);
+        if (confirm) p2Confirmed = true;
+    }
+
+    // Геймпад: D-Pad или левый стик
+    bool GetGamepadLeft(int pad)
+    {
+        string h = "Joystick" + pad + "Axis1";  // Можно заменить на стандартные оси
+        KeyCode kc = (KeyCode)System.Enum.Parse(typeof(KeyCode), "Joystick" + pad + "Button13"); // D-Pad Left
+        return Input.GetKeyDown(kc) || Input.GetAxis("Horizontal") < -0.5f && IsGamepadAxis(pad);
+    }
+
+    bool GetGamepadRight(int pad)
+    {
+        KeyCode kc = (KeyCode)System.Enum.Parse(typeof(KeyCode), "Joystick" + pad + "Button14"); // D-Pad Right
+        return Input.GetKeyDown(kc) || Input.GetAxis("Horizontal") > 0.5f && IsGamepadAxis(pad);
+    }
+
+    bool GetGamepadConfirm(int pad)
+    {
+        // Кнопка A / Cross (Button 0)
+        KeyCode kc = (KeyCode)System.Enum.Parse(typeof(KeyCode), "Joystick" + pad + "Button0");
+        return Input.GetKeyDown(kc);
+    }
+
+    bool IsGamepadAxis(int pad)
+    {
+        // Упрощённая проверка — для точности нужен Input System
+        return true;
     }
 
     void UpdateArrows()
     {
-        // Стрелки плавно двигаются к выбранной карте
-        MoveToCard(p1Arrow, p1Selection, 0f);
-        MoveToCard(p2Arrow, p2Selection, 0f);
+        MoveToCard(p1Arrow, p1Selection);
+        MoveToCard(p2Arrow, p2Selection);
     }
 
-    void MoveToCard(RectTransform element, int selection, float extraOffsetY)
+    void MoveToCard(RectTransform element, int selection)
     {
         if (element == null || selection >= characterCards.Length) return;
 
         Vector2 cardPos = characterCards[selection].anchoredPosition;
         float cardHeight = characterCards[selection].sizeDelta.y;
-        Vector2 target = new Vector2(cardPos.x, cardPos.y + cardHeight / 2f + arrowOffsetY + extraOffsetY);
+        Vector2 target = new Vector2(cardPos.x, cardPos.y + cardHeight / 2f + arrowOffsetY);
 
         element.anchoredPosition = Vector2.Lerp(element.anchoredPosition, target, Time.deltaTime * arrowMoveSpeed);
     }
 
     void UpdateFloating()
     {
-        // Плавно уменьшаем амплитуду при подтверждении
         if (p1Confirmed)
             p1FloatAmount = Mathf.Lerp(p1FloatAmount, 0f, Time.deltaTime * stopSmooth);
         if (p2Confirmed)
             p2FloatAmount = Mathf.Lerp(p2FloatAmount, 0f, Time.deltaTime * stopSmooth);
 
-        // П и цифра игрока 1
         FloatElements(p1Letter, p1Number, p1Arrow, p1FloatAmount, 0f);
-
-        // П и цифра игрока 2
         FloatElements(p2Letter, p2Number, p2Arrow, p2FloatAmount, Mathf.PI);
     }
 
-    void FloatElements(RectTransform letter, RectTransform number, RectTransform arrow, float amount, float phaseOffset)
+    void FloatElements(RectTransform letter, RectTransform number, RectTransform arrow, float amount, float phase)
     {
         if (arrow == null) return;
 
-        // Парение вверх-вниз
-        float floatY = Mathf.Sin(Time.time * floatSpeed + phaseOffset) * floatAmplitude * amount;
-
+        float floatY = Mathf.Sin(Time.time * floatSpeed + phase) * floatAmplitude * amount;
         Vector2 arrowPos = arrow.anchoredPosition;
         Vector2 basePos = new Vector2(arrowPos.x, arrowPos.y + letterOffsetY);
 
         if (letter != null)
             letter.anchoredPosition = new Vector2(basePos.x - numberOffsetX, basePos.y + floatY);
-
         if (number != null)
             number.anchoredPosition = new Vector2(basePos.x + numberOffsetX, basePos.y + floatY);
     }
@@ -159,7 +229,7 @@ public class CharacterSelector : MonoBehaviour
 
     void OnBothConfirmed()
     {
-        Debug.Log("P1 выбрал: " + p1Selection);
-        Debug.Log("P2 выбрал: " + p2Selection);
+        Debug.Log("P1 выбрал: " + p1Selection + " (" + InputJoinManager.player1Input + ")");
+        Debug.Log("P2 выбрал: " + p2Selection + " (" + InputJoinManager.player2Input + ")");
     }
 }
