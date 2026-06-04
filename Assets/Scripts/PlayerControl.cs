@@ -3,14 +3,40 @@ using UnityEngine.InputSystem;
 public class PlayerControl : MonoBehaviour
 {
     public float movespeed;
+    public float damage;
     [SerializeField] public float speed=5f;
     private Rigidbody2D rb;
     private Vector2 moveInput;
     public bool isMoving;
+    private RaycastHit2D[] hits;
+    [SerializeField] private float attackRange;
+    [SerializeField] private Transform attackTransform;
+    [SerializeField] private LayerMask attackableLayer;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-        public void Move(InputAction.CallbackContext context)
+    public void Move(InputAction.CallbackContext context)
     {
         moveInput =context.ReadValue<Vector2>();
+    }
+    // tihs might be better in a separate script
+    public void Attack(InputAction.CallbackContext context)
+    {
+       // Debug.Log("Attack pressed");
+        if (!context.performed) return;
+        //Debug.Log("Attack confird");
+        hits =Physics2D.CircleCastAll(attackTransform.position,attackRange,transform.right, 0f,attackableLayer);
+        foreach (RaycastHit2D hit in hits)
+        {
+            //Debug.Log("hit");
+            Health health =hit.collider.GetComponent<Health>();
+            if(health != null)
+            {
+                health.TakeDamage(damage);
+            }
+        }
+    }
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.DrawWireSphere(attackTransform.position,attackRange);
     }
 
     void Awake()

@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4588535396040957972
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2027143496480900741}
+  m_Layer: 0
+  m_Name: Attack
+  m_TagString: Untagged
+  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2027143496480900741
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4588535396040957972}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6493758391193343142}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5310874838601147033
 GameObject:
   m_ObjectHideFlags: 0
@@ -12,7 +43,6 @@ GameObject:
   - component: {fileID: 2104067868432939713}
   - component: {fileID: -3402750166499603991}
   - component: {fileID: 4579558069683865044}
-  - component: {fileID: 7306604810203339148}
   - component: {fileID: 5521773635222620568}
   - component: {fileID: 7632892913120184794}
   - component: {fileID: 5408960243685443932}
@@ -36,7 +66,8 @@ Transform:
   m_LocalPosition: {x: -4.705494, y: -1.26, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 2027143496480900741}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &2104067868432939713
@@ -111,8 +142,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerControl
   movespeed: 0
+  damage: 5
   speed: 5
   isMoving: 0
+  attackRange: 1.1
+  attackTransform: {fileID: 2027143496480900741}
+  attackableLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!114 &4579558069683865044
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -140,7 +177,7 @@ MonoBehaviour:
   m_ActionEvents:
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7306604810203339148}
+      - m_Target: {fileID: -3402750166499603991}
         m_TargetAssemblyTypeName: PlayerControl, Assembly-CSharp
         m_MethodName: Move
         m_Mode: 0
@@ -156,32 +193,29 @@ MonoBehaviour:
     m_ActionName: 'New action map/Move[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d,/Keyboard/upArrow,/Keyboard/downArrow,/Keyboard/leftArrow,/Keyboard/rightArrow]'
   - m_PersistentCalls:
       m_Calls: []
-    m_ActionId: 8b1936a4-3f20-4b64-aa38-1db0d5c4626b
-    m_ActionName: 'New action map/TestCard[/Keyboard/o]'
-  - m_PersistentCalls:
-      m_Calls: []
     m_ActionId: 3899c979-beda-4aa7-b1e5-ed838fbaf961
     m_ActionName: 'New action map/Sprint[/DualShock4GamepadHID/buttonSouth,/DualShock4GamepadHID1/buttonSouth]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: -3402750166499603991}
+        m_TargetAssemblyTypeName: PlayerControl, Assembly-CSharp
+        m_MethodName: Attack
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 2a3d397a-c4bd-4b91-82f5-c9190b8caed5
+    m_ActionName: 'New action map/Attack[/Keyboard/e,/Keyboard/rightShift]'
   m_NeverAutoSwitchControlSchemes: 1
   m_DefaultControlScheme: 
   m_DefaultActionMap: New action map
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!114 &7306604810203339148
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5310874838601147033}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed0afba58e3d74142995b90fd82b5553, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerControl
-  movespeed: 0
-  speed: 5
-  isMoving: 0
 --- !u!114 &5521773635222620568
 MonoBehaviour:
   m_ObjectHideFlags: 0
