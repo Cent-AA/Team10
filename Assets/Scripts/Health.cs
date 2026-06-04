@@ -32,11 +32,15 @@ public class Health : MonoBehaviour
         {
             Registry.Players.Remove(transform);
         }
+        else
+        {
+            Debug.Log("enemy down");
+        }
+        
 
     }
     // Update is called once per frame
     void Update()
     {
-        
     }
 }
