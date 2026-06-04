@@ -4,7 +4,7 @@ public class PlayerControl : MonoBehaviour
 {
     public float movespeed;
     [SerializeField] public float speed=5f;
-    private CharacterController controller;
+    private Rigidbody2D rb;
     private Vector2 moveInput;
     public bool isMoving;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -15,7 +15,7 @@ public class PlayerControl : MonoBehaviour
 
     void Awake()
     {
-        controller = GetComponent<CharacterController>();
+        rb = GetComponent<Rigidbody2D>();
     }
     //void Start()
     //{
@@ -25,7 +25,8 @@ public class PlayerControl : MonoBehaviour
     void Update()
     {
         Vector2 move = new Vector2(moveInput.x,moveInput.y);
-        controller.Move(move * speed * Time.deltaTime);
+        //rb.MovePosition(move * speed * Time.deltaTime);
+        rb.MovePosition(rb.position + moveInput * speed * Time.fixedDeltaTime);
         //Debug.Log(Registry.Players.Count);
     }
 }
