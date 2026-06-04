@@ -41,18 +41,26 @@ public class CameraMoving : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Registry.Players.Count < 2)
+       // GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+        if (Registry.Players.Count == 0)
         {
+            return;
+        }
+                    if (Registry.Players.Count == 1)
+        {
+            Transform p = Registry.Players[0];
+            transform.position = new Vector3(
+                p.position.x,
+                p.position.y,
+                transform.position.z
+            );
+            Cam.orthographicSize = minSizeY;
             return;
         }
         player1 = Registry.Players[0];
         player2 = Registry.Players[1];
             SetCameraPos();
             SetCameraSize();
-            if (player1 == null || player2 == null)
-        {
-            return; 
-        }
     //SetCameraPos();
     //SetCameraSize();
    // }
