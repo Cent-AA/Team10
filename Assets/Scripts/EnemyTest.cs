@@ -5,11 +5,23 @@ public class EnemyTest : MonoBehaviour
 {
     public Transform player1, player2;
     public Transform target;
-
+    [SerializeField] private float damage;
+    [SerializeField] float attackCooldown ;
+    float nextAttackTime;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+    }
+    private void OnTriggerStay2D(Collider2D other)
+    {
+    Health player = other.GetComponent<Health>();
+
+    if (player != null && Time.time >= nextAttackTime)
+    {
+        player.TakeDamage(damage);
+        nextAttackTime = Time.time + attackCooldown;
+    }
     }
 
     // Update is called once per frame
