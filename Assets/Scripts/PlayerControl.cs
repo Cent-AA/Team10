@@ -16,6 +16,7 @@ public class PlayerControl : MonoBehaviour
     [SerializeField] public float attackRange;
     [SerializeField] public float damageAbsorption;
     [SerializeField] public float dodgeChance;
+    [SerializeField] public float luck;
     [SerializeField] private Transform attackTransform;
     [SerializeField] private LayerMask attackableLayer;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -48,7 +49,7 @@ public class PlayerControl : MonoBehaviour
             Health health =hit.collider.GetComponent<Health>();
             if(health != null)
             {
-                health.TakeDamage(damage);
+                health.TakeDamage(damage,luck);
             }
         }
     }

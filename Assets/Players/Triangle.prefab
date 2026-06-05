@@ -146,6 +146,9 @@ MonoBehaviour:
   sprintSpeed: 8
   isMoving: 0
   attackRange: 1.1
+  damageAbsorption: 0
+  dodgeChance: 0
+  luck: 6
   attackTransform: {fileID: 2027143496480900741}
   attackableLayer:
     serializedVersion: 2

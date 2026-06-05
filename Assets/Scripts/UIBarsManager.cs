@@ -125,4 +125,20 @@ public class UIBarsManager : MonoBehaviour
             staminaSlider.value = currentStamina;
         }
     }
+
+    private void Update()
+    {
+        // Проверяем масштаб родительского объекта (игрока)
+        // Если игрок развернут влево (scale.x отрицательный), 
+        // то Canvas мы разворачиваем в противоположную сторону, чтобы компенсировать это!
+        if (transform.parent != null)
+        {
+            Vector3 localScale = transform.localScale;
+            
+            // Устанавливаем X в 1 или -1 в зависимости от того, куда смотрит родитель
+            localScale.x = transform.parent.localScale.x < 0 ? -1f : 1f;
+            
+            transform.localScale = localScale;
+        }
+    }
 }
