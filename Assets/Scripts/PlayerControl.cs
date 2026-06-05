@@ -13,7 +13,9 @@ public class PlayerControl : MonoBehaviour
 
     public bool isMoving;
     private RaycastHit2D[] hits;
-    [SerializeField] private float attackRange;
+    [SerializeField] public float attackRange;
+    [SerializeField] public float damageAbsorption;
+    [SerializeField] public float dodgeChance;
     [SerializeField] private Transform attackTransform;
     [SerializeField] private LayerMask attackableLayer;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -27,12 +29,10 @@ public class PlayerControl : MonoBehaviour
         if (context.performed)
             {
                 isSprinting = true;
-                Debug.Log("Спринт НАЖАТ!"); // <-- Добавляем это
             }
             else if (context.canceled)
             {
                 isSprinting = false;
-                Debug.Log("Спринт ОТПУЩЕН!"); // <-- Добавляем это
             }
     }
     // tihs might be better in a separate script

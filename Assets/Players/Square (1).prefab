@@ -115,6 +115,8 @@ MonoBehaviour:
   sprintSpeed: 8
   isMoving: 0
   attackRange: 1.1
+  damageAbsorption: 0.3
+  dodgeChance: 0.2
   attackTransform: {fileID: 4056757383962106205}
   attackableLayer:
     serializedVersion: 2
@@ -161,7 +163,19 @@ MonoBehaviour:
     m_ActionId: b3606dd0-49cf-4b5e-a1cd-158d9bdc2dfd
     m_ActionName: 'New action map/Move[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d,/Keyboard/upArrow,/Keyboard/downArrow,/Keyboard/leftArrow,/Keyboard/rightArrow]'
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4324739528404049881}
+        m_TargetAssemblyTypeName: PlayerControl, Assembly-CSharp
+        m_MethodName: Sprint
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 3899c979-beda-4aa7-b1e5-ed838fbaf961
     m_ActionName: 'New action map/Sprint[/DualShock4GamepadHID/buttonSouth,/DualShock4GamepadHID1/buttonSouth]'
   - m_PersistentCalls:
@@ -255,7 +269,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
