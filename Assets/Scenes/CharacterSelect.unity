@@ -1188,6 +1188,7 @@ MonoBehaviour:
   exitForestDuration: 2
   pauseBehindForest: 0
   menuSceneName: MainMenu
+  arenaSceneName: TestArena
   forestStartPos: {x: 0, y: 160}
   forestEndPos: {x: -2700, y: 0}
   bushStartPos: {x: 1081, y: -82}
@@ -1244,6 +1245,7 @@ MonoBehaviour:
   p1HighlightColor: {r: 0.3, g: 0.6, b: 1, a: 1}
   p2HighlightColor: {r: 1, g: 0.7, b: 0.2, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
+  transition: {fileID: 753744261}
 --- !u!114 &753744264
 MonoBehaviour:
   m_ObjectHideFlags: 0
