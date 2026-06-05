@@ -1,10 +1,8 @@
-using Mono.Cecil.Cil;
-using NUnit.Framework.Internal;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 
-public class PlayerInputManage : MonoBehaviour
+public class Players : MonoBehaviour
 {
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private GameObject playerPrefab2;
@@ -27,7 +25,7 @@ public class PlayerInputManage : MonoBehaviour
         foreach (var gamePad in Gamepad.all)
         {
             if (usedGamepads.Contains(gamePad)) continue;
-            if (Gamepad.current.rightTrigger.wasPressedThisFrame)
+            if (gamePad.rightTrigger.wasPressedThisFrame)
             {
                 if(pAmount ==0)
                 {

@@ -41,6 +41,7 @@ public class PlayerControl : MonoBehaviour
     {
        // Debug.Log("Attack pressed");
         if (!context.performed) return;
+        if (attackTransform == null) return;
         //Debug.Log("Attack confird");
         hits =Physics2D.CircleCastAll(attackTransform.position,attackRange,Vector2.zero, 0f,attackableLayer);
         foreach (RaycastHit2D hit in hits)
@@ -55,6 +56,7 @@ public class PlayerControl : MonoBehaviour
     }
     private void OnDrawGizmosSelected()
     {
+        if (attackTransform == null) return;
         Gizmos.DrawWireSphere(attackTransform.position,attackRange);
     }
 
@@ -76,15 +78,20 @@ public class PlayerControl : MonoBehaviour
         float currentSpeed;
 
         // 2. Условие бега: зажат Shift, игрок идет И у менеджера Стамина > 0
-        if (isSprinting && isMoving && UIBarsManager.Instance.CanSprint)
+        UIBarsManager barsManager = UIBarsManager.Instance;
+
+        if (isSprinting && isMoving && barsManager != null && barsManager.CanSprint)
         {
             currentSpeed = sprintSpeed;           // Применяем скорость спринта
-            UIBarsManager.Instance.UseStamina();  // Тратим стамину через менеджер
+            barsManager.UseStamina();  // Тратим стамину через менеджер
         }
         else
         {
             currentSpeed = speed;                      // Возвращаем обычную скорость (5f)
-            UIBarsManager.Instance.RegenerateStamina(); // Восстанавливаем стамину
+            if (barsManager != null)
+            {
+                barsManager.RegenerateStamina(); // Восстанавливаем стамину
+            }
         }
 
         // Передвигаем физическое тело игрока с итоговой скоростью

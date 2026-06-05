@@ -1,9 +1,7 @@
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using TMPro;
-using UnityEngine.EventSystems;
 
 public class Cards : MonoBehaviour
 {
@@ -97,7 +95,7 @@ public class Cards : MonoBehaviour
 
     if (who >= 4)
     {
-        who = 0;
+        who = 1;
         lvlup.SetActive(false);
         return;
     }

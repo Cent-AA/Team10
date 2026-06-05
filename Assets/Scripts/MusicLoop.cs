@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class SeamlessMusicLoop : MonoBehaviour
+public class MusicLoop : MonoBehaviour
 {
     [Header("Audio Sources")]
     [SerializeField] private AudioSource introSource; // Сюда перетащим первый Audio Source (с нарастанием)
@@ -9,6 +9,11 @@ public class SeamlessMusicLoop : MonoBehaviour
     void Start()
     {
         // Убедимся, что loopSource НЕ играет сразу сам
+        if (introSource == null || loopSource == null || introSource.clip == null)
+        {
+            return;
+        }
+
         loopSource.Stop();
         loopSource.loop = true;
 

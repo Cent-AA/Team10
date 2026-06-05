@@ -19,29 +19,27 @@ public class Health : MonoBehaviour
         UpdateHealthBar();
     }
 
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, float attackerLuck = 0f)
     {
-        
-        if (gameObject.CompareTag("Player"))
-        {
+        float finalDamage = damage;
 
-            PlayerControl player = GetComponent<PlayerControl>();
+        PlayerControl player = GetPlayerControl();
+
+        if (player != null)
+        {
             float roll =Random.value;
             if(roll < player.dodgeChance){
                 //Debug.Log("dodged");
                 return;
             }
             //Debug.Log("didnt dodge");
-            float findamage = damage* (1f-player.damageAbsorption );
+            finalDamage = damage* (1f-player.damageAbsorption );
             //Debug.Log("took" + findamage);
             //Debug.Log("used to be" + hp);
-            hp =Mathf.Clamp(hp -findamage,0,starthp);
             //Debug.Log("now" + hp);
         }
-        else
-        {
-        hp =Mathf.Clamp(hp -damage ,0,starthp);
-        }
+
+        hp =Mathf.Clamp(hp -finalDamage,0,starthp);
         UpdateHealthBar();
         //hp =Mathf.Clamp(hp -damage ,0,starthp);
         if(hp >0)
@@ -77,14 +75,26 @@ public class Health : MonoBehaviour
         }
     }
 
+    PlayerControl GetPlayerControl()
+    {
+        PlayerControl player = GetComponent<PlayerControl>();
+        if (player == null)
+        {
+            player = GetComponentInParent<PlayerControl>();
+        }
+
+        return player;
+    }
+
     void Die()
     {
          //do something
         //Destroy(gameObject);
-        if (gameObject.CompareTag("Player"))
+        if (GetPlayerControl() != null || gameObject.CompareTag("Player"))
         {
             Destroy(gameObject);
-            Registry.Players.Remove(transform);
+            Registry.Unregister(transform);
+            Registry.Unregister(transform.root);
         }
         else
         {
@@ -93,7 +103,11 @@ public class Health : MonoBehaviour
             if(xp > 49)
             {
                 //FindObjectOfType<Cards>().TestCard();
-                FindAnyObjectByType<Cards>().TestCard();
+                Cards cards = FindAnyObjectByType<Cards>();
+                if (cards != null)
+                {
+                    cards.TestCard();
+                }
             }
             Destroy(gameObject);
             Debug.Log("enemy down");
