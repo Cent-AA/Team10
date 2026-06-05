@@ -1,11 +1,12 @@
 using UnityEngine;
-using UnityEngine.UI; // ОБЯЗАТЕЛЬНО: без этого Unity не увидит слайдеры и тогглы
+using UnityEngine.UI;
 
 public class MainMenuController : MonoBehaviour
 {
     [Header("Панели окон")]
     [SerializeField] private GameObject mainMenuPanel;
     [SerializeField] private GameObject optionsMenuPanel;
+    [SerializeField] private GameObject exitConfirmationPanel; // Поле для окна выхода
 
     [Header("Элементы настроек")]
     [SerializeField] private Slider volumeSlider;
@@ -13,15 +14,11 @@ public class MainMenuController : MonoBehaviour
 
     private void Start()
     {
-        // Исправлено: теперь имя переменной совпадает с объявленным выше
         if (volumeSlider != null)
             volumeSlider.value = AudioListener.volume;
 
         if (muteToggle != null)
-        {
-            // Галочка горит (true), если AudioListener НЕ на паузе
             muteToggle.isOn = !AudioListener.pause; 
-        }
     }
 
     // --- Переключение окон ---
@@ -37,15 +34,32 @@ public class MainMenuController : MonoBehaviour
         mainMenuPanel.SetActive(true);
     }
 
-    // --- Управление звуком ---
+    // --- Окно подтверждения выхода ---
+    public void OpenExitConfirmation()
+    {
+        mainMenuPanel.SetActive(false);
+        exitConfirmationPanel.SetActive(true); // Включаем окно выхода
+    }
 
-    // Изменение громкости всей игры (слайдер автоматически выдает от 0.0 до 1.0)
+    public void CloseExitConfirmation()
+    {
+        exitConfirmationPanel.SetActive(false); // Выключаем окно выхода
+        mainMenuPanel.SetActive(true);
+    }
+
+    // Реальное закрытие игры
+    public void ConfirmExit()
+    {
+        Debug.Log("Игра закрывается... (В билде это закроет приложение)"); 
+        Application.Quit(); 
+    }
+
+    // --- Управление звуком ---
     public void ChangeVolume(float value)
     {
         AudioListener.volume = value;
     }
 
-    // Твоя новая логика: галочка есть — звук играет, галочки нет — тишина
     public void ToggleSound(bool soundOn)
     {
         AudioListener.pause = !soundOn;
