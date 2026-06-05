@@ -7,6 +7,10 @@ public class PlayerControl : MonoBehaviour
     [SerializeField] public float speed=5f;
     private Rigidbody2D rb;
     private Vector2 moveInput;
+
+    [SerializeField] private float sprintSpeed = 8f; // Скорость при спринте
+    private bool isSprinting; // Флаг: бежим мы или нет
+
     public bool isMoving;
     private RaycastHit2D[] hits;
     [SerializeField] private float attackRange;
@@ -16,6 +20,20 @@ public class PlayerControl : MonoBehaviour
     public void Move(InputAction.CallbackContext context)
     {
         moveInput =context.ReadValue<Vector2>();
+    }
+
+    public void Sprint(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+            {
+                isSprinting = true;
+                Debug.Log("Спринт НАЖАТ!"); // <-- Добавляем это
+            }
+            else if (context.canceled)
+            {
+                isSprinting = false;
+                Debug.Log("Спринт ОТПУЩЕН!"); // <-- Добавляем это
+            }
     }
     // tihs might be better in a separate script
     public void Attack(InputAction.CallbackContext context)
@@ -52,7 +70,9 @@ public class PlayerControl : MonoBehaviour
     {
         Vector2 move = new Vector2(moveInput.x,moveInput.y);
         //rb.MovePosition(move * speed * Time.deltaTime);
-        rb.MovePosition(rb.position + moveInput * speed * Time.fixedDeltaTime);
+        // Если isSprinting равен true, используем sprintSpeed, иначе — обычную speed
+        float currentSpeed = isSprinting ? sprintSpeed : speed;
+        rb.MovePosition(rb.position + moveInput * currentSpeed * Time.fixedDeltaTime);
         //Debug.Log(Registry.Players.Count);
     }
 }
