@@ -3,13 +3,22 @@ using UnityEngine;
 public class Health : MonoBehaviour
 {
     [SerializeField] private float starthp;
+    [SerializeField] private BG3PortraitHealthBar portraitHealthBar;
+
     private float hp;
     static float xp;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+
+    void Awake()
     {
         hp = starthp;
     }
+
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
+        UpdateHealthBar();
+    }
+
     public void TakeDamage(float damage)
     {
         
@@ -33,6 +42,7 @@ public class Health : MonoBehaviour
         {
         hp =Mathf.Clamp(hp -damage ,0,starthp);
         }
+        UpdateHealthBar();
         //hp =Mathf.Clamp(hp -damage ,0,starthp);
         if(hp >0)
         {
@@ -46,6 +56,27 @@ public class Health : MonoBehaviour
             Die();
         }
     }
+
+    public void Heal(float amount)
+    {
+        hp = Mathf.Clamp(hp + amount, 0, starthp);
+        UpdateHealthBar();
+    }
+
+    public void SetPortraitHealthBar(BG3PortraitHealthBar newPortraitHealthBar)
+    {
+        portraitHealthBar = newPortraitHealthBar;
+        UpdateHealthBar();
+    }
+
+    void UpdateHealthBar()
+    {
+        if (portraitHealthBar != null)
+        {
+            portraitHealthBar.SetHealth(hp, starthp);
+        }
+    }
+
     void Die()
     {
          //do something

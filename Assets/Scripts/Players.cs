@@ -9,6 +9,8 @@ public class PlayerInputManage : MonoBehaviour
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private GameObject playerPrefab2;
     [SerializeField] private Transform[] spawnPoints;
+    [SerializeField] private BG3PortraitHealthBar[] playerPortraitBars = new BG3PortraitHealthBar[2];
+
     private bool wasdjoined=false;
     private bool arrowsjoined=false;
     public int pAmount=0;
@@ -30,12 +32,14 @@ public class PlayerInputManage : MonoBehaviour
                 if(pAmount ==0)
                 {
                 var player =PlayerInput.Instantiate(playerPrefab,controlScheme: "Gamepad",pairWithDevice:gamePad);
+                AssignPortraitBar(player, 0);
                 pAmount++;
                 usedGamepads.Add(gamePad);
                 Registry.Register(player.transform);
                 }else if (pAmount ==1)
                 {
                     var player =PlayerInput.Instantiate(playerPrefab2,controlScheme: "Gamepad",pairWithDevice:gamePad);
+                    AssignPortraitBar(player, 1);
                     pAmount++;
                     usedGamepads.Add(gamePad);
                     Registry.Register(player.transform);
@@ -53,6 +57,7 @@ public class PlayerInputManage : MonoBehaviour
             {
             var player =PlayerInput.Instantiate(playerPrefab,controlScheme: "Keyboard1",
             pairWithDevice: Keyboard.current);
+            AssignPortraitBar(player, 0);
             pAmount++;
             if (spawnPoints.Length > 0)
             {
@@ -68,6 +73,7 @@ public class PlayerInputManage : MonoBehaviour
             {
             var player =PlayerInput.Instantiate(playerPrefab2,controlScheme: "Keyboard1",
             pairWithDevice: Keyboard.current);
+            AssignPortraitBar(player, 1);
             pAmount++;
             if (spawnPoints.Length > 0)
             {
@@ -84,6 +90,7 @@ public class PlayerInputManage : MonoBehaviour
             {
             var player =PlayerInput.Instantiate(playerPrefab,controlScheme: "Keyboard2",
             pairWithDevice: Keyboard.current);
+            AssignPortraitBar(player, 0);
             pAmount++;
             if (spawnPoints.Length > 0)
             {
@@ -96,6 +103,7 @@ public class PlayerInputManage : MonoBehaviour
             {
             var player =PlayerInput.Instantiate(playerPrefab2,controlScheme: "Keyboard2",
             pairWithDevice: Keyboard.current);
+            AssignPortraitBar(player, 1);
             pAmount++;
             if (spawnPoints.Length > 0)
             {
@@ -104,6 +112,25 @@ public class PlayerInputManage : MonoBehaviour
             arrowsjoined=true;
             Registry.Register(player.transform);
             }
+        }
+    }
+
+    void AssignPortraitBar(PlayerInput player, int playerIndex)
+    {
+        if (player == null || playerIndex < 0 || playerIndex >= playerPortraitBars.Length)
+        {
+            return;
+        }
+
+        Health health = player.GetComponent<Health>();
+        if (health == null)
+        {
+            health = player.GetComponentInChildren<Health>();
+        }
+
+        if (health != null)
+        {
+            health.SetPortraitHealthBar(playerPortraitBars[playerIndex]);
         }
     }
 

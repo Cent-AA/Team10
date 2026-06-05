@@ -390,7 +390,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 611c6ccb69f7fd241b350a3f8810a4a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
-  starthp: 200
+  starthp: 160.9
+  portraitBar: {fileID: 0}
 --- !u!50 &-6144931542565016327
 Rigidbody2D:
   serializedVersion: 5
