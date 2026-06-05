@@ -296,6 +296,7 @@ MonoBehaviour:
   attackRange: 1.1
   damageAbsorption: 0.3
   dodgeChance: 0.2
+  luck: 9
   attackTransform: {fileID: 4056757383962106205}
   attackableLayer:
     serializedVersion: 2

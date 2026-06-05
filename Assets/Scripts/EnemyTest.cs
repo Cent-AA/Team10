@@ -19,7 +19,7 @@ public class EnemyTest : MonoBehaviour
 
     if (player != null && Time.time >= nextAttackTime)
     {
-        player.TakeDamage(damage);
+        player.TakeDamage(damage,0);
         nextAttackTime = Time.time + attackCooldown;
     }
     }

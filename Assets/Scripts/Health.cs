@@ -5,13 +5,23 @@ public class Health : MonoBehaviour
     [SerializeField] private float starthp;
     private float hp;
     static float xp;
+<<<<<<< Updated upstream
 
+=======
+    static float xplvl;
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+>>>>>>> Stashed changes
     void Start()
     {
         hp = starthp;
+        
     }
+<<<<<<< Updated upstream
 
     public void TakeDamage(float damage)
+=======
+    public void TakeDamage(float damage,float luck)
+>>>>>>> Stashed changes
     {
         if (gameObject.CompareTag("Player"))
         {
@@ -46,11 +56,16 @@ public class Health : MonoBehaviour
         else
         {
             Debug.Log("death");
-            Die();
+    
+            Die(luck);
         }
     }
+<<<<<<< Updated upstream
 
     void Die()
+=======
+    void Die(float luck)
+>>>>>>> Stashed changes
     {
         if (gameObject.CompareTag("Player"))
         {
@@ -59,11 +74,20 @@ public class Health : MonoBehaviour
         }
         else
         {
+<<<<<<< Updated upstream
             xp += 10;
             Debug.Log(xp);
             if (xp > 49)
+=======
+            
+            //player
+            xp+=luck;
+            Debug.Log(xp);
+            if(xp > 49 +(49 *xplvl))
+>>>>>>> Stashed changes
             {
                 FindAnyObjectByType<Cards>().TestCard();
+                xp=0;
             }
             Destroy(gameObject);
             Debug.Log("enemy down");
