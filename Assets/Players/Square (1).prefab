@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 6182019440322228710}
   - component: {fileID: 4324739528404049881}
   - component: {fileID: 746122811424483858}
-  - component: {fileID: -4335525399897810312}
   - component: {fileID: 925916935097783186}
   - component: {fileID: -6144931542565016327}
   - component: {fileID: 736154824611677904}
@@ -113,6 +112,7 @@ MonoBehaviour:
   movespeed: 0
   damage: 5
   speed: 5
+  sprintSpeed: 8
   isMoving: 0
   attackRange: 1.1
   attackTransform: {fileID: 4056757383962106205}
@@ -161,7 +161,19 @@ MonoBehaviour:
     m_ActionId: b3606dd0-49cf-4b5e-a1cd-158d9bdc2dfd
     m_ActionName: 'New action map/Move[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d,/Keyboard/upArrow,/Keyboard/downArrow,/Keyboard/leftArrow,/Keyboard/rightArrow]'
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4324739528404049881}
+        m_TargetAssemblyTypeName: PlayerControl, Assembly-CSharp
+        m_MethodName: Sprint
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 3899c979-beda-4aa7-b1e5-ed838fbaf961
     m_ActionName: 'New action map/Sprint[/DualShock4GamepadHID/buttonSouth,/DualShock4GamepadHID1/buttonSouth]'
   - m_PersistentCalls:
@@ -185,19 +197,6 @@ MonoBehaviour:
   m_DefaultActionMap: New action map
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!114 &-4335525399897810312
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2265437305769598174}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 95afe4475d877440fad9d10f2bb26976, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerSprint
-  sprintMultiplier: 1.8
 --- !u!114 &925916935097783186
 MonoBehaviour:
   m_ObjectHideFlags: 0

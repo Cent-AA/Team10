@@ -169,6 +169,17 @@
                 },
                 {
                     "name": "",
+                    "id": "0b439465-bf35-407e-9203-83feaf3441ce",
+                    "path": "<Keyboard>/leftShift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard1",
+                    "action": "Sprint",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "771414e6-372c-4828-a939-188b74d071c5",
                     "path": "<Keyboard>/e",
                     "interactions": "",
