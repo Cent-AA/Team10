@@ -43,7 +43,6 @@ GameObject:
   - component: {fileID: 2104067868432939713}
   - component: {fileID: -3402750166499603991}
   - component: {fileID: 4579558069683865044}
-  - component: {fileID: 5521773635222620568}
   - component: {fileID: 7632892913120184794}
   - component: {fileID: 5408960243685443932}
   - component: {fileID: 4638796346379689557}
@@ -144,6 +143,7 @@ MonoBehaviour:
   movespeed: 0
   damage: 5
   speed: 5
+  sprintSpeed: 8
   isMoving: 0
   attackRange: 1.1
   attackTransform: {fileID: 2027143496480900741}
@@ -216,19 +216,6 @@ MonoBehaviour:
   m_DefaultActionMap: New action map
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!114 &5521773635222620568
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5310874838601147033}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 95afe4475d877440fad9d10f2bb26976, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerSprint
-  sprintMultiplier: 1.8
 --- !u!114 &7632892913120184794
 MonoBehaviour:
   m_ObjectHideFlags: 0
