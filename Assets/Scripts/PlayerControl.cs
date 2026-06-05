@@ -68,18 +68,34 @@ public class PlayerControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Vector2 move = new Vector2(moveInput.x,moveInput.y);
-        //rb.MovePosition(move * speed * Time.deltaTime);
-        // Если isSprinting равен true, используем sprintSpeed, иначе — обычную speed
-        float currentSpeed = isSprinting ? sprintSpeed : speed;
+        // 1. Проверяем, двигается ли игрок в данный момент
+        bool isMoving = moveInput.magnitude > 0;
+
+        // Переменная для финальной скорости в этом кадре
+        float currentSpeed;
+
+        // 2. Условие бега: зажат Shift, игрок идет И у менеджера Стамина > 0
+        if (isSprinting && isMoving && UIBarsManager.Instance.CanSprint)
+        {
+            currentSpeed = sprintSpeed;           // Применяем скорость спринта
+            UIBarsManager.Instance.UseStamina();  // Тратим стамину через менеджер
+        }
+        else
+        {
+            currentSpeed = speed;                      // Возвращаем обычную скорость (5f)
+            UIBarsManager.Instance.RegenerateStamina(); // Восстанавливаем стамину
+        }
+
+        // Передвигаем физическое тело игрока с итоговой скоростью
         rb.MovePosition(rb.position + moveInput * currentSpeed * Time.fixedDeltaTime);
-        //Debug.Log(Registry.Players.Count);
-         if (moveInput.x > 0)
-         {
+
+        // Поворот спрайта влево/вправо в зависимости от направления движения
+        if (moveInput.x > 0)
+        {
             Vector3 scale = transform.localScale;
             scale.x = Mathf.Abs(scale.x);
             transform.localScale = scale;
-         }
+        }
         else if (moveInput.x < 0)
         {
             Vector3 scale = transform.localScale;
