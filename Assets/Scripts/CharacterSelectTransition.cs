@@ -6,6 +6,7 @@ public class CharacterSelectTransition : MonoBehaviour
 {
     [Header("Элементы сцены")]
     public RectTransform forestOverlay;
+    public RectTransform bushOverlay;         // Кусты (поверх леса)
     public RectTransform moon;
     public RectTransform characterPanel;
     public RectTransform[] characterCards;
@@ -20,12 +21,13 @@ public class CharacterSelectTransition : MonoBehaviour
     public RectTransform p2Letter;
     public RectTransform p2Number;
 
-    [Header("Подключение игроков")]
+    [Header("Подключение")]
     public InputJoinManager joinManager;
     public CharacterSelector characterSelector;
 
     [Header("Настройки входа")]
     public float forestSlideDuration = 2f;
+    public float bushSpeedMultiplier = 1.3f;
     public float moonMoveDuration = 2f;
     public float cardsSlideDuration = 1f;
     public float cardsDelay = 0.15f;
@@ -44,6 +46,8 @@ public class CharacterSelectTransition : MonoBehaviour
     [Header("Позиции")]
     public Vector2 forestStartPos = new Vector2(0, 160);
     public Vector2 forestEndPos = new Vector2(-2700, 0);
+    public Vector2 bushStartPos = new Vector2(0, 160);
+    public Vector2 bushEndPos = new Vector2(-2700, 0);
     public Vector2 moonStartPos = new Vector2(0, 236);
     public Vector2 moonEndPos = new Vector2(-600, 236);
 
@@ -56,6 +60,7 @@ public class CharacterSelectTransition : MonoBehaviour
     void Start()
     {
         forestOverlay.anchoredPosition = forestStartPos;
+        if (bushOverlay != null) bushOverlay.anchoredPosition = bushStartPos;
         moon.anchoredPosition = moonStartPos;
 
         if (characterPanel != null)
@@ -66,7 +71,6 @@ public class CharacterSelectTransition : MonoBehaviour
             panelCanvasGroup.alpha = 0f;
         }
 
-        // Прячем карты вниз
         cardTargets = new Vector2[characterCards.Length];
         for (int i = 0; i < characterCards.Length; i++)
         {
@@ -74,7 +78,6 @@ public class CharacterSelectTransition : MonoBehaviour
             characterCards[i].anchoredPosition = new Vector2(cardTargets[i].x, cardTargets[i].y - 1200f);
         }
 
-        // Прячем стрелки/буквы/цифры вверх
         HideUp(p1Arrow, out p1ArrowTarget, 800f);
         HideUp(p1Letter, out p1LetterTarget, 800f);
         HideUp(p1Number, out p1NumberTarget, 800f);
@@ -82,7 +85,6 @@ public class CharacterSelectTransition : MonoBehaviour
         HideUp(p2Letter, out p2LetterTarget, 800f);
         HideUp(p2Number, out p2NumberTarget, 800f);
 
-        // Подписываемся на событие подключения обоих игроков
         if (joinManager != null)
             joinManager.OnBothPlayersJoined += ShowCharacterSelect;
 
@@ -91,23 +93,27 @@ public class CharacterSelectTransition : MonoBehaviour
 
     void HideUp(RectTransform rt, out Vector2 target, float offset)
     {
-        if (rt != null)
-        {
-            target = rt.anchoredPosition;
-            rt.anchoredPosition = new Vector2(target.x, target.y + offset);
-        }
+        if (rt != null) { target = rt.anchoredPosition; rt.anchoredPosition = new Vector2(target.x, target.y + offset); }
         else target = Vector2.zero;
     }
 
-    // === ФАЗА 1: Лес + луна (потом ждём подключения) ===
+    // === ВХОД ===
     IEnumerator PlayEntryAnimation()
     {
+        float bushDuration = forestSlideDuration / bushSpeedMultiplier;
         float elapsed = 0f;
         float phase1Duration = Mathf.Max(forestSlideDuration, moonMoveDuration);
 
         while (elapsed < phase1Duration)
         {
             elapsed += Time.deltaTime;
+
+            // Кусты быстрее
+            if (bushOverlay != null)
+            {
+                float bushT = EaseInOutSine(Mathf.Clamp01(elapsed / bushDuration));
+                bushOverlay.anchoredPosition = Vector2.Lerp(bushStartPos, bushEndPos, bushT);
+            }
 
             float forestT = EaseInOutSine(Mathf.Clamp01(elapsed / forestSlideDuration));
             forestOverlay.anchoredPosition = Vector2.Lerp(forestStartPos, forestEndPos, forestT);
@@ -117,20 +123,13 @@ public class CharacterSelectTransition : MonoBehaviour
 
             yield return null;
         }
-
-        // Экран подключения уже видят — ждём OnBothPlayersJoined
     }
 
-    // === ФАЗА 2: Карты + стрелки (после подключения) ===
-    void ShowCharacterSelect()
-    {
-        StartCoroutine(PlayCardsAnimation());
-    }
+    void ShowCharacterSelect() { StartCoroutine(PlayCardsAnimation()); }
 
     IEnumerator PlayCardsAnimation()
     {
-        if (panelCanvasGroup != null)
-            panelCanvasGroup.alpha = 1f;
+        if (panelCanvasGroup != null) panelCanvasGroup.alpha = 1f;
 
         float elapsed = 0f;
         float totalCardsTime = cardsSlideDuration + characterCards.Length * cardsDelay;
@@ -141,7 +140,6 @@ public class CharacterSelectTransition : MonoBehaviour
         {
             elapsed += Time.deltaTime;
 
-            // Карты снизу
             for (int i = 0; i < characterCards.Length; i++)
             {
                 float delay = i * cardsDelay;
@@ -149,12 +147,11 @@ public class CharacterSelectTransition : MonoBehaviour
                 if (cardElapsed > 0)
                 {
                     float t = EaseOutBack(Mathf.Clamp01(cardElapsed / cardsSlideDuration));
-                    Vector2 from = new Vector2(cardTargets[i].x, cardTargets[i].y - 1200f);
-                    characterCards[i].anchoredPosition = Vector2.Lerp(from, cardTargets[i], t);
+                    characterCards[i].anchoredPosition = Vector2.Lerp(
+                        new Vector2(cardTargets[i].x, cardTargets[i].y - 1200f), cardTargets[i], t);
                 }
             }
 
-            // P1 сверху
             float p1Elapsed = elapsed - arrowStartTime;
             if (p1Elapsed > 0)
             {
@@ -164,7 +161,6 @@ public class CharacterSelectTransition : MonoBehaviour
                 SlideDown(p1Number, p1NumberTarget, 800f, t);
             }
 
-            // P2 сверху с задержкой
             float p2Elapsed = elapsed - arrowStartTime - arrowDelay;
             if (p2Elapsed > 0)
             {
@@ -177,16 +173,13 @@ public class CharacterSelectTransition : MonoBehaviour
             yield return null;
         }
 
-        // Активируем выбор персонажей
-        if (characterSelector != null)
-            characterSelector.Activate();
+        if (characterSelector != null) characterSelector.Activate();
     }
 
     void SlideDown(RectTransform rt, Vector2 target, float offset, float t)
     {
         if (rt == null) return;
-        Vector2 from = new Vector2(target.x, target.y + offset);
-        rt.anchoredPosition = Vector2.Lerp(from, target, t);
+        rt.anchoredPosition = Vector2.Lerp(new Vector2(target.x, target.y + offset), target, t);
     }
 
     // === ВЫХОД ===
@@ -199,13 +192,8 @@ public class CharacterSelectTransition : MonoBehaviour
 
     IEnumerator PlayExitAnimation()
     {
-        // Стрелки вверх + карты вниз
-        Vector2 p1ArrCur = GetPos(p1Arrow);
-        Vector2 p1LetCur = GetPos(p1Letter);
-        Vector2 p1NumCur = GetPos(p1Number);
-        Vector2 p2ArrCur = GetPos(p2Arrow);
-        Vector2 p2LetCur = GetPos(p2Letter);
-        Vector2 p2NumCur = GetPos(p2Number);
+        Vector2 p1ArrCur = GetPos(p1Arrow), p1LetCur = GetPos(p1Letter), p1NumCur = GetPos(p1Number);
+        Vector2 p2ArrCur = GetPos(p2Arrow), p2LetCur = GetPos(p2Letter), p2NumCur = GetPos(p2Number);
 
         Vector2[] cardCurs = new Vector2[characterCards.Length];
         for (int i = 0; i < characterCards.Length; i++)
@@ -233,20 +221,20 @@ public class CharacterSelectTransition : MonoBehaviour
                 if (cardElapsed > 0)
                 {
                     float t = EaseInCubic(Mathf.Clamp01(cardElapsed / exitCardsDuration));
-                    Vector2 target = new Vector2(cardCurs[i].x, cardCurs[i].y - 1200f);
-                    characterCards[i].anchoredPosition = Vector2.Lerp(cardCurs[i], target, t);
+                    characterCards[i].anchoredPosition = Vector2.Lerp(cardCurs[i],
+                        new Vector2(cardCurs[i].x, cardCurs[i].y - 1200f), t);
                 }
             }
 
             yield return null;
         }
 
-        // Луна + лес
-        if (panelCanvasGroup != null)
-            panelCanvasGroup.alpha = 0f;
+        if (panelCanvasGroup != null) panelCanvasGroup.alpha = 0f;
 
         Vector2 moonCur = moon.anchoredPosition;
         Vector2 forestCur = forestOverlay.anchoredPosition;
+        Vector2 bushCur = bushOverlay != null ? bushOverlay.anchoredPosition : Vector2.zero;
+        float bushDuration = exitForestDuration / bushSpeedMultiplier;
 
         elapsed = 0f;
         float phase2Duration = Mathf.Max(exitMoonDuration, exitForestDuration);
@@ -260,6 +248,12 @@ public class CharacterSelectTransition : MonoBehaviour
 
             float forestT = EaseInOutSine(Mathf.Clamp01(elapsed / exitForestDuration));
             forestOverlay.anchoredPosition = Vector2.Lerp(forestCur, forestStartPos, forestT);
+
+            if (bushOverlay != null)
+            {
+                float bushT = EaseInOutSine(Mathf.Clamp01(elapsed / bushDuration));
+                bushOverlay.anchoredPosition = Vector2.Lerp(bushCur, bushStartPos, bushT);
+            }
 
             yield return null;
         }
