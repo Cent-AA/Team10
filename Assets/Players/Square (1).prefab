@@ -885,8 +885,8 @@ MonoBehaviour:
   staminaSlider: {fileID: 751182695858016429}
   maxHealth: 200
   maxStamina: 200
-  staminaDrain: 25
-  staminaRegen: 15
+  staminaDrain: 100
+  staminaRegen: 50
 --- !u!1 &6272586793685152578
 GameObject:
   m_ObjectHideFlags: 0
