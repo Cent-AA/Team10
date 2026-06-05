@@ -9,7 +9,9 @@ public class PlayerControl : MonoBehaviour
     private Vector2 moveInput;
     public bool isMoving;
     private RaycastHit2D[] hits;
-    [SerializeField] private float attackRange;
+    [SerializeField] public float attackRange;
+    [SerializeField] public float damageAbsorption;
+    [SerializeField] public float dodgeChance;
     [SerializeField] private Transform attackTransform;
     [SerializeField] private LayerMask attackableLayer;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
