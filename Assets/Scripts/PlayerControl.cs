@@ -23,7 +23,7 @@ public class PlayerControl : MonoBehaviour
        // Debug.Log("Attack pressed");
         if (!context.performed) return;
         //Debug.Log("Attack confird");
-        hits =Physics2D.CircleCastAll(attackTransform.position,attackRange,transform.right, 0f,attackableLayer);
+        hits =Physics2D.CircleCastAll(attackTransform.position,attackRange,Vector2.zero, 0f,attackableLayer);
         foreach (RaycastHit2D hit in hits)
         {
             //Debug.Log("hit");
@@ -54,5 +54,17 @@ public class PlayerControl : MonoBehaviour
         //rb.MovePosition(move * speed * Time.deltaTime);
         rb.MovePosition(rb.position + moveInput * speed * Time.fixedDeltaTime);
         //Debug.Log(Registry.Players.Count);
+         if (moveInput.x > 0)
+         {
+            Vector3 scale = transform.localScale;
+            scale.x = Mathf.Abs(scale.x);
+            transform.localScale = scale;
+         }
+        else if (moveInput.x < 0)
+        {
+            Vector3 scale = transform.localScale;
+            scale.x = -Mathf.Abs(scale.x);
+            transform.localScale = scale;
+        }
     }
 }
