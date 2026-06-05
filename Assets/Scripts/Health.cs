@@ -5,51 +5,53 @@ public class Health : MonoBehaviour
     [SerializeField] private float starthp;
     private float hp;
     static float xp;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     void Start()
     {
         hp = starthp;
     }
+
     public void TakeDamage(float damage)
     {
-        
         if (gameObject.CompareTag("Player"))
         {
-
             PlayerControl player = GetComponent<PlayerControl>();
-            float roll =Random.value;
-            if(roll < player.dodgeChance){
-                //Debug.Log("dodged");
+            float roll = Random.value;
+            
+            // Если игрок увернулся — выходим, урон не наносится и полоска не дергается
+            if (roll < player.dodgeChance) {
                 return;
             }
-            //Debug.Log("didnt dodge");
-            float findamage = damage* (1f-player.damageAbsorption );
-            //Debug.Log("took" + findamage);
-            //Debug.Log("used to be" + hp);
-            hp =Mathf.Clamp(hp -findamage,0,starthp);
-            //Debug.Log("now" + hp);
+
+            // Считаем чистый урон с учетом брони
+            float findamage = damage * (1f - player.damageAbsorption);
+            hp = Mathf.Clamp(hp - findamage, 0, starthp);
+
+            // Тот самый мостик: отправляем ЧИСТЫЙ урон в нашу пиксельную полоску!
+            if (UIBarsManager.Instance != null)
+            {
+                UIBarsManager.Instance.TakeDamage(findamage);
+            }
         }
         else
         {
-        hp =Mathf.Clamp(hp -damage ,0,starthp);
+            // Урон для врагов (остается прежним)
+            hp = Mathf.Clamp(hp - damage, 0, starthp);
         }
-        //hp =Mathf.Clamp(hp -damage ,0,starthp);
-        if(hp >0)
+
+        if (hp > 0)
         {
             // do something
-            //Debug.Log("took" + damage);
         }
         else
         {
-            //die  death animation maybe delete object remove controls etc
             Debug.Log("death");
             Die();
         }
     }
+
     void Die()
     {
-         //do something
-        //Destroy(gameObject);
         if (gameObject.CompareTag("Player"))
         {
             Destroy(gameObject);
@@ -57,21 +59,14 @@ public class Health : MonoBehaviour
         }
         else
         {
-            xp+=10;
+            xp += 10;
             Debug.Log(xp);
-            if(xp > 49)
+            if (xp > 49)
             {
-                //FindObjectOfType<Cards>().TestCard();
                 FindAnyObjectByType<Cards>().TestCard();
             }
             Destroy(gameObject);
             Debug.Log("enemy down");
         }
-        
-
-    }
-    // Update is called once per frame
-    void Update()
-    {
     }
 }
