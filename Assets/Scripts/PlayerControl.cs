@@ -27,12 +27,10 @@ public class PlayerControl : MonoBehaviour
         if (context.performed)
             {
                 isSprinting = true;
-                Debug.Log("Спринт НАЖАТ!"); // <-- Добавляем это
             }
             else if (context.canceled)
             {
                 isSprinting = false;
-                Debug.Log("Спринт ОТПУЩЕН!"); // <-- Добавляем это
             }
     }
     // tihs might be better in a separate script
