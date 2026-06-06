@@ -30,24 +30,24 @@ public class PuppetAnimator : MonoBehaviour
 
     [Header("═══ Джеб / Кросс / Апперкот ═══")]
     public float jabDuration = 0.3f;
-    public float jabArmScale = 2f;
-    public float jabFlyDistance = 2f;
+    public float jabArmScale = 1.3f;
+    public float jabFlyDistance = 1.5f;
 
     [Header("═══ Heavy (ракетные руки) ═══")]
     public float heavyAnticipation = 0.3f;
     public float heavyStrike = 0.2f;
     public float heavyRecovery = 0.4f;
-    public float heavyArmScale = 4f;
-    public float heavyFlyDistance = 5f;
+    public float heavyArmScale = 1.5f;
+    public float heavyFlyDistance = 3f;
 
     [Header("═══ БАРРАЖ ═══")]
     public float barrageChargeTime = 7f;
     public float barrageCircleAppearTime = 2f;
     public float barrageDuration = 5f;
     public float barrageHitInterval = 0.06f;
-    public int barrageArmClones = 8;
-    public float barrageArmScale = 3f;
-    public float barrageFlyDistance = 6f;
+    public int barrageArmClones = 4;
+    public float barrageArmScale = 1f;
+    public float barrageFlyDistance = 3f;
     public float barrageDamagePerHit = 3f;
     public Sprite circleSprite;              // Перетащи свой белый круг сюда
 
@@ -181,7 +181,7 @@ public class PuppetAnimator : MonoBehaviour
 
             // Поворот в сторону врага
             float angle = Mathf.Atan2(targetDir.y, targetDir.x) * Mathf.Rad2Deg;
-            arm.localRotation = Quaternion.Euler(0, 0, angle - 90f);
+            arm.localRotation = Quaternion.Euler(0, 0, angle);
 
             if (t > 0.7f && t < 0.8f)
             {
@@ -233,13 +233,13 @@ public class PuppetAnimator : MonoBehaviour
             {
                 leftArm.localPosition = Vector3.Lerp(leftArmStartPos + (Vector3)(-targetDir * 0.5f), leftArmStartPos + flyTarget + Vector3.up * 0.3f, e);
                 leftArm.localScale = leftArmStartScale * Mathf.Lerp(heavyArmScale * 0.5f, heavyArmScale, e);
-                leftArm.localRotation = Quaternion.Euler(0, 0, angle - 90f + Mathf.Sin(Time.time * 20f) * 10f);
+                leftArm.localRotation = Quaternion.Euler(0, 0, angle + Mathf.Sin(Time.time * 20f) * 10f);
             }
             if (rightArm != null)
             {
                 rightArm.localPosition = Vector3.Lerp(rightArmStartPos + (Vector3)(-targetDir * 0.5f), rightArmStartPos + flyTarget - Vector3.up * 0.3f, e);
                 rightArm.localScale = rightArmStartScale * Mathf.Lerp(heavyArmScale * 0.5f, heavyArmScale, e);
-                rightArm.localRotation = Quaternion.Euler(0, 0, angle - 90f - Mathf.Sin(Time.time * 20f) * 10f);
+                rightArm.localRotation = Quaternion.Euler(0, 0, angle - Mathf.Sin(Time.time * 20f) * 10f);
             }
 
             if (t > 0.6f && t < 0.7f)
@@ -288,7 +288,7 @@ public class PuppetAnimator : MonoBehaviour
         {
             float circleT = Mathf.Clamp01((chargeTimer - barrageCircleAppearTime) / (barrageChargeTime - barrageCircleAppearTime));
             chargeCircleRenderer.color = Color.Lerp(new Color(1, 1, 1, 0.3f), new Color(1, 0, 0, 0.6f), circleT);
-            float s = 2f + circleT * 3f + Mathf.Sin(Time.time * 6f) * 0.2f;
+            float s = 0.5f + circleT * 1f + Mathf.Sin(Time.time * 6f) * 0.1f;
             chargeCircle.transform.localScale = Vector3.one * s;
         }
     }
@@ -396,7 +396,7 @@ public class PuppetAnimator : MonoBehaviour
                 // Поворот к врагу
                 Vector2 dir = (targetPos - clones[i].transform.position).normalized;
                 float a = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-                clones[i].transform.rotation = Quaternion.Euler(0, 0, a - 90f);
+                clones[i].transform.rotation = Quaternion.Euler(0, 0, a - 270);
 
                 // Прозрачность
                 SpriteRenderer sr = clones[i].GetComponent<SpriteRenderer>();
