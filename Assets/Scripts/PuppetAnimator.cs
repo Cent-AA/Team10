@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class PuppetAnimator : MonoBehaviour
 {
@@ -16,123 +17,94 @@ public class PuppetAnimator : MonoBehaviour
     public float idleBobAmount = 0.02f;
     public float idleBreathAmount = 0.005f;
     public float idleArmSway = 2f;
-    public float idleHeadTurn = 1.5f;
 
-    [Header("═══ Ходьба ═══")]
+    [Header("═══ Ходьба / Бег ═══")]
     public float walkLegAngle = 25f;
     public float walkLegSpeed = 10f;
     public float walkArmAngle = 20f;
-    public float walkBodyTilt = 4f;
     public float walkBob = 0.04f;
-
-    [Header("═══ Бег ═══")]
     public float runLegAngle = 50f;
     public float runLegSpeed = 18f;
     public float runArmAngle = 40f;
-    public float runBodyTilt = 10f;
     public float runBob = 0.1f;
-    public float runLean = 8f;
 
-    [Header("═══ Лёгкая атака (правый джеб) ═══")]
-    public float jabAnticipation = 0.08f;
-    public float jabStrike = 0.1f;
-    public float jabRecovery = 0.2f;
-    public float jabAngle = -110f;
-    public float jabSquash = 1.1f;
+    [Header("═══ Джеб / Кросс / Апперкот ═══")]
+    public float jabDuration = 0.3f;
+    public float jabArmScale = 2f;
+    public float jabFlyDistance = 2f;
 
-    [Header("═══ Комбо (2-й удар, левый кросс) ═══")]
-    public float crossAngle = -120f;
-    public float crossLean = 8f;
+    [Header("═══ Heavy (ракетные руки) ═══")]
+    public float heavyAnticipation = 0.3f;
+    public float heavyStrike = 0.2f;
+    public float heavyRecovery = 0.4f;
+    public float heavyArmScale = 4f;
+    public float heavyFlyDistance = 5f;
 
-    [Header("═══ Финальный удар комбо (3-й, апперкот) ═══")]
-    public float uppercutAnticipation = 0.15f;
-    public float uppercutStrike = 0.15f;
-    public float uppercutRecovery = 0.35f;
-    public float uppercutAngle = -150f;
-    public float uppercutLift = 0.15f;
-
-    [Header("═══ Тяжёлый удар (двумя руками сверху) ═══")]
-    public float heavyAnticipation = 0.4f;
-    public float heavyStrike = 0.12f;
-    public float heavyRecovery = 0.5f;
-    public float heavyAngle = -140f;
-    public float heavySquash = 0.85f;
-
-    [Header("═══ Спин-атака ═══")]
-    public float spinDuration = 0.7f;
-    public int spinRotations = 2;
-    public float spinArmExtend = 80f;
+    [Header("═══ БАРРАЖ ═══")]
+    public float barrageChargeTime = 7f;
+    public float barrageCircleAppearTime = 2f;
+    public float barrageDuration = 5f;
+    public float barrageHitInterval = 0.06f;
+    public int barrageArmClones = 8;
+    public float barrageArmScale = 3f;
+    public float barrageFlyDistance = 6f;
+    public float barrageDamagePerHit = 3f;
+    public Sprite circleSprite;              // Перетащи свой белый круг сюда
 
     [Header("═══ Рывок ═══")]
     public float dashDuration = 0.25f;
-    public float dashLean = 25f;
-    public float dashArmForward = -75f;
-    public float dashStretch = 1.15f;
 
-    [Header("═══ Блок ═══")]
+    [Header("═══ Блок / Кувырок ═══")]
     public float blockArmAngle = 60f;
-    public float blockSpeed = 15f;
-
-    [Header("═══ Уклонение/кувырок ═══")]
     public float rollDuration = 0.5f;
-    public int rollRotations = 1;
 
-    [Header("═══ Получение урона ═══")]
+    [Header("═══ Хит / Смерть ═══")]
     public float hitDuration = 0.25f;
-    public float hitShake = 8f;
-    public float hitFlashDuration = 0.1f;
-
-    [Header("═══ Смерть ═══")]
     public float deathDuration = 1f;
-    public float deathFallAngle = 90f;
-
-    [Header("═══ Squash & Stretch ═══")]
-    public bool useSquashStretch = true;
-    public float squashSpeed = 12f;
 
     public enum AnimState
     {
         Idle, Walk, Run,
         Jab, Cross, Uppercut, Heavy,
-        Spin, Dash, Block, Roll,
-        Hit, Death
+        Dash, Block, Roll,
+        Hit, Death, Barrage, BarrageCharging
     }
 
     private AnimState currentState = AnimState.Idle;
     private float stateTimer = 0f;
     private bool isBlocking = false;
-    private float facingDir = 1f;  // 1 = вправо, -1 = влево
 
-    // Начальные трансформации
+    // Таргет
+    private Transform currentTarget;
+    private Vector2 targetDir = Vector2.right;
+
+    // Барраж
+    private float chargeTimer = 0f;
+    private bool isCharging = false;
+    private GameObject chargeCircle;
+    private SpriteRenderer chargeCircleRenderer;
+    private List<GameObject> barrageClones = new List<GameObject>();
+
+    // Начальные позиции
     private Vector3 headStartPos;
     private Vector3 torsoStartScale;
     private Quaternion torsoStartRot;
+    private Vector3 leftArmStartPos, rightArmStartPos;
     private Quaternion leftArmStartRot, rightArmStartRot;
+    private Vector3 leftArmStartScale, rightArmStartScale;
     private Quaternion leftLegStartRot, rightLegStartRot;
 
-    // Текущий squash/stretch
-    private Vector3 currentSquash = Vector3.one;
-    private Vector3 targetSquash = Vector3.one;
-
-    // События для эффектов
-    public System.Action OnHitFrame;       // Момент удара (для камеры/эффектов)
+    // События
+    public System.Action OnHitFrame;
     public System.Action<float> OnAttackEnd;
+    public System.Action<Vector2, float> OnBarrageHit;
 
     void Start()
     {
-        CacheStartTransforms();
-    }
-
-    void CacheStartTransforms()
-    {
         if (head != null) headStartPos = head.localPosition;
-        if (torso != null)
-        {
-            torsoStartScale = torso.localScale;
-            torsoStartRot = torso.localRotation;
-        }
-        if (leftArm != null) leftArmStartRot = leftArm.localRotation;
-        if (rightArm != null) rightArmStartRot = rightArm.localRotation;
+        if (torso != null) { torsoStartScale = torso.localScale; torsoStartRot = torso.localRotation; }
+        if (leftArm != null) { leftArmStartPos = leftArm.localPosition; leftArmStartRot = leftArm.localRotation; leftArmStartScale = leftArm.localScale; }
+        if (rightArm != null) { rightArmStartPos = rightArm.localPosition; rightArmStartRot = rightArm.localRotation; rightArmStartScale = rightArm.localScale; }
         if (leftLeg != null) leftLegStartRot = leftLeg.localRotation;
         if (rightLeg != null) rightLegStartRot = rightLeg.localRotation;
     }
@@ -140,387 +112,319 @@ public class PuppetAnimator : MonoBehaviour
     void Update()
     {
         stateTimer += Time.deltaTime;
-
         switch (currentState)
         {
             case AnimState.Idle: AnimateIdle(); break;
-            case AnimState.Walk: AnimateLocomotion(false); break;
-            case AnimState.Run: AnimateLocomotion(true); break;
-            case AnimState.Jab: AnimateJab(); break;
-            case AnimState.Cross: AnimateCross(); break;
-            case AnimState.Uppercut: AnimateUppercut(); break;
+            case AnimState.Walk: AnimateWalk(false); break;
+            case AnimState.Run: AnimateWalk(true); break;
+            case AnimState.Jab: AnimateArmFly(rightArm, rightArmStartPos, rightArmStartRot, rightArmStartScale, jabArmScale, jabFlyDistance, jabDuration); break;
+            case AnimState.Cross: AnimateArmFly(leftArm, leftArmStartPos, leftArmStartRot, leftArmStartScale, jabArmScale, jabFlyDistance, jabDuration); break;
+            case AnimState.Uppercut: AnimateArmFly(rightArm, rightArmStartPos, rightArmStartRot, rightArmStartScale, jabArmScale * 1.5f, jabFlyDistance * 1.3f, jabDuration * 1.2f); break;
             case AnimState.Heavy: AnimateHeavy(); break;
-            case AnimState.Spin: AnimateSpin(); break;
+            case AnimState.BarrageCharging: AnimateCharge(); break;
+            case AnimState.Barrage: break;
             case AnimState.Dash: AnimateDash(); break;
             case AnimState.Block: AnimateBlock(); break;
             case AnimState.Roll: AnimateRoll(); break;
             case AnimState.Hit: AnimateHit(); break;
             case AnimState.Death: AnimateDeath(); break;
         }
-
-        // Плавный squash & stretch
-        if (useSquashStretch && torso != null)
-        {
-            currentSquash = Vector3.Lerp(currentSquash, targetSquash, Time.deltaTime * squashSpeed);
-            targetSquash = Vector3.Lerp(targetSquash, Vector3.one, Time.deltaTime * squashSpeed * 0.5f);
-        }
     }
 
-    void SetState(AnimState newState)
-    {
-        if (currentState == newState && newState != AnimState.Idle) return;
-        currentState = newState;
-        stateTimer = 0f;
-    }
+    void SetState(AnimState s) { currentState = s; stateTimer = 0f; }
 
     // ═══════════ IDLE ═══════════
     void AnimateIdle()
     {
         float t = Time.time * idleBobSpeed;
-        float bob = Mathf.Sin(t);
-        float headSway = Mathf.Sin(t * 0.5f);
-
-        if (head != null)
-        {
-            head.localPosition = headStartPos + Vector3.up * bob * idleBobAmount;
-            head.localRotation = Quaternion.Euler(0, 0, headSway * idleHeadTurn);
-        }
-
-        if (torso != null)
-        {
-            float breath = 1f + bob * idleBreathAmount;
-            torso.localScale = new Vector3(
-                torsoStartScale.x * currentSquash.x,
-                torsoStartScale.y * breath * currentSquash.y,
-                torsoStartScale.z);
-            torso.localRotation = torsoStartRot;
-        }
-
-        if (leftArm != null)
-            leftArm.localRotation = leftArmStartRot * Quaternion.Euler(0, 0, Mathf.Sin(t * 0.8f) * idleArmSway);
-        if (rightArm != null)
-            rightArm.localRotation = rightArmStartRot * Quaternion.Euler(0, 0, -Mathf.Sin(t * 0.8f) * idleArmSway);
-
+        if (head != null) head.localPosition = headStartPos + Vector3.up * Mathf.Sin(t) * idleBobAmount;
+        if (torso != null) { torso.localScale = new Vector3(torsoStartScale.x, torsoStartScale.y * (1f + Mathf.Sin(t) * idleBreathAmount), torsoStartScale.z); torso.localRotation = torsoStartRot; }
+        ResetArms();
         SmoothReturnLegs();
     }
 
-    // ═══════════ ХОДЬБА / БЕГ ═══════════
-    void AnimateLocomotion(bool running)
+    // ═══════════ ХОДЬБА ═══════════
+    void AnimateWalk(bool run)
     {
-        float speed = running ? runLegSpeed : walkLegSpeed;
-        float legAngle = running ? runLegAngle : walkLegAngle;
-        float armAngle = running ? runArmAngle : walkArmAngle;
-        float tilt = running ? runBodyTilt : walkBodyTilt;
-        float bob = running ? runBob : walkBob;
-        float lean = running ? runLean : 0f;
+        float spd = run ? runLegSpeed : walkLegSpeed;
+        float leg = run ? runLegAngle : walkLegAngle;
+        float arm = run ? runArmAngle : walkArmAngle;
+        float bob = run ? runBob : walkBob;
+        float t = Time.time * spd;
 
-        float t = Time.time * speed;
-        float legSin = Mathf.Sin(t);
-
-        if (leftLeg != null)
-            leftLeg.localRotation = leftLegStartRot * Quaternion.Euler(0, 0, legSin * legAngle);
-        if (rightLeg != null)
-            rightLeg.localRotation = rightLegStartRot * Quaternion.Euler(0, 0, -legSin * legAngle);
-
-        if (leftArm != null)
-            leftArm.localRotation = leftArmStartRot * Quaternion.Euler(0, 0, -legSin * armAngle);
-        if (rightArm != null)
-            rightArm.localRotation = rightArmStartRot * Quaternion.Euler(0, 0, legSin * armAngle);
-
-        if (torso != null)
-        {
-            torso.localRotation = torsoStartRot * Quaternion.Euler(0, 0, legSin * tilt - lean * facingDir);
-            torso.localScale = Vector3.Scale(torsoStartScale, currentSquash);
-        }
-
-        if (head != null)
-        {
-            head.localPosition = headStartPos + Vector3.up * Mathf.Abs(Mathf.Sin(t * 2f)) * bob;
-            head.localRotation = Quaternion.Euler(0, 0, -lean * 0.5f * facingDir);
-        }
+        if (leftLeg != null) leftLeg.localRotation = leftLegStartRot * Quaternion.Euler(0, 0, Mathf.Sin(t) * leg);
+        if (rightLeg != null) rightLeg.localRotation = rightLegStartRot * Quaternion.Euler(0, 0, -Mathf.Sin(t) * leg);
+        if (leftArm != null) { leftArm.localRotation = leftArmStartRot * Quaternion.Euler(0, 0, -Mathf.Sin(t) * arm); leftArm.localScale = leftArmStartScale; leftArm.localPosition = leftArmStartPos; }
+        if (rightArm != null) { rightArm.localRotation = rightArmStartRot * Quaternion.Euler(0, 0, Mathf.Sin(t) * arm); rightArm.localScale = rightArmStartScale; rightArm.localPosition = rightArmStartPos; }
+        if (torso != null) { torso.localRotation = torsoStartRot; torso.localScale = torsoStartScale; }
+        if (head != null) head.localPosition = headStartPos + Vector3.up * Mathf.Abs(Mathf.Sin(t * 2f)) * bob;
     }
 
-    // ═══════════ ДЖЕБ (быстрый удар правой) ═══════════
-    void AnimateJab()
+    // ═══════════ РУКА-РАКЕТА (Jab/Cross/Uppercut) ═══════════
+    void AnimateArmFly(Transform arm, Vector3 startPos, Quaternion startRot, Vector3 startScale, float scale, float distance, float duration)
     {
-        float total = jabAnticipation + jabStrike + jabRecovery;
+        if (arm == null) { EndAttack(); return; }
 
-        if (rightArm == null) { EndAttack(); return; }
+        float half = duration * 0.4f;
+        float returnTime = duration * 0.6f;
 
-        if (stateTimer < jabAnticipation)
+        Vector3 flyTarget = (Vector3)(targetDir * distance);
+
+        if (stateTimer < half)
         {
-            // Anticipation — рука назад
-            float t = stateTimer / jabAnticipation;
-            rightArm.localRotation = rightArmStartRot * Quaternion.Euler(0, 0, 25f * t);
-            if (torso != null)
-                torso.localRotation = torsoStartRot * Quaternion.Euler(0, 0, 5f * facingDir * t);
-        }
-        else if (stateTimer < jabAnticipation + jabStrike)
-        {
-            // Strike — резкий выпад
-            float t = (stateTimer - jabAnticipation) / jabStrike;
-            float eased = t * t;
-            rightArm.localRotation = Quaternion.Lerp(
-                rightArmStartRot * Quaternion.Euler(0, 0, 25f),
-                rightArmStartRot * Quaternion.Euler(0, 0, -jabAngle * facingDir),
-                eased);
+            // Летит к врагу
+            float t = stateTimer / half;
+            float e = t * t * t; // Быстрый удар
 
-            if (torso != null)
-                torso.localRotation = torsoStartRot * Quaternion.Euler(0, 0, Mathf.Lerp(5f, -8f, eased) * facingDir);
+            arm.localPosition = Vector3.Lerp(startPos, startPos + flyTarget, e);
+            arm.localScale = Vector3.Lerp(startScale, startScale * scale, e);
 
-            // Squash & stretch в момент удара
-            if (t > 0.5f && t < 0.6f)
+            // Поворот в сторону врага
+            float angle = Mathf.Atan2(targetDir.y, targetDir.x) * Mathf.Rad2Deg;
+            arm.localRotation = Quaternion.Euler(0, 0, angle - 90f);
+
+            if (t > 0.7f && t < 0.8f)
             {
-                targetSquash = new Vector3(0.95f, jabSquash, 1f);
                 OnHitFrame?.Invoke();
+                ArenaCamera.Shake(0.3f, 0.1f);
             }
         }
-        else if (stateTimer < total)
+        else if (stateTimer < half + returnTime)
         {
-            // Recovery — плавный возврат
-            float t = (stateTimer - jabAnticipation - jabStrike) / jabRecovery;
-            float eased = 1f - (1f - t) * (1f - t);
-            rightArm.localRotation = Quaternion.Lerp(
-                rightArmStartRot * Quaternion.Euler(0, 0, -jabAngle * facingDir),
-                rightArmStartRot, eased);
-            if (torso != null)
-                torso.localRotation = Quaternion.Lerp(
-                    torsoStartRot * Quaternion.Euler(0, 0, -8f * facingDir),
-                    torsoStartRot, eased);
+            // Возврат
+            float t = (stateTimer - half) / returnTime;
+            float e = 1f - (1f - t) * (1f - t);
+
+            arm.localPosition = Vector3.Lerp(startPos + flyTarget, startPos, e);
+            arm.localScale = Vector3.Lerp(startScale * scale, startScale, e);
+            arm.localRotation = Quaternion.Lerp(arm.localRotation, startRot, e);
         }
         else EndAttack();
     }
 
-    // ═══════════ КРОСС (левый, 2-й удар комбо) ═══════════
-    void AnimateCross()
-    {
-        float total = jabAnticipation + jabStrike + jabRecovery;
-
-        if (leftArm == null) { EndAttack(); return; }
-
-        if (stateTimer < jabAnticipation)
-        {
-            float t = stateTimer / jabAnticipation;
-            leftArm.localRotation = leftArmStartRot * Quaternion.Euler(0, 0, -25f * t);
-            if (torso != null)
-                torso.localRotation = torsoStartRot * Quaternion.Euler(0, 0, -crossLean * facingDir * t);
-        }
-        else if (stateTimer < jabAnticipation + jabStrike)
-        {
-            float t = (stateTimer - jabAnticipation) / jabStrike;
-            float eased = t * t;
-            leftArm.localRotation = Quaternion.Lerp(
-                leftArmStartRot * Quaternion.Euler(0, 0, -25f),
-                leftArmStartRot * Quaternion.Euler(0, 0, crossAngle * facingDir),
-                eased);
-            if (torso != null)
-                torso.localRotation = torsoStartRot * Quaternion.Euler(0, 0,
-                    Mathf.Lerp(-crossLean, crossLean, eased) * facingDir);
-
-            if (t > 0.5f && t < 0.6f)
-            {
-                targetSquash = new Vector3(0.93f, 1.12f, 1f);
-                OnHitFrame?.Invoke();
-            }
-        }
-        else if (stateTimer < total)
-        {
-            float t = (stateTimer - jabAnticipation - jabStrike) / jabRecovery;
-            float eased = 1f - (1f - t) * (1f - t);
-            leftArm.localRotation = Quaternion.Lerp(
-                leftArmStartRot * Quaternion.Euler(0, 0, crossAngle * facingDir),
-                leftArmStartRot, eased);
-            if (torso != null)
-                torso.localRotation = Quaternion.Lerp(
-                    torsoStartRot * Quaternion.Euler(0, 0, crossLean * facingDir),
-                    torsoStartRot, eased);
-        }
-        else EndAttack();
-    }
-
-    // ═══════════ АППЕРКОТ (3-й удар комбо, мощный финиш) ═══════════
-    void AnimateUppercut()
-    {
-        float total = uppercutAnticipation + uppercutStrike + uppercutRecovery;
-
-        if (rightArm == null) { EndAttack(); return; }
-
-        if (stateTimer < uppercutAnticipation)
-        {
-            // Глубокий замах вниз и в сторону
-            float t = stateTimer / uppercutAnticipation;
-            float eased = 1f - (1f - t) * (1f - t);
-            rightArm.localRotation = rightArmStartRot * Quaternion.Euler(0, 0, 60f * eased);
-            if (torso != null)
-            {
-                torso.localRotation = torsoStartRot * Quaternion.Euler(0, 0, 15f * facingDir * eased);
-                torso.localScale = Vector3.Lerp(torsoStartScale,
-                    new Vector3(torsoStartScale.x * 1.05f, torsoStartScale.y * 0.92f, torsoStartScale.z), eased);
-            }
-        }
-        else if (stateTimer < uppercutAnticipation + uppercutStrike)
-        {
-            // Мощный апперкот снизу вверх
-            float t = (stateTimer - uppercutAnticipation) / uppercutStrike;
-            float eased = t * t;
-            rightArm.localRotation = Quaternion.Lerp(
-                rightArmStartRot * Quaternion.Euler(0, 0, 60f),
-                rightArmStartRot * Quaternion.Euler(0, 0, -uppercutAngle * facingDir),
-                eased);
-
-            if (torso != null)
-            {
-                torso.localRotation = torsoStartRot * Quaternion.Euler(0, 0,
-                    Mathf.Lerp(15f, -20f, eased) * facingDir);
-                torso.localScale = Vector3.Lerp(
-                    new Vector3(torsoStartScale.x * 1.05f, torsoStartScale.y * 0.92f, torsoStartScale.z),
-                    new Vector3(torsoStartScale.x * 0.95f, torsoStartScale.y * 1.15f, torsoStartScale.z),
-                    eased);
-            }
-
-            if (head != null)
-                head.localPosition = headStartPos + Vector3.up * uppercutLift * eased;
-
-            if (t > 0.6f && t < 0.7f)
-            {
-                targetSquash = new Vector3(0.85f, 1.25f, 1f);
-                OnHitFrame?.Invoke();
-            }
-        }
-        else if (stateTimer < total)
-        {
-            float t = (stateTimer - uppercutAnticipation - uppercutStrike) / uppercutRecovery;
-            float eased = 1f - (1f - t) * (1f - t);
-            rightArm.localRotation = Quaternion.Lerp(
-                rightArmStartRot * Quaternion.Euler(0, 0, -uppercutAngle * facingDir),
-                rightArmStartRot, eased);
-            if (torso != null)
-            {
-                torso.localRotation = Quaternion.Lerp(
-                    torsoStartRot * Quaternion.Euler(0, 0, -20f * facingDir),
-                    torsoStartRot, eased);
-                torso.localScale = Vector3.Lerp(
-                    new Vector3(torsoStartScale.x * 0.95f, torsoStartScale.y * 1.15f, torsoStartScale.z),
-                    torsoStartScale, eased);
-            }
-            if (head != null)
-                head.localPosition = Vector3.Lerp(
-                    headStartPos + Vector3.up * uppercutLift, headStartPos, eased);
-        }
-        else EndAttack();
-    }
-
-    // ═══════════ ТЯЖЁЛЫЙ УДАР (двумя руками сверху) ═══════════
+    // ═══════════ HEAVY — ОБЕ РУКИ ЛЕТЯТ КАК РАКЕТЫ ═══════════
     void AnimateHeavy()
     {
         float total = heavyAnticipation + heavyStrike + heavyRecovery;
-
-        if (leftArm == null || rightArm == null) { EndAttack(); return; }
+        Vector3 flyTarget = (Vector3)(targetDir * heavyFlyDistance);
 
         if (stateTimer < heavyAnticipation)
         {
-            // Долгий замах — руки вверх и назад
+            // Замах назад
             float t = stateTimer / heavyAnticipation;
-            float eased = 1f - (1f - t) * (1f - t);
-            leftArm.localRotation = leftArmStartRot * Quaternion.Euler(0, 0, 130f * eased);
-            rightArm.localRotation = rightArmStartRot * Quaternion.Euler(0, 0, -130f * eased);
+            float e = 1f - (1f - t) * (1f - t);
+            Vector3 pullBack = (Vector3)(-targetDir * 0.5f);
 
-            if (torso != null)
-            {
-                torso.localRotation = torsoStartRot * Quaternion.Euler(0, 0, -10f * eased);
-                torso.localScale = Vector3.Lerp(torsoStartScale,
-                    new Vector3(torsoStartScale.x * 0.95f, torsoStartScale.y * heavySquash, torsoStartScale.z),
-                    eased);
-            }
-            if (head != null)
-                head.localPosition = headStartPos + Vector3.up * 0.08f * eased;
+            if (leftArm != null) { leftArm.localPosition = Vector3.Lerp(leftArmStartPos, leftArmStartPos + pullBack, e); leftArm.localScale = Vector3.Lerp(leftArmStartScale, leftArmStartScale * heavyArmScale * 0.5f, e); }
+            if (rightArm != null) { rightArm.localPosition = Vector3.Lerp(rightArmStartPos, rightArmStartPos + pullBack, e); rightArm.localScale = Vector3.Lerp(rightArmStartScale, rightArmStartScale * heavyArmScale * 0.5f, e); }
+
+            // Тряска нарастает
+            if (torso != null) torso.localRotation = torsoStartRot * Quaternion.Euler(0, 0, Mathf.Sin(Time.time * 30f) * t * 3f);
         }
         else if (stateTimer < heavyAnticipation + heavyStrike)
         {
-            // МОЩНЫЙ удар вниз
+            // ЗАПУСК — руки летят к врагу
             float t = (stateTimer - heavyAnticipation) / heavyStrike;
-            float eased = t * t * t;  // Очень быстрый
-            leftArm.localRotation = Quaternion.Lerp(
-                leftArmStartRot * Quaternion.Euler(0, 0, 130f),
-                leftArmStartRot * Quaternion.Euler(0, 0, -heavyAngle),
-                eased);
-            rightArm.localRotation = Quaternion.Lerp(
-                rightArmStartRot * Quaternion.Euler(0, 0, -130f),
-                rightArmStartRot * Quaternion.Euler(0, 0, heavyAngle),
-                eased);
+            float e = t * t * t;
 
-            if (torso != null)
+            float angle = Mathf.Atan2(targetDir.y, targetDir.x) * Mathf.Rad2Deg;
+
+            if (leftArm != null)
             {
-                torso.localRotation = torsoStartRot * Quaternion.Euler(0, 0, Mathf.Lerp(-10f, 8f, eased));
-                torso.localScale = Vector3.Lerp(
-                    new Vector3(torsoStartScale.x * 0.95f, torsoStartScale.y * heavySquash, torsoStartScale.z),
-                    new Vector3(torsoStartScale.x * 1.15f, torsoStartScale.y * 0.85f, torsoStartScale.z),
-                    eased);
+                leftArm.localPosition = Vector3.Lerp(leftArmStartPos + (Vector3)(-targetDir * 0.5f), leftArmStartPos + flyTarget + Vector3.up * 0.3f, e);
+                leftArm.localScale = leftArmStartScale * Mathf.Lerp(heavyArmScale * 0.5f, heavyArmScale, e);
+                leftArm.localRotation = Quaternion.Euler(0, 0, angle - 90f + Mathf.Sin(Time.time * 20f) * 10f);
             }
-            if (head != null)
-                head.localPosition = Vector3.Lerp(
-                    headStartPos + Vector3.up * 0.08f,
-                    headStartPos - Vector3.up * 0.05f, eased);
-
-            if (t > 0.8f && t < 0.9f)
+            if (rightArm != null)
             {
-                targetSquash = new Vector3(1.3f, 0.7f, 1f);
+                rightArm.localPosition = Vector3.Lerp(rightArmStartPos + (Vector3)(-targetDir * 0.5f), rightArmStartPos + flyTarget - Vector3.up * 0.3f, e);
+                rightArm.localScale = rightArmStartScale * Mathf.Lerp(heavyArmScale * 0.5f, heavyArmScale, e);
+                rightArm.localRotation = Quaternion.Euler(0, 0, angle - 90f - Mathf.Sin(Time.time * 20f) * 10f);
+            }
+
+            if (t > 0.6f && t < 0.7f)
+            {
                 OnHitFrame?.Invoke();
+                ArenaCamera.Shake(0.8f, 0.25f);
             }
         }
         else if (stateTimer < total)
         {
+            // Возврат
             float t = (stateTimer - heavyAnticipation - heavyStrike) / heavyRecovery;
-            float eased = 1f - Mathf.Pow(1f - t, 3f);
-            leftArm.localRotation = Quaternion.Lerp(
-                leftArmStartRot * Quaternion.Euler(0, 0, -heavyAngle),
-                leftArmStartRot, eased);
-            rightArm.localRotation = Quaternion.Lerp(
-                rightArmStartRot * Quaternion.Euler(0, 0, heavyAngle),
-                rightArmStartRot, eased);
-            if (torso != null)
-            {
-                torso.localRotation = Quaternion.Lerp(
-                    torsoStartRot * Quaternion.Euler(0, 0, 8f), torsoStartRot, eased);
-                torso.localScale = Vector3.Lerp(
-                    new Vector3(torsoStartScale.x * 1.15f, torsoStartScale.y * 0.85f, torsoStartScale.z),
-                    torsoStartScale, eased);
-            }
-            if (head != null)
-                head.localPosition = Vector3.Lerp(
-                    headStartPos - Vector3.up * 0.05f, headStartPos, eased);
+            float e = 1f - (1f - t) * (1f - t);
+            if (leftArm != null) { leftArm.localPosition = Vector3.Lerp(leftArm.localPosition, leftArmStartPos, e); leftArm.localScale = Vector3.Lerp(leftArm.localScale, leftArmStartScale, e); leftArm.localRotation = Quaternion.Lerp(leftArm.localRotation, leftArmStartRot, e); }
+            if (rightArm != null) { rightArm.localPosition = Vector3.Lerp(rightArm.localPosition, rightArmStartPos, e); rightArm.localScale = Vector3.Lerp(rightArm.localScale, rightArmStartScale, e); rightArm.localRotation = Quaternion.Lerp(rightArm.localRotation, rightArmStartRot, e); }
+            if (torso != null) torso.localRotation = Quaternion.Lerp(torso.localRotation, torsoStartRot, e);
         }
         else EndAttack();
     }
 
-    // ═══════════ СПИН-АТАКА ═══════════
-    void AnimateSpin()
+    // ═══════════ ЗАРЯДКА БАРРАЖА ═══════════
+    void AnimateCharge()
     {
-        if (stateTimer < spinDuration)
+        chargeTimer += Time.deltaTime;
+        float intensity = Mathf.Clamp01(chargeTimer / barrageChargeTime);
+
+        // Тряска нарастает
+        float shake = Mathf.Sin(Time.time * 40f * intensity) * intensity * 5f;
+        if (torso != null) torso.localRotation = torsoStartRot * Quaternion.Euler(0, 0, shake);
+
+        // Руки сжимаются и трясутся
+        float fist = Mathf.Sin(Time.time * 10f) * 3f * intensity;
+        if (leftArm != null) leftArm.localRotation = leftArmStartRot * Quaternion.Euler(0, 0, 30f * intensity + fist);
+        if (rightArm != null) rightArm.localRotation = rightArmStartRot * Quaternion.Euler(0, 0, -30f * intensity - fist);
+
+        // Руки увеличиваются при зарядке
+        float armGrow = 1f + intensity * 0.5f;
+        if (leftArm != null) leftArm.localScale = leftArmStartScale * armGrow;
+        if (rightArm != null) rightArm.localScale = rightArmStartScale * armGrow;
+
+        // Круг через 2 сек
+        if (chargeTimer >= barrageCircleAppearTime && chargeCircle == null)
+            CreateChargeCircle();
+
+        if (chargeCircleRenderer != null)
         {
-            float t = stateTimer / spinDuration;
-            float spinAngle = -t * 360f * spinRotations * facingDir;
-            transform.localRotation = Quaternion.Euler(0, 0, spinAngle);
+            float circleT = Mathf.Clamp01((chargeTimer - barrageCircleAppearTime) / (barrageChargeTime - barrageCircleAppearTime));
+            chargeCircleRenderer.color = Color.Lerp(new Color(1, 1, 1, 0.3f), new Color(1, 0, 0, 0.6f), circleT);
+            float s = 2f + circleT * 3f + Mathf.Sin(Time.time * 6f) * 0.2f;
+            chargeCircle.transform.localScale = Vector3.one * s;
+        }
+    }
 
-            if (leftArm != null)
-                leftArm.localRotation = leftArmStartRot * Quaternion.Euler(0, 0, spinArmExtend);
-            if (rightArm != null)
-                rightArm.localRotation = rightArmStartRot * Quaternion.Euler(0, 0, -spinArmExtend);
+    public void StartBarrageCharge()
+    {
+        if (IsBusy()) return;
+        chargeTimer = 0f;
+        isCharging = true;
+        SetState(AnimState.BarrageCharging);
+    }
 
-            if (torso != null)
-                torso.localScale = Vector3.Scale(torsoStartScale,
-                    new Vector3(1f + Mathf.Sin(t * Mathf.PI) * 0.05f, 1f, 1f));
+    public void ReleaseBarrageCharge()
+    {
+        if (!isCharging) return;
+        isCharging = false;
 
-            // Тригер хитфреймов каждые 90 градусов
-            float prevAngle = -(stateTimer - Time.deltaTime) / spinDuration * 360f * spinRotations;
-            if (Mathf.FloorToInt(prevAngle / 90f) != Mathf.FloorToInt(spinAngle / 90f))
-                OnHitFrame?.Invoke();
+        if (chargeTimer >= barrageChargeTime)
+        {
+            SetState(AnimState.Barrage);
+            StartCoroutine(BarrageRoutine());
         }
         else
         {
-            transform.localRotation = Quaternion.identity;
-            EndAttack();
+            DestroyChargeCircle();
+            SetState(AnimState.Heavy);
         }
+    }
+
+    // ═══════════ БАРРАЖ — ШКВАЛ ЛЕТЯЩИХ РУК СО ВСЕХ СТОРОН ═══════════
+    IEnumerator BarrageRoutine()
+    {
+        DestroyChargeCircle();
+
+        // Скрываем оригинальные руки
+        if (leftArm != null) leftArm.gameObject.SetActive(false);
+        if (rightArm != null) rightArm.gameObject.SetActive(false);
+
+        ArenaCamera.Shake(1.5f, barrageDuration);
+
+        // Создаём клоны рук
+        SpriteRenderer armSprite = rightArm != null ? rightArm.GetComponent<SpriteRenderer>() : null;
+        Sprite armSpr = armSprite != null ? armSprite.sprite : null;
+        int armOrder = armSprite != null ? armSprite.sortingOrder : 5;
+
+        List<GameObject> clones = new List<GameObject>();
+        for (int i = 0; i < barrageArmClones; i++)
+        {
+            GameObject c = new GameObject("BarrageArm" + i);
+            c.transform.SetParent(transform.parent);
+            if (armSpr != null)
+            {
+                SpriteRenderer sr = c.AddComponent<SpriteRenderer>();
+                sr.sprite = armSpr;
+                sr.color = new Color(1, 1, 1, 0.6f);
+                sr.sortingOrder = armOrder + i;
+            }
+            clones.Add(c);
+        }
+
+        float elapsed = 0f;
+        float hitTimer = 0f;
+
+        while (elapsed < barrageDuration)
+        {
+            elapsed += Time.deltaTime;
+
+            // Торс трясётся
+            if (torso != null)
+                torso.localRotation = torsoStartRot * Quaternion.Euler(0, 0, Mathf.Sin(Time.time * 50f) * 5f);
+
+            // Голова трясётся
+            if (head != null)
+                head.localPosition = headStartPos + (Vector3)(Random.insideUnitCircle * 0.02f);
+
+            Vector3 targetPos = currentTarget != null ? currentTarget.position : transform.position + (Vector3)(targetDir * 3f);
+
+            // Каждый клон летит к врагу с разных сторон
+            for (int i = 0; i < clones.Count; i++)
+            {
+                if (clones[i] == null) continue;
+
+                float phase = i * 1.3f + elapsed * 8f;
+                float cycleT = Mathf.Repeat(phase, 1f);
+
+                // Стартовая позиция — вокруг игрока
+                float angle = (360f / clones.Count) * i + elapsed * 200f;
+                float rad = angle * Mathf.Deg2Rad;
+                Vector3 startPos = transform.position + new Vector3(Mathf.Cos(rad), Mathf.Sin(rad), 0) * 1f;
+
+                // Летит к врагу и обратно
+                if (cycleT < 0.5f)
+                {
+                    float t = cycleT / 0.5f;
+                    clones[i].transform.position = Vector3.Lerp(startPos, targetPos, t * t);
+                    clones[i].transform.localScale = Vector3.one * Mathf.Lerp(barrageArmScale * 0.5f, barrageArmScale, t);
+                }
+                else
+                {
+                    float t = (cycleT - 0.5f) / 0.5f;
+                    clones[i].transform.position = Vector3.Lerp(targetPos, startPos, t);
+                    clones[i].transform.localScale = Vector3.one * Mathf.Lerp(barrageArmScale, barrageArmScale * 0.3f, t);
+                }
+
+                // Поворот к врагу
+                Vector2 dir = (targetPos - clones[i].transform.position).normalized;
+                float a = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+                clones[i].transform.rotation = Quaternion.Euler(0, 0, a - 90f);
+
+                // Прозрачность
+                SpriteRenderer sr = clones[i].GetComponent<SpriteRenderer>();
+                if (sr != null) sr.color = new Color(1, 1, 1, 0.3f + Mathf.Sin(phase * 5f) * 0.3f);
+            }
+
+            // Удары
+            hitTimer += Time.deltaTime;
+            if (hitTimer >= barrageHitInterval)
+            {
+                hitTimer = 0f;
+                OnBarrageHit?.Invoke(targetDir, barrageDamagePerHit);
+            }
+
+            yield return null;
+        }
+
+        // Очистка
+        foreach (var c in clones) if (c != null) Destroy(c);
+        clones.Clear();
+
+        // Возвращаем оригинальные руки
+        if (leftArm != null) { leftArm.gameObject.SetActive(true); leftArm.localPosition = leftArmStartPos; leftArm.localScale = leftArmStartScale; leftArm.localRotation = leftArmStartRot; }
+        if (rightArm != null) { rightArm.gameObject.SetActive(true); rightArm.localPosition = rightArmStartPos; rightArm.localScale = rightArmStartScale; rightArm.localRotation = rightArmStartRot; }
+        if (torso != null) torso.localRotation = torsoStartRot;
+        if (head != null) head.localPosition = headStartPos;
+
+        EndAttack();
     }
 
     // ═══════════ РЫВОК ═══════════
@@ -530,187 +434,100 @@ public class PuppetAnimator : MonoBehaviour
         {
             float t = stateTimer / dashDuration;
             float pulse = Mathf.Sin(t * Mathf.PI);
-
-            if (torso != null)
-            {
-                torso.localRotation = torsoStartRot * Quaternion.Euler(0, 0, dashLean * pulse * facingDir);
-                torso.localScale = Vector3.Lerp(torsoStartScale,
-                    new Vector3(torsoStartScale.x * dashStretch, torsoStartScale.y / dashStretch, torsoStartScale.z),
-                    pulse);
-            }
-
-            if (rightArm != null)
-                rightArm.localRotation = rightArmStartRot * Quaternion.Euler(0, 0, dashArmForward * pulse * facingDir);
-
-            if (head != null)
-                head.localPosition = headStartPos + Vector3.up * 0.03f * pulse;
-
-            // Размытие ног — быстрое мерцание
+            if (torso != null) torso.localRotation = torsoStartRot * Quaternion.Euler(0, 0, 20f * pulse * Mathf.Sign(targetDir.x));
             float legSwing = Mathf.Sin(t * 30f) * 30f;
-            if (leftLeg != null)
-                leftLeg.localRotation = leftLegStartRot * Quaternion.Euler(0, 0, legSwing);
-            if (rightLeg != null)
-                rightLeg.localRotation = rightLegStartRot * Quaternion.Euler(0, 0, -legSwing);
+            if (leftLeg != null) leftLeg.localRotation = leftLegStartRot * Quaternion.Euler(0, 0, legSwing);
+            if (rightLeg != null) rightLeg.localRotation = rightLegStartRot * Quaternion.Euler(0, 0, -legSwing);
         }
         else EndAttack();
     }
 
-    // ═══════════ БЛОК ═══════════
     void AnimateBlock()
     {
-        // Руки скрещены перед собой
-        if (leftArm != null)
-            leftArm.localRotation = Quaternion.Lerp(leftArm.localRotation,
-                leftArmStartRot * Quaternion.Euler(0, 0, blockArmAngle), Time.deltaTime * blockSpeed);
-        if (rightArm != null)
-            rightArm.localRotation = Quaternion.Lerp(rightArm.localRotation,
-                rightArmStartRot * Quaternion.Euler(0, 0, -blockArmAngle), Time.deltaTime * blockSpeed);
-        if (torso != null)
-            torso.localRotation = Quaternion.Lerp(torso.localRotation,
-                torsoStartRot * Quaternion.Euler(0, 0, -3f * facingDir), Time.deltaTime * blockSpeed);
+        if (leftArm != null) { leftArm.localRotation = Quaternion.Lerp(leftArm.localRotation, leftArmStartRot * Quaternion.Euler(0, 0, blockArmAngle), Time.deltaTime * 15f); leftArm.localPosition = leftArmStartPos; leftArm.localScale = leftArmStartScale; }
+        if (rightArm != null) { rightArm.localRotation = Quaternion.Lerp(rightArm.localRotation, rightArmStartRot * Quaternion.Euler(0, 0, -blockArmAngle), Time.deltaTime * 15f); rightArm.localPosition = rightArmStartPos; rightArm.localScale = rightArmStartScale; }
     }
 
-    // ═══════════ КУВЫРОК ═══════════
     void AnimateRoll()
     {
-        if (stateTimer < rollDuration)
-        {
-            float t = stateTimer / rollDuration;
-            float rollAngle = -t * 360f * rollRotations * facingDir;
-            transform.localRotation = Quaternion.Euler(0, 0, rollAngle);
-
-            if (torso != null)
-            {
-                float squash = 1f - Mathf.Sin(t * Mathf.PI) * 0.2f;
-                torso.localScale = new Vector3(
-                    torsoStartScale.x * (2f - squash),
-                    torsoStartScale.y * squash,
-                    torsoStartScale.z);
-            }
-        }
-        else
-        {
-            transform.localRotation = Quaternion.identity;
-            EndAttack();
-        }
+        if (stateTimer < rollDuration) { float t = stateTimer / rollDuration; transform.localRotation = Quaternion.Euler(0, 0, -t * 360f); }
+        else { transform.localRotation = Quaternion.identity; EndAttack(); }
     }
 
-    // ═══════════ ПОЛУЧЕНИЕ УРОНА ═══════════
     void AnimateHit()
     {
-        if (stateTimer < hitDuration)
-        {
-            float t = stateTimer / hitDuration;
-            float intensity = 1f - t;
-            float shake = Mathf.Sin(stateTimer * 60f) * hitShake * intensity;
-
-            if (torso != null)
-            {
-                torso.localRotation = torsoStartRot * Quaternion.Euler(0, 0, shake);
-                torso.localScale = Vector3.Lerp(
-                    new Vector3(torsoStartScale.x * 1.1f, torsoStartScale.y * 0.9f, torsoStartScale.z),
-                    torsoStartScale, t);
-            }
-            if (head != null)
-                head.localPosition = headStartPos + Vector3.right * shake * 0.005f;
-        }
+        if (stateTimer < hitDuration) { float i = 1f - stateTimer / hitDuration; if (torso != null) torso.localRotation = torsoStartRot * Quaternion.Euler(0, 0, Mathf.Sin(stateTimer * 60f) * 8f * i); }
         else EndAttack();
     }
 
-    // ═══════════ СМЕРТЬ ═══════════
     void AnimateDeath()
     {
-        if (stateTimer < deathDuration)
-        {
-            float t = stateTimer / deathDuration;
-            float eased = 1f - (1f - t) * (1f - t);
-
-            // Падение
-            transform.localRotation = Quaternion.Euler(0, 0, deathFallAngle * facingDir * eased);
-
-            if (torso != null)
-                torso.localScale = Vector3.Lerp(torsoStartScale,
-                    new Vector3(torsoStartScale.x, torsoStartScale.y * 0.5f, torsoStartScale.z), eased);
-        }
-        // Остаётся лежать
+        if (stateTimer < deathDuration) { float t = 1f - (1f - stateTimer / deathDuration) * (1f - stateTimer / deathDuration); transform.localRotation = Quaternion.Euler(0, 0, 90f * t); }
     }
 
-    // ═══════════ ВСПОМОГАТЕЛЬНЫЕ ═══════════
-    void EndAttack()
+    void ResetArms()
     {
-        if (torso != null)
-        {
-            torso.localRotation = torsoStartRot;
-            torso.localScale = Vector3.Scale(torsoStartScale, currentSquash);
-        }
-        if (leftArm != null) leftArm.localRotation = leftArmStartRot;
-        if (rightArm != null) rightArm.localRotation = rightArmStartRot;
-        transform.localRotation = Quaternion.identity;
-        OnAttackEnd?.Invoke(stateTimer);
-        SetState(AnimState.Idle);
+        if (leftArm != null) { leftArm.localPosition = leftArmStartPos; leftArm.localScale = leftArmStartScale; leftArm.localRotation = Quaternion.Lerp(leftArm.localRotation, leftArmStartRot * Quaternion.Euler(0, 0, Mathf.Sin(Time.time * idleBobSpeed * 0.8f) * idleArmSway), Time.deltaTime * 5f); }
+        if (rightArm != null) { rightArm.localPosition = rightArmStartPos; rightArm.localScale = rightArmStartScale; rightArm.localRotation = Quaternion.Lerp(rightArm.localRotation, rightArmStartRot * Quaternion.Euler(0, 0, -Mathf.Sin(Time.time * idleBobSpeed * 0.8f) * idleArmSway), Time.deltaTime * 5f); }
     }
 
     void SmoothReturnLegs()
     {
-        if (leftLeg != null)
-            leftLeg.localRotation = Quaternion.Lerp(leftLeg.localRotation, leftLegStartRot, Time.deltaTime * 5f);
-        if (rightLeg != null)
-            rightLeg.localRotation = Quaternion.Lerp(rightLeg.localRotation, rightLegStartRot, Time.deltaTime * 5f);
+        if (leftLeg != null) leftLeg.localRotation = Quaternion.Lerp(leftLeg.localRotation, leftLegStartRot, Time.deltaTime * 5f);
+        if (rightLeg != null) rightLeg.localRotation = Quaternion.Lerp(rightLeg.localRotation, rightLegStartRot, Time.deltaTime * 5f);
     }
 
-    public bool IsBusy()
+    void EndAttack()
     {
-        return currentState == AnimState.Jab || currentState == AnimState.Cross ||
-               currentState == AnimState.Uppercut || currentState == AnimState.Heavy ||
-               currentState == AnimState.Spin || currentState == AnimState.Dash ||
-               currentState == AnimState.Roll || currentState == AnimState.Hit ||
-               currentState == AnimState.Death;
+        ResetArms();
+        if (torso != null) { torso.localRotation = torsoStartRot; torso.localScale = torsoStartScale; }
+        transform.localRotation = Quaternion.identity;
+        DestroyChargeCircle();
+        OnAttackEnd?.Invoke(stateTimer);
+        SetState(AnimState.Idle);
     }
 
-    public bool IsDead() { return currentState == AnimState.Death; }
+    void CreateChargeCircle()
+    {
+        chargeCircle = new GameObject("ChargeCircle");
+        chargeCircle.transform.SetParent(transform);
+        chargeCircle.transform.localPosition = Vector3.zero;
+        chargeCircleRenderer = chargeCircle.AddComponent<SpriteRenderer>();
+        chargeCircleRenderer.sprite = circleSprite != null ? circleSprite : CreateCircleSprite(64);
+        chargeCircleRenderer.color = new Color(1, 1, 1, 0.3f);
+        chargeCircleRenderer.sortingOrder = 50;
+    }
+
+    void DestroyChargeCircle() { if (chargeCircle != null) Destroy(chargeCircle); chargeCircle = null; chargeCircleRenderer = null; }
+
+    Sprite CreateCircleSprite(int r)
+    {
+        Texture2D t = new Texture2D(r, r, TextureFormat.RGBA32, false);
+        float c = r / 2f;
+        for (int y = 0; y < r; y++) for (int x = 0; x < r; x++) { float d = Vector2.Distance(new Vector2(x, y), new Vector2(c, c)) / c; t.SetPixel(x, y, new Color(1, 1, 1, Mathf.Clamp01(1f - d) * Mathf.Clamp01(1f - d))); }
+        t.Apply();
+        return Sprite.Create(t, new Rect(0, 0, r, r), new Vector2(0.5f, 0.5f), r);
+    }
+
+    // ═══════════ ПУБЛИЧНЫЕ ═══════════
+    public bool IsBusy() => currentState >= AnimState.Jab && currentState <= AnimState.Barrage || currentState == AnimState.Hit || currentState == AnimState.Death || currentState == AnimState.BarrageCharging;
+    public bool IsDead() => currentState == AnimState.Death;
+    public bool IsBarraging() => currentState == AnimState.Barrage;
+    public bool IsBlocking() => isBlocking;
     public AnimState CurrentState => currentState;
 
-    // ═══════════ ПУБЛИЧНЫЕ МЕТОДЫ ═══════════
-    public void SetMoving(bool moving, bool running = false)
-    {
-        if (IsBusy() || isBlocking) return;
-        SetState(moving ? (running ? AnimState.Run : AnimState.Walk) : AnimState.Idle);
-    }
-
-    public void SetFacing(float dir)
-    {
-        if (Mathf.Abs(dir) > 0.1f)
-            facingDir = Mathf.Sign(dir);
-    }
+    public void SetMoving(bool m, bool run = false) { if (IsBusy() || isBlocking) return; SetState(m ? (run ? AnimState.Run : AnimState.Walk) : AnimState.Idle); }
+    public void SetTarget(Transform t, Vector2 dir) { currentTarget = t; if (dir.magnitude > 0.1f) targetDir = dir.normalized; }
+    public void SetFacing(float dir) { if (Mathf.Abs(dir) > 0.1f) targetDir = new Vector2(Mathf.Sign(dir), 0); }
 
     public void Jab() { if (!IsBusy() && !isBlocking) SetState(AnimState.Jab); }
     public void Cross() { if (!IsBusy() && !isBlocking) SetState(AnimState.Cross); }
     public void Uppercut() { if (!IsBusy() && !isBlocking) SetState(AnimState.Uppercut); }
     public void HeavyAttack() { if (!IsBusy() && !isBlocking) SetState(AnimState.Heavy); }
-    public void SpinAttack() { if (!IsBusy() && !isBlocking) SetState(AnimState.Spin); }
     public void Dash() { if (!IsBusy() && !isBlocking) SetState(AnimState.Dash); }
     public void Roll() { if (!IsBusy() && !isBlocking) SetState(AnimState.Roll); }
-
-    public void StartBlock()
-    {
-        if (IsBusy()) return;
-        isBlocking = true;
-        SetState(AnimState.Block);
-    }
-    public void StopBlock()
-    {
-        isBlocking = false;
-        if (currentState == AnimState.Block) SetState(AnimState.Idle);
-    }
-    public bool IsBlocking() => isBlocking;
-
-    public void TakeHit()
-    {
-        if (!IsDead()) SetState(AnimState.Hit);
-    }
-
-    public void Die()
-    {
-        SetState(AnimState.Death);
-    }
+    public void StartBlock() { if (IsBusy()) return; isBlocking = true; SetState(AnimState.Block); }
+    public void StopBlock() { isBlocking = false; if (currentState == AnimState.Block) SetState(AnimState.Idle); }
+    public void TakeHit() { if (!IsDead()) SetState(AnimState.Hit); }
+    public void Die() { SetState(AnimState.Death); }
 }

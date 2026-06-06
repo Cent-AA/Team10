@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
 public class PlayerController : MonoBehaviour
 {
@@ -17,42 +16,44 @@ public class PlayerController : MonoBehaviour
     [Header("═══ Здоровье ═══")]
     public float maxHealth = 100f;
     public float currentHealth;
-    public float blockDamageReduction = 0.7f;  // 70% урона блокируется
+    public float blockDamageReduction = 0.7f;
 
-    [Header("═══ Атаки ═══")]
+    [Header("═══ Урон атак ═══")]
     public float jabDamage = 8f;
     public float crossDamage = 12f;
     public float uppercutDamage = 25f;
     public float heavyDamage = 35f;
-    public float spinDamage = 18f;
     public float dashDamage = 15f;
 
     [Header("═══ Комбо ═══")]
-    public float comboWindow = 0.8f;          // Время на продолжение комбо
+    public float comboWindow = 0.8f;
 
-    [Header("═══ Hit-Stop & Knockback ═══")]
+    [Header("═══ Hit Effects ═══")]
     public float hitStopDuration = 0.08f;
     public float knockbackForce = 5f;
     public float invulnerabilityTime = 0.3f;
 
+    [Header("═══ Звуки ═══")]
+    public AudioClip hitSound;
+    public AudioClip heavyHitSound;
+    public AudioClip chargeSound;           // Звук зарядки барража
+    public AudioClip barrageSound;          // Звук барража
+    private AudioSource audioSource;
+
     [Header("═══ Компоненты ═══")]
     public PuppetAnimator puppet;
     public Rigidbody2D rb;
-    public SpriteRenderer[] spriteRenderers;  // Все спрайты для подсветки урона
+    public SpriteRenderer[] spriteRenderers;
     public Transform attackPoint;
     public float attackRange = 1.2f;
     public LayerMask enemyLayer;
-
-    [Header("═══ Эффекты ═══")]
-    public Color hitFlashColor = Color.red;
-    public float hitFlashDuration = 0.1f;
+    public TargetingSystem targeting;
 
     // События
-    public System.Action<float, float> OnHealthChanged;  // current, max
+    public System.Action<float, float> OnHealthChanged;
     public System.Action OnDeath;
-    public System.Action<float> OnHit;  // damage
 
-    // Внутреннее состояние
+    // Внутреннее
     private Vector2 moveInput;
     private Vector2 lastMoveDir = Vector2.right;
     private bool isRunning = false;
@@ -60,20 +61,23 @@ public class PlayerController : MonoBehaviour
     private bool isInvulnerable = false;
     private bool isHitStopped = false;
     private float dashCooldownTimer = 0f;
-
-    // Комбо
     private int comboStep = 0;
     private float comboTimer = 0f;
-
-    // Подсветка
     private Color[] originalColors;
+
+    // Зарядка Heavy
+    private bool isHoldingHeavy = false;
+    private float heavyHoldTime = 0f;
+    private bool chargeSoundPlayed = false;
 
     void Start()
     {
         currentHealth = maxHealth;
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
 
-        // Запоминаем оригинальные цвета спрайтов
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
+
         if (spriteRenderers != null && spriteRenderers.Length > 0)
         {
             originalColors = new Color[spriteRenderers.Length];
@@ -82,9 +86,11 @@ public class PlayerController : MonoBehaviour
                     originalColors[i] = spriteRenderers[i].color;
         }
 
-        // Подписываемся на хитфреймы анимации
         if (puppet != null)
+        {
             puppet.OnHitFrame += DealAttackDamage;
+            puppet.OnBarrageHit += DealBarrageDamage;
+        }
     }
 
     void Update()
@@ -92,37 +98,80 @@ public class PlayerController : MonoBehaviour
         if (puppet != null && puppet.IsDead()) return;
         if (isHitStopped) return;
 
-        // Кулдауны
         if (dashCooldownTimer > 0) dashCooldownTimer -= Time.deltaTime;
-        if (comboTimer > 0) comboTimer -= Time.deltaTime;
-        else comboStep = 0;
+        if (comboTimer > 0) comboTimer -= Time.deltaTime; else comboStep = 0;
 
-        // Ввод
         moveInput = GetMovementInput();
         isRunning = GetRunInput();
         bool blocking = GetBlockInput();
 
-        // Обработка состояний
-        if (!puppet.IsBusy())
+        // Направление к таргету
+        if (targeting != null && targeting.currentTarget != null)
         {
-            // Атаки имеют приоритет
+            Vector2 targetDir = (targeting.currentTarget.position - transform.position).normalized;
+            puppet.SetTarget(targeting.currentTarget, targetDir);
+        }
+        else if (moveInput.magnitude > 0.1f)
+        {
+            puppet.SetTarget(null, moveInput.normalized);
+        }
+
+        // Heavy зажатие → зарядка барража
+        bool heavyHeld = GetHeavyAttackHeld();
+        bool canCharge = !puppet.IsBusy() || puppet.CurrentState == PuppetAnimator.AnimState.BarrageCharging;
+
+        if (heavyHeld && canCharge)
+        {
+            if (!isHoldingHeavy)
+            {
+                isHoldingHeavy = true;
+                heavyHoldTime = 0f;
+                chargeSoundPlayed = false;
+            }
+            heavyHoldTime += Time.deltaTime;
+
+            // Через 2 секунды — начинаем зарядку
+            if (heavyHoldTime >= 2f && !chargeSoundPlayed)
+            {
+                chargeSoundPlayed = true;
+                puppet.StartBarrageCharge();
+                PlaySound(chargeSound);
+            }
+        }
+        else if (isHoldingHeavy)
+        {
+            isHoldingHeavy = false;
+
+            if (heavyHoldTime >= 7f)
+            {
+                // БАРРАЖ!
+                puppet.ReleaseBarrageCharge();
+                PlaySound(barrageSound);
+            }
+            else if (heavyHoldTime >= 2f)
+            {
+                // Не дозарядил — обычный heavy
+                puppet.ReleaseBarrageCharge();
+                PlaySound(heavyHitSound);
+            }
+            else if (!puppet.IsBusy())
+            {
+                // Быстрое нажатие — обычный heavy
+                puppet.HeavyAttack();
+                PlaySound(heavyHitSound);
+            }
+        }
+
+        if (!puppet.IsBusy() && !isHoldingHeavy)
+        {
             if (GetLightAttackInput()) PerformComboAttack();
-            else if (GetHeavyAttackInput()) PerformHeavyAttack();
-            else if (GetSpinAttackInput()) PerformSpinAttack();
             else if (GetDashInput() && dashCooldownTimer <= 0) StartCoroutine(DashRoutine());
             else if (GetRollInput()) puppet.Roll();
+            else if (blocking) puppet.StartBlock();
             else
             {
-                // Блок или движение
-                if (blocking)
-                {
-                    puppet.StartBlock();
-                }
-                else
-                {
-                    if (puppet.IsBlocking()) puppet.StopBlock();
-                    UpdateMovement();
-                }
+                if (puppet.IsBlocking()) puppet.StopBlock();
+                UpdateMovement();
             }
         }
         else if (puppet.CurrentState == PuppetAnimator.AnimState.Block && !blocking)
@@ -130,25 +179,19 @@ public class PlayerController : MonoBehaviour
             puppet.StopBlock();
         }
 
-        // Обновление направления
         if (moveInput.magnitude > 0.1f)
-        {
             lastMoveDir = moveInput.normalized;
-            puppet.SetFacing(moveInput.x);
-        }
     }
 
     void FixedUpdate()
     {
         if (isDashing || isHitStopped) return;
-        if (puppet != null && (puppet.IsDead() || puppet.IsBusy())) return;
+        if (puppet != null && (puppet.IsDead() || (puppet.IsBusy() && !puppet.IsBarraging()))) return;
 
-        // Движение через MovePosition
         if (rb != null)
         {
             float speed = isRunning ? runSpeed : walkSpeed;
-            Vector2 newPos = rb.position + moveInput * speed * Time.fixedDeltaTime;
-            rb.MovePosition(newPos);
+            rb.MovePosition(rb.position + moveInput * speed * Time.fixedDeltaTime);
         }
     }
 
@@ -158,11 +201,11 @@ public class PlayerController : MonoBehaviour
         puppet.SetMoving(moving, moving && isRunning);
     }
 
-    // ═══════════ КОМБО АТАКА ═══════════
     void PerformComboAttack()
     {
         comboTimer = comboWindow;
         comboStep = (comboStep % 3) + 1;
+        PlaySound(hitSound);
 
         switch (comboStep)
         {
@@ -172,19 +215,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void PerformHeavyAttack()
-    {
-        puppet.HeavyAttack();
-        comboStep = 0;
-    }
-
-    void PerformSpinAttack()
-    {
-        puppet.SpinAttack();
-        comboStep = 0;
-    }
-
-    // ═══════════ РЫВОК С I-FRAMES ═══════════
     IEnumerator DashRoutine()
     {
         isDashing = true;
@@ -194,12 +224,10 @@ public class PlayerController : MonoBehaviour
 
         Vector2 dashDir = moveInput.magnitude > 0.1f ? moveInput.normalized : lastMoveDir;
         float elapsed = 0f;
-
         while (elapsed < dashDuration)
         {
             elapsed += Time.fixedDeltaTime;
-            if (rb != null)
-                rb.MovePosition(rb.position + dashDir * dashSpeed * Time.fixedDeltaTime);
+            if (rb != null) rb.MovePosition(rb.position + dashDir * dashSpeed * Time.fixedDeltaTime);
             yield return new WaitForFixedUpdate();
         }
 
@@ -208,28 +236,59 @@ public class PlayerController : MonoBehaviour
         isInvulnerable = false;
     }
 
-    // ═══════════ НАНЕСЕНИЕ УРОНА ═══════════
+    // ═══════════ УРОН ═══════════
     void DealAttackDamage()
     {
         if (attackPoint == null) return;
-
         Collider2D[] hits = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayer);
-
-        float damage = GetCurrentAttackDamage();
+        float damage = GetCurrentDamage();
 
         foreach (var hit in hits)
         {
+            if (hit.transform == transform) continue;
+
+            Vector2 knockDir = (hit.transform.position - transform.position).normalized;
+
+            // Зомби
+            ZombieAI zombie = hit.GetComponent<ZombieAI>();
+            if (zombie != null)
+            {
+                zombie.TakeDamage(damage, knockDir);
+                PlaySound(hitSound);
+                StartCoroutine(HitStopRoutine());
+            }
+
+            // Другой игрок
             PlayerController enemy = hit.GetComponent<PlayerController>();
             if (enemy != null && enemy != this)
             {
-                Vector2 knockDir = (hit.transform.position - transform.position).normalized;
                 enemy.TakeDamage(damage, knockDir);
+                PlaySound(hitSound);
                 StartCoroutine(HitStopRoutine());
             }
         }
     }
 
-    float GetCurrentAttackDamage()
+    void DealBarrageDamage(Vector2 dir, float damage)
+    {
+        if (targeting == null || targeting.currentTarget == null) return;
+
+        float dist = Vector2.Distance(transform.position, targeting.currentTarget.position);
+        if (dist > puppet.barrageFlyDistance * 2f) return;
+
+        // Бьём таргет
+        ZombieAI zombie = targeting.currentTarget.GetComponent<ZombieAI>();
+        if (zombie != null) zombie.TakeDamage(damage, dir);
+
+        PlayerController enemy = targeting.currentTarget.GetComponent<PlayerController>();
+        if (enemy != null && enemy != this)
+        {
+            enemy.TakeDamage(damage, dir * 0.1f);  // Маленький нокбэк — враг стоит на месте
+            // Враг не может двигаться во время барража
+        }
+    }
+
+    float GetCurrentDamage()
     {
         if (puppet == null) return jabDamage;
         switch (puppet.CurrentState)
@@ -238,42 +297,25 @@ public class PlayerController : MonoBehaviour
             case PuppetAnimator.AnimState.Cross: return crossDamage;
             case PuppetAnimator.AnimState.Uppercut: return uppercutDamage;
             case PuppetAnimator.AnimState.Heavy: return heavyDamage;
-            case PuppetAnimator.AnimState.Spin: return spinDamage;
             case PuppetAnimator.AnimState.Dash: return dashDamage;
             default: return jabDamage;
         }
     }
 
-    // ═══════════ ПОЛУЧЕНИЕ УРОНА ═══════════
     public void TakeDamage(float damage, Vector2 knockbackDir)
     {
         if (isInvulnerable || puppet.IsDead()) return;
-
-        // Блок снижает урон
-        if (puppet.IsBlocking())
-        {
-            damage *= (1f - blockDamageReduction);
-            knockbackDir *= 0.3f;  // Меньше нокбэк при блоке
-        }
+        if (puppet.IsBlocking()) { damage *= (1f - blockDamageReduction); knockbackDir *= 0.3f; }
 
         currentHealth -= damage;
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
-        OnHit?.Invoke(damage);
 
-        // Нокбэк
-        if (rb != null)
-            StartCoroutine(KnockbackRoutine(knockbackDir));
-
-        // Эффекты
+        if (rb != null) StartCoroutine(KnockbackRoutine(knockbackDir));
         StartCoroutine(HitFlashRoutine());
-        StartCoroutine(HitStopRoutine());
-        ArenaCamera.Shake(damage * 0.05f, 0.15f);
+        ArenaCamera.Shake(damage * 0.04f, 0.12f);
 
-        if (currentHealth <= 0)
-        {
-            Die();
-        }
-        else if (!puppet.IsBlocking())
+        if (currentHealth <= 0) Die();
+        else if (!puppet.IsBlocking() && !puppet.IsBarraging())
         {
             puppet.TakeHit();
             StartCoroutine(InvulnerabilityRoutine());
@@ -282,66 +324,43 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator KnockbackRoutine(Vector2 dir)
     {
-        float elapsed = 0f;
-        float duration = 0.15f;
-        while (elapsed < duration)
-        {
-            elapsed += Time.fixedDeltaTime;
-            if (rb != null)
-                rb.MovePosition(rb.position + dir * knockbackForce * Time.fixedDeltaTime);
-            yield return new WaitForFixedUpdate();
-        }
+        float e = 0f;
+        while (e < 0.15f) { e += Time.fixedDeltaTime; if (rb != null) rb.MovePosition(rb.position + dir * knockbackForce * Time.fixedDeltaTime); yield return new WaitForFixedUpdate(); }
     }
 
     IEnumerator HitStopRoutine()
     {
+        if (isHitStopped) yield break;  // Не стакать
         isHitStopped = true;
-        float prevScale = Time.timeScale;
         Time.timeScale = 0.05f;
         yield return new WaitForSecondsRealtime(hitStopDuration);
-        Time.timeScale = prevScale;
+        Time.timeScale = 1f;  // Всегда возвращаем в 1
         isHitStopped = false;
     }
 
     IEnumerator HitFlashRoutine()
     {
         if (spriteRenderers == null) yield break;
-
-        foreach (var sr in spriteRenderers)
-            if (sr != null) sr.color = hitFlashColor;
-
-        yield return new WaitForSeconds(hitFlashDuration);
-
-        for (int i = 0; i < spriteRenderers.Length; i++)
-            if (spriteRenderers[i] != null)
-                spriteRenderers[i].color = originalColors[i];
+        foreach (var sr in spriteRenderers) if (sr != null) sr.color = Color.red;
+        yield return new WaitForSeconds(0.1f);
+        for (int i = 0; i < spriteRenderers.Length; i++) if (spriteRenderers[i] != null) spriteRenderers[i].color = originalColors[i];
     }
 
     IEnumerator InvulnerabilityRoutine()
     {
         isInvulnerable = true;
-
-        // Мерцание
-        float elapsed = 0f;
-        while (elapsed < invulnerabilityTime)
-        {
-            elapsed += 0.1f;
-            foreach (var sr in spriteRenderers)
-                if (sr != null) sr.enabled = !sr.enabled;
-            yield return new WaitForSeconds(0.1f);
-        }
-
-        foreach (var sr in spriteRenderers)
-            if (sr != null) sr.enabled = true;
-
+        float e = 0f;
+        while (e < invulnerabilityTime) { e += 0.1f; foreach (var sr in spriteRenderers) if (sr != null) sr.enabled = !sr.enabled; yield return new WaitForSeconds(0.1f); }
+        foreach (var sr in spriteRenderers) if (sr != null) sr.enabled = true;
         isInvulnerable = false;
     }
 
-    void Die()
+    void Die() { puppet.Die(); OnDeath?.Invoke(); if (rb != null) rb.bodyType = RigidbodyType2D.Kinematic; }
+
+    void PlaySound(AudioClip clip)
     {
-        puppet.Die();
-        OnDeath?.Invoke();
-        if (rb != null) rb.bodyType = RigidbodyType2D.Kinematic;
+        if (clip != null && audioSource != null)
+            audioSource.PlayOneShot(clip);
     }
 
     // ═══════════ ВВОД ═══════════
@@ -349,25 +368,16 @@ public class PlayerController : MonoBehaviour
     {
         var type = playerNumber == 1 ? InputJoinManager.player1Input : InputJoinManager.player2Input;
         Vector2 input = Vector2.zero;
-
         switch (type)
         {
             case InputJoinManager.InputType.KeyboardWASD:
-                if (Input.GetKey(KeyCode.W)) input.y += 1;
-                if (Input.GetKey(KeyCode.S)) input.y -= 1;
-                if (Input.GetKey(KeyCode.A)) input.x -= 1;
-                if (Input.GetKey(KeyCode.D)) input.x += 1;
-                break;
+                if (Input.GetKey(KeyCode.W)) input.y += 1; if (Input.GetKey(KeyCode.S)) input.y -= 1;
+                if (Input.GetKey(KeyCode.A)) input.x -= 1; if (Input.GetKey(KeyCode.D)) input.x += 1; break;
             case InputJoinManager.InputType.KeyboardArrows:
-                if (Input.GetKey(KeyCode.UpArrow)) input.y += 1;
-                if (Input.GetKey(KeyCode.DownArrow)) input.y -= 1;
-                if (Input.GetKey(KeyCode.LeftArrow)) input.x -= 1;
-                if (Input.GetKey(KeyCode.RightArrow)) input.x += 1;
-                break;
+                if (Input.GetKey(KeyCode.UpArrow)) input.y += 1; if (Input.GetKey(KeyCode.DownArrow)) input.y -= 1;
+                if (Input.GetKey(KeyCode.LeftArrow)) input.x -= 1; if (Input.GetKey(KeyCode.RightArrow)) input.x += 1; break;
             case InputJoinManager.InputType.Gamepad:
-                input.x = Input.GetAxis("Horizontal");
-                input.y = Input.GetAxis("Vertical");
-                break;
+                input.x = Input.GetAxis("Horizontal"); input.y = Input.GetAxis("Vertical"); break;
         }
         return input.normalized;
     }
@@ -379,9 +389,6 @@ public class PlayerController : MonoBehaviour
         {
             case InputJoinManager.InputType.KeyboardWASD: return Input.GetKey(KeyCode.LeftShift);
             case InputJoinManager.InputType.KeyboardArrows: return Input.GetKey(KeyCode.RightControl);
-            case InputJoinManager.InputType.Gamepad:
-                int pad = playerNumber == 1 ? InputJoinManager.player1GamepadIndex : InputJoinManager.player2GamepadIndex;
-                return GetPadButton(pad, 4);  // L1 / LB
         }
         return false;
     }
@@ -393,37 +400,17 @@ public class PlayerController : MonoBehaviour
         {
             case InputJoinManager.InputType.KeyboardWASD: return Input.GetKeyDown(KeyCode.Space);
             case InputJoinManager.InputType.KeyboardArrows: return Input.GetKeyDown(KeyCode.Alpha1);
-            case InputJoinManager.InputType.Gamepad:
-                int pad = playerNumber == 1 ? InputJoinManager.player1GamepadIndex : InputJoinManager.player2GamepadIndex;
-                return GetPadButtonDown(pad, 0);
         }
         return false;
     }
 
-    bool GetHeavyAttackInput()
+    bool GetHeavyAttackHeld()
     {
         var type = playerNumber == 1 ? InputJoinManager.player1Input : InputJoinManager.player2Input;
         switch (type)
         {
-            case InputJoinManager.InputType.KeyboardWASD: return Input.GetKeyDown(KeyCode.Q);
-            case InputJoinManager.InputType.KeyboardArrows: return Input.GetKeyDown(KeyCode.Alpha2);
-            case InputJoinManager.InputType.Gamepad:
-                int pad = playerNumber == 1 ? InputJoinManager.player1GamepadIndex : InputJoinManager.player2GamepadIndex;
-                return GetPadButtonDown(pad, 2);
-        }
-        return false;
-    }
-
-    bool GetSpinAttackInput()
-    {
-        var type = playerNumber == 1 ? InputJoinManager.player1Input : InputJoinManager.player2Input;
-        switch (type)
-        {
-            case InputJoinManager.InputType.KeyboardWASD: return Input.GetKeyDown(KeyCode.E);
-            case InputJoinManager.InputType.KeyboardArrows: return Input.GetKeyDown(KeyCode.Alpha3);
-            case InputJoinManager.InputType.Gamepad:
-                int pad = playerNumber == 1 ? InputJoinManager.player1GamepadIndex : InputJoinManager.player2GamepadIndex;
-                return GetPadButtonDown(pad, 3);
+            case InputJoinManager.InputType.KeyboardWASD: return Input.GetKey(KeyCode.Q);
+            case InputJoinManager.InputType.KeyboardArrows: return Input.GetKey(KeyCode.Alpha2);
         }
         return false;
     }
@@ -435,9 +422,6 @@ public class PlayerController : MonoBehaviour
         {
             case InputJoinManager.InputType.KeyboardWASD: return Input.GetKeyDown(KeyCode.R);
             case InputJoinManager.InputType.KeyboardArrows: return Input.GetKeyDown(KeyCode.Alpha4);
-            case InputJoinManager.InputType.Gamepad:
-                int pad = playerNumber == 1 ? InputJoinManager.player1GamepadIndex : InputJoinManager.player2GamepadIndex;
-                return GetPadButtonDown(pad, 1);
         }
         return false;
     }
@@ -449,9 +433,6 @@ public class PlayerController : MonoBehaviour
         {
             case InputJoinManager.InputType.KeyboardWASD: return Input.GetKeyDown(KeyCode.F);
             case InputJoinManager.InputType.KeyboardArrows: return Input.GetKeyDown(KeyCode.Alpha5);
-            case InputJoinManager.InputType.Gamepad:
-                int pad = playerNumber == 1 ? InputJoinManager.player1GamepadIndex : InputJoinManager.player2GamepadIndex;
-                return GetPadButtonDown(pad, 5);
         }
         return false;
     }
@@ -463,41 +444,12 @@ public class PlayerController : MonoBehaviour
         {
             case InputJoinManager.InputType.KeyboardWASD: return Input.GetKey(KeyCode.C);
             case InputJoinManager.InputType.KeyboardArrows: return Input.GetKey(KeyCode.Alpha6);
-            case InputJoinManager.InputType.Gamepad:
-                int pad = playerNumber == 1 ? InputJoinManager.player1GamepadIndex : InputJoinManager.player2GamepadIndex;
-                return GetPadButton(pad, 6);  // L2
         }
         return false;
     }
 
-    bool GetPadButton(int pad, int button)
-    {
-        if (pad < 0) return false;
-        try
-        {
-            KeyCode kc = (KeyCode)System.Enum.Parse(typeof(KeyCode), "Joystick" + pad + "Button" + button);
-            return Input.GetKey(kc);
-        }
-        catch { return false; }
-    }
-
-    bool GetPadButtonDown(int pad, int button)
-    {
-        if (pad < 0) return false;
-        try
-        {
-            KeyCode kc = (KeyCode)System.Enum.Parse(typeof(KeyCode), "Joystick" + pad + "Button" + button);
-            return Input.GetKeyDown(kc);
-        }
-        catch { return false; }
-    }
-
     void OnDrawGizmosSelected()
     {
-        if (attackPoint != null)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(attackPoint.position, attackRange);
-        }
+        if (attackPoint != null) { Gizmos.color = Color.red; Gizmos.DrawWireSphere(attackPoint.position, attackRange); }
     }
 }
