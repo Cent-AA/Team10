@@ -477,7 +477,7 @@ Transform:
   m_GameObject: {fileID: 135519789}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.2, y: 1.31, z: -2}
+  m_LocalPosition: {x: -0.23000006, y: 0.74, z: -2}
   m_LocalScale: {x: 0.02, y: 0.02, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -567,7 +567,7 @@ Transform:
   m_GameObject: {fileID: 374236326}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.19999993, y: 0.23000008, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -643,7 +643,7 @@ Transform:
   m_GameObject: {fileID: 406959060}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.89, y: 0.44, z: 0}
+  m_LocalPosition: {x: 0.45999992, y: -0.12999994, z: 0}
   m_LocalScale: {x: 0.04, y: 0.025, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -734,7 +734,7 @@ Transform:
   m_GameObject: {fileID: 424234606}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.54, y: 0.46, z: 0}
+  m_LocalPosition: {x: 0.109999955, y: -0.109999925, z: 0}
   m_LocalScale: {x: 0.04, y: 0.025, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -825,7 +825,7 @@ Transform:
   m_GameObject: {fileID: 492377064}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.73, y: 1.05, z: -1}
+  m_LocalPosition: {x: 0.29999995, y: 0.48000002, z: -1}
   m_LocalScale: {x: 0.05, y: 0.05, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -901,6 +901,7 @@ GameObject:
   - component: {fileID: 618099599}
   - component: {fileID: 618099598}
   - component: {fileID: 618099597}
+  - component: {fileID: 618099600}
   m_Layer: 0
   m_Name: CampFire
   m_TagString: Untagged
@@ -1013,11 +1014,56 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1572236248}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &618099600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 618099596}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b909f6539c54fa43af776bce1b57072, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CampfireController
+  fireFrames:
+  - {fileID: 21300000, guid: aae3b52df17266c4db92c0574d5aa206, type: 3}
+  - {fileID: 21300000, guid: 0e4d2c3e8696d274bacb2ce7f9592d07, type: 3}
+  - {fileID: -680087486501830028, guid: 3592cc8b19babf443ba47ffe6f0f58f0, type: 3}
+  frameRate: 8
+  frameRateVariation: 3
+  fireRenderer: {fileID: 618099598}
+  scalePulseAmount: 0.08
+  scalePulseSpeed: 4
+  scaleRandomness: 0.03
+  createGlow: 1
+  glowColor: {r: 1, g: 0.6, b: 0.15, a: 0.25}
+  glowSize: 5
+  glowPulseAmount: 0.3
+  glowPulseSpeed: 3
+  createGroundLight: 1
+  groundLightColor: {r: 1, g: 0.5, b: 0.1, a: 0.15}
+  groundLightSize: 8
+  flickerSpeed: 15
+  flickerAmount: 0.15
+  createSparks: 1
+  sparkCount: 30
+  sparkColor1: {r: 1, g: 0.8, b: 0.2, a: 1}
+  sparkColor2: {r: 1, g: 0.3, b: 0, a: 1}
+  createSmoke: 1
+  smokeCount: 10
+  smokeColor: {r: 0.3, g: 0.3, b: 0.3, a: 0.15}
+  createEmbers: 1
+  emberCount: 15
+  emberColor: {r: 1, g: 0.2, b: 0, a: 0.8}
+  cracklingSound: {fileID: 0}
+  soundVolume: 0.3
 --- !u!1 &645909844
 GameObject:
   m_ObjectHideFlags: 0
@@ -1044,7 +1090,7 @@ Transform:
   m_GameObject: {fileID: 645909844}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.19, y: 1.31, z: -2}
+  m_LocalPosition: {x: 0.76, y: 0.74, z: -2}
   m_LocalScale: {x: 0.02, y: 0.02, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1375,7 +1421,7 @@ Transform:
   m_GameObject: {fileID: 1320158227}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.53, y: 1.29, z: -2}
+  m_LocalPosition: {x: 0.1, y: 0.72, z: -2}
   m_LocalScale: {x: 0.04, y: 0.04, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1701,6 +1747,97 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &1572236247
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1572236248}
+  - component: {fileID: 1572236249}
+  m_Layer: 0
+  m_Name: fire1_0
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1572236248
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1572236247}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.15, y: 0, z: -1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 618099599}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &1572236249
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1572236247}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: -3966301110949134133, guid: aae3b52df17266c4db92c0574d5aa206, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 0.72, y: 3.15}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 0
+  m_SpriteSortPoint: 0
 --- !u!1 &1730024707
 GameObject:
   m_ObjectHideFlags: 0
@@ -1755,7 +1892,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0.25, y: 0.4}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -1765,7 +1902,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1.5, y: 2}
   m_EdgeRadius: 0
 --- !u!50 &1730024709
 Rigidbody2D:
@@ -1838,14 +1975,53 @@ MonoBehaviour:
   idleBobAmount: 0.02
   idleBreathAmount: 0
   idleArmSway: 2
+  idleHeadTurn: 1.5
   walkLegAngle: 20
   walkLegSpeed: 8
   walkArmAngle: 15
   walkBodyTilt: 3
   walkBob: 0.03
-  attackArmAngle: -90
-  attackDuration: 0.3
-  attackReturnDuration: 0.2
+  runLegAngle: 50
+  runLegSpeed: 18
+  runArmAngle: 40
+  runBodyTilt: 10
+  runBob: 0.1
+  runLean: 8
+  jabAnticipation: 0.08
+  jabStrike: 0.1
+  jabRecovery: 0.2
+  jabAngle: -110
+  jabSquash: 1.1
+  crossAngle: -120
+  crossLean: 8
+  uppercutAnticipation: 0.15
+  uppercutStrike: 0.15
+  uppercutRecovery: 0.35
+  uppercutAngle: -150
+  uppercutLift: 0.15
+  heavyAnticipation: 0.4
+  heavyStrike: 0.12
+  heavyRecovery: 0.5
+  heavyAngle: -140
+  heavySquash: 0.85
+  spinDuration: 0.7
+  spinRotations: 2
+  spinArmExtend: 80
+  dashDuration: 0.25
+  dashLean: 25
+  dashArmForward: -75
+  dashStretch: 1.15
+  blockArmAngle: 60
+  blockSpeed: 15
+  rollDuration: 0.5
+  rollRotations: 1
+  hitDuration: 0.25
+  hitShake: 8
+  hitFlashDuration: 0.1
+  deathDuration: 1
+  deathFallAngle: 90
+  useSquashStretch: 1
+  squashSpeed: 12
 --- !u!114 &1730024713
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1859,9 +2035,40 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   playerNumber: 1
-  moveSpeed: 5
-  puppetAnimator: {fileID: 1730024712}
+  walkSpeed: 4
+  runSpeed: 7
+  dashSpeed: 18
+  dashDuration: 0.25
+  dashCooldown: 1
+  maxHealth: 100
+  currentHealth: 0
+  blockDamageReduction: 0.7
+  jabDamage: 8
+  crossDamage: 12
+  uppercutDamage: 25
+  heavyDamage: 35
+  spinDamage: 18
+  dashDamage: 15
+  comboWindow: 0.8
+  hitStopDuration: 0.08
+  knockbackForce: 5
+  invulnerabilityTime: 0.3
+  puppet: {fileID: 1730024712}
   rb: {fileID: 1730024709}
+  spriteRenderers:
+  - {fileID: 1320158229}
+  - {fileID: 492377066}
+  - {fileID: 135519791}
+  - {fileID: 645909846}
+  - {fileID: 424234608}
+  - {fileID: 406959062}
+  attackPoint: {fileID: 374236327}
+  attackRange: 1.2
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  hitFlashColor: {r: 1, g: 0, b: 0, a: 1}
+  hitFlashDuration: 0.1
 --- !u!1 &1978510219
 GameObject:
   m_ObjectHideFlags: 0
@@ -2117,14 +2324,53 @@ MonoBehaviour:
   idleBobAmount: 0.02
   idleBreathAmount: 0
   idleArmSway: 2
+  idleHeadTurn: 1.5
   walkLegAngle: 20
   walkLegSpeed: 8
   walkArmAngle: 15
   walkBodyTilt: 3
   walkBob: 0.03
-  attackArmAngle: -90
-  attackDuration: 0.3
-  attackReturnDuration: 0.2
+  runLegAngle: 50
+  runLegSpeed: 18
+  runArmAngle: 40
+  runBodyTilt: 10
+  runBob: 0.1
+  runLean: 8
+  jabAnticipation: 0.08
+  jabStrike: 0.1
+  jabRecovery: 0.2
+  jabAngle: -110
+  jabSquash: 1.1
+  crossAngle: -120
+  crossLean: 8
+  uppercutAnticipation: 0.15
+  uppercutStrike: 0.15
+  uppercutRecovery: 0.35
+  uppercutAngle: -150
+  uppercutLift: 0.15
+  heavyAnticipation: 0.4
+  heavyStrike: 0.12
+  heavyRecovery: 0.5
+  heavyAngle: -140
+  heavySquash: 0.85
+  spinDuration: 0.7
+  spinRotations: 2
+  spinArmExtend: 80
+  dashDuration: 0.25
+  dashLean: 25
+  dashArmForward: -75
+  dashStretch: 1.15
+  blockArmAngle: 60
+  blockSpeed: 15
+  rollDuration: 0.5
+  rollRotations: 1
+  hitDuration: 0.25
+  hitShake: 8
+  hitFlashDuration: 0.1
+  deathDuration: 1
+  deathFallAngle: 90
+  useSquashStretch: 1
+  squashSpeed: 12
 --- !u!61 &2087341502
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2233,9 +2479,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   playerNumber: 2
-  moveSpeed: 5
-  puppetAnimator: {fileID: 2087341501}
+  walkSpeed: 4
+  runSpeed: 7
+  dashSpeed: 18
+  dashDuration: 0.25
+  dashCooldown: 1
+  maxHealth: 100
+  currentHealth: 0
+  blockDamageReduction: 0.7
+  jabDamage: 8
+  crossDamage: 12
+  uppercutDamage: 25
+  heavyDamage: 35
+  spinDamage: 18
+  dashDamage: 15
+  comboWindow: 0.8
+  hitStopDuration: 0.08
+  knockbackForce: 5
+  invulnerabilityTime: 0.3
+  puppet: {fileID: 0}
   rb: {fileID: 2087341503}
+  spriteRenderers: []
+  attackPoint: {fileID: 0}
+  attackRange: 1.2
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  hitFlashColor: {r: 1, g: 0, b: 0, a: 1}
+  hitFlashDuration: 0.1
 --- !u!1 &2131445382
 GameObject:
   m_ObjectHideFlags: 0
@@ -2248,6 +2519,7 @@ GameObject:
   - component: {fileID: 2131445384}
   - component: {fileID: 2131445383}
   - component: {fileID: 2131445386}
+  - component: {fileID: 2131445387}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -2373,6 +2645,34 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!114 &2131445387
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2131445382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb9eac0fa4eb8ee48bc5c6872243701a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaCamera
+  target1: {fileID: 1730024710}
+  target2: {fileID: 2087341504}
+  followSmoothness: 5
+  offset: {x: 0, y: 0}
+  maxDistance: 20
+  minDistance: 0
+  minZoom: 4
+  maxZoom: 8
+  zoomSmoothness: 3
+  zoomPadding: 2
+  lookaheadAmount: 1.5
+  lookaheadSmoothness: 2
+  shakeDamping: 8
+  useBounds: 0
+  boundsMin: {x: -15, y: -10}
+  boundsMax: {x: 15, y: 10}
 --- !u!1 &2134636425
 GameObject:
   m_ObjectHideFlags: 0

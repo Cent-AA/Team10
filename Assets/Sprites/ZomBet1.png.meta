@@ -1,0 +1,1313 @@
+fileFormatVersion: 2
+guid: 48cf9e84023f4c643a80dd46796c5e42
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 8809985194925900951
+    second: ZomBet1_0
+  - first:
+      213: -5516853486434717926
+    second: ZomBet1_1
+  - first:
+      213: 1021684862619068899
+    second: ZomBet1_2
+  - first:
+      213: -4468115079939430073
+    second: ZomBet1_3
+  - first:
+      213: 7993730280682888118
+    second: ZomBet1_4
+  - first:
+      213: 3658729835863970012
+    second: ZomBet1_5
+  - first:
+      213: 6090245171246942343
+    second: ZomBet1_6
+  - first:
+      213: 1397016743316603317
+    second: ZomBet1_7
+  - first:
+      213: -2864843270366804246
+    second: ZomBet1_8
+  - first:
+      213: -5395640390959652783
+    second: ZomBet1_9
+  - first:
+      213: 1580113089766521585
+    second: ZomBet1_10
+  - first:
+      213: 8347149411935425235
+    second: ZomBet1_11
+  - first:
+      213: 2434182575209514867
+    second: ZomBet1_12
+  - first:
+      213: -6685837357683379628
+    second: ZomBet1_13
+  - first:
+      213: 7497542386655605903
+    second: ZomBet1_14
+  - first:
+      213: -5003473624162186745
+    second: ZomBet1_15
+  - first:
+      213: 8551683660670559982
+    second: ZomBet1_16
+  - first:
+      213: -4658120828843539805
+    second: ZomBet1_17
+  - first:
+      213: 4161458502385558652
+    second: ZomBet1_18
+  - first:
+      213: -6928341197919072797
+    second: ZomBet1_19
+  - first:
+      213: -7818074095238388987
+    second: ZomBet1_20
+  - first:
+      213: 4394100833549336419
+    second: ZomBet1_21
+  - first:
+      213: 7801672680998717673
+    second: ZomBet1_22
+  - first:
+      213: -4004470341924841903
+    second: ZomBet1_23
+  - first:
+      213: 8403409245613878794
+    second: ZomBet1_24
+  - first:
+      213: -4984326113022466195
+    second: ZomBet1_25
+  - first:
+      213: 1494939916976876091
+    second: ZomBet1_26
+  - first:
+      213: 288072352862198103
+    second: ZomBet1_27
+  - first:
+      213: -7829095262440780759
+    second: ZomBet1_28
+  - first:
+      213: 6639546173290800310
+    second: ZomBet1_29
+  - first:
+      213: -979764717710759559
+    second: ZomBet1_30
+  - first:
+      213: -171977160666210408
+    second: ZomBet1_31
+  - first:
+      213: 1699920023303149710
+    second: ZomBet1_32
+  - first:
+      213: 5779176403861510218
+    second: ZomBet1_33
+  - first:
+      213: 241517963806336716
+    second: ZomBet1_34
+  - first:
+      213: -14967461292596896
+    second: ZomBet1_35
+  - first:
+      213: -5885257678580874639
+    second: ZomBet1_36
+  - first:
+      213: -6333261422217360589
+    second: ZomBet1_37
+  - first:
+      213: -7098584628050978989
+    second: ZomBet1_38
+  - first:
+      213: 2188217586878803500
+    second: ZomBet1_39
+  - first:
+      213: 4484545718243363045
+    second: ZomBet1_40
+  - first:
+      213: 3458495340815701457
+    second: ZomBet1_41
+  - first:
+      213: 3188145320347631670
+    second: ZomBet1_42
+  - first:
+      213: 2085251900695001307
+    second: ZomBet1_43
+  - first:
+      213: -1954564939365308433
+    second: ZomBet1_44
+  - first:
+      213: -8035380237744537237
+    second: ZomBet1_45
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: ZomBet1_0
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 0
+        width: 227
+        height: 1024
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 79442048bda534a70800000000000000
+      internalID: 8809985194925900951
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_1
+      rect:
+        serializedVersion: 2
+        x: 226
+        y: 857
+        width: 95
+        height: 134
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a1fee2fcbf23073b0800000000000000
+      internalID: -5516853486434717926
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_2
+      rect:
+        serializedVersion: 2
+        x: 374
+        y: 840
+        width: 85
+        height: 121
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e9adcc28f0cd2e00800000000000000
+      internalID: 1021684862619068899
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_3
+      rect:
+        serializedVersion: 2
+        x: 451
+        y: 1
+        width: 230
+        height: 1023
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 749e4a402011ef1c0800000000000000
+      internalID: -4468115079939430073
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_4
+      rect:
+        serializedVersion: 2
+        x: 666
+        y: 856
+        width: 108
+        height: 128
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6bb1362765f6fee60800000000000000
+      internalID: 7993730280682888118
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_5
+      rect:
+        serializedVersion: 2
+        x: 823
+        y: 792
+        width: 103
+        height: 227
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cd09bc3a66b66c230800000000000000
+      internalID: 3658729835863970012
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_6
+      rect:
+        serializedVersion: 2
+        x: 947
+        y: 421
+        width: 126
+        height: 603
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 788463b37b5e48450800000000000000
+      internalID: 6090245171246942343
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_7
+      rect:
+        serializedVersion: 2
+        x: 1089
+        y: 579
+        width: 128
+        height: 445
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5b1c8aa8353336310800000000000000
+      internalID: 1397016743316603317
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_8
+      rect:
+        serializedVersion: 2
+        x: 1262
+        y: 856
+        width: 93
+        height: 140
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae64e9469380e38d0800000000000000
+      internalID: -2864843270366804246
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_9
+      rect:
+        serializedVersion: 2
+        x: 1411
+        y: 800
+        width: 115
+        height: 211
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 150a919d6a5de15b0800000000000000
+      internalID: -5395640390959652783
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_10
+      rect:
+        serializedVersion: 2
+        x: 1414
+        y: 881
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1fa7a7cbb70bde510800000000000000
+      internalID: 1580113089766521585
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_11
+      rect:
+        serializedVersion: 2
+        x: 62
+        y: 663
+        width: 91
+        height: 106
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d295814a2807d370800000000000000
+      internalID: 8347149411935425235
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_12
+      rect:
+        serializedVersion: 2
+        x: 231
+        y: 664
+        width: 82
+        height: 105
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3770fc1c724f7c120800000000000000
+      internalID: 2434182575209514867
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_13
+      rect:
+        serializedVersion: 2
+        x: 374
+        y: 664
+        width: 84
+        height: 105
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 452fe35a8522733a0800000000000000
+      internalID: -6685837357683379628
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_14
+      rect:
+        serializedVersion: 2
+        x: 510
+        y: 667
+        width: 91
+        height: 102
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f84ba05b31f9c0860800000000000000
+      internalID: 7497542386655605903
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_15
+      rect:
+        serializedVersion: 2
+        x: 669
+        y: 637
+        width: 105
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 70ac6c49f37109ab0800000000000000
+      internalID: -5003473624162186745
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_16
+      rect:
+        serializedVersion: 2
+        x: 815
+        y: 601
+        width: 111
+        height: 171
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ee6e7c90bfeada670800000000000000
+      internalID: 8551683660670559982
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_17
+      rect:
+        serializedVersion: 2
+        x: 963
+        y: 648
+        width: 86
+        height: 121
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a2cee339c70b5fb0800000000000000
+      internalID: -4658120828843539805
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_18
+      rect:
+        serializedVersion: 2
+        x: 1118
+        y: 669
+        width: 90
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c746836a57870c930800000000000000
+      internalID: 4161458502385558652
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_19
+      rect:
+        serializedVersion: 2
+        x: 1262
+        y: 664
+        width: 91
+        height: 105
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3ed445f636699df90800000000000000
+      internalID: -6928341197919072797
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_20
+      rect:
+        serializedVersion: 2
+        x: 1411
+        y: 496
+        width: 115
+        height: 273
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 503e1a5480f908390800000000000000
+      internalID: -7818074095238388987
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_21
+      rect:
+        serializedVersion: 2
+        x: 62
+        y: 456
+        width: 87
+        height: 126
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 36fb4fa5d6bfafc30800000000000000
+      internalID: 4394100833549336419
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_22
+      rect:
+        serializedVersion: 2
+        x: 223
+        y: 479
+        width: 90
+        height: 98
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9e84cc4e7fb154c60800000000000000
+      internalID: 7801672680998717673
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_23
+      rect:
+        serializedVersion: 2
+        x: 379
+        y: 479
+        width: 102
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1569bfbc0734d68c0800000000000000
+      internalID: -4004470341924841903
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_24
+      rect:
+        serializedVersion: 2
+        x: 510
+        y: 479
+        width: 115
+        height: 98
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a0e6c0b8f28ee9470800000000000000
+      internalID: 8403409245613878794
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_25
+      rect:
+        serializedVersion: 2
+        x: 663
+        y: 477
+        width: 114
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d67a79ceecd14dab0800000000000000
+      internalID: -4984326113022466195
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_26
+      rect:
+        serializedVersion: 2
+        x: 815
+        y: 435
+        width: 115
+        height: 144
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b3a65f71fe71fb410800000000000000
+      internalID: 1494939916976876091
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_27
+      rect:
+        serializedVersion: 2
+        x: 967
+        y: 3
+        width: 138
+        height: 576
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 75956f557407ff300800000000000000
+      internalID: 288072352862198103
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_28
+      rect:
+        serializedVersion: 2
+        x: 1111
+        y: 435
+        width: 122
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 92c0681d657795390800000000000000
+      internalID: -7829095262440780759
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_29
+      rect:
+        serializedVersion: 2
+        x: 1256
+        y: 474
+        width: 119
+        height: 103
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6b46dc81118642c50800000000000000
+      internalID: 6639546173290800310
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_30
+      rect:
+        serializedVersion: 2
+        x: 223
+        y: 88
+        width: 82
+        height: 129
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 979a3652e2d2762f0800000000000000
+      internalID: -979764717710759559
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_31
+      rect:
+        serializedVersion: 2
+        x: 230
+        y: 303
+        width: 82
+        height: 98
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 89f920dfea30d9df0800000000000000
+      internalID: -171977160666210408
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_32
+      rect:
+        serializedVersion: 2
+        x: 350
+        y: 296
+        width: 98
+        height: 121
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e88de8f2144579710800000000000000
+      internalID: 1699920023303149710
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_33
+      rect:
+        serializedVersion: 2
+        x: 375
+        y: 32
+        width: 58
+        height: 193
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a481c76e152c33050800000000000000
+      internalID: 5779176403861510218
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_34
+      rect:
+        serializedVersion: 2
+        x: 503
+        y: 311
+        width: 74
+        height: 114
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cc66d87fe4b0a5300800000000000000
+      internalID: 241517963806336716
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_35
+      rect:
+        serializedVersion: 2
+        x: 508
+        y: 118
+        width: 61
+        height: 107
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 061277a5c23dacff0800000000000000
+      internalID: -14967461292596896
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_36
+      rect:
+        serializedVersion: 2
+        x: 662
+        y: 88
+        width: 112
+        height: 152
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1720c80a25d535ea0800000000000000
+      internalID: -5885257678580874639
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_37
+      rect:
+        serializedVersion: 2
+        x: 663
+        y: 275
+        width: 73
+        height: 150
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 33b8c03aa4cbb18a0800000000000000
+      internalID: -6333261422217360589
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_38
+      rect:
+        serializedVersion: 2
+        x: 771
+        y: 249
+        width: 118
+        height: 176
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 35719f404e2cc7d90800000000000000
+      internalID: -7098584628050978989
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_39
+      rect:
+        serializedVersion: 2
+        x: 771
+        y: 1
+        width: 139
+        height: 224
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2e6c253d4c1e5e10800000000000000
+      internalID: 2188217586878803500
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_40
+      rect:
+        serializedVersion: 2
+        x: 922
+        y: 0
+        width: 125
+        height: 422
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5e805e2129e4c3e30800000000000000
+      internalID: 4484545718243363045
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_41
+      rect:
+        serializedVersion: 2
+        x: 963
+        y: 117
+        width: 100
+        height: 102
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d5d9a6403b0fff20800000000000000
+      internalID: 3458495340815701457
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_42
+      rect:
+        serializedVersion: 2
+        x: 1102
+        y: 101
+        width: 104
+        height: 116
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63005aff6419e3c20800000000000000
+      internalID: 3188145320347631670
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_43
+      rect:
+        serializedVersion: 2
+        x: 1105
+        y: 0
+        width: 192
+        height: 427
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bd832283e8d40fc10800000000000000
+      internalID: 2085251900695001307
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_44
+      rect:
+        serializedVersion: 2
+        x: 1255
+        y: 272
+        width: 74
+        height: 145
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe7a2ba1b8dffd4e0800000000000000
+      internalID: -1954564939365308433
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ZomBet1_45
+      rect:
+        serializedVersion: 2
+        x: 1339
+        y: 16
+        width: 197
+        height: 401
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b610b0e3f389c7090800000000000000
+      internalID: -8035380237744537237
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      ZomBet1_0: 8809985194925900951
+      ZomBet1_1: -5516853486434717926
+      ZomBet1_10: 1580113089766521585
+      ZomBet1_11: 8347149411935425235
+      ZomBet1_12: 2434182575209514867
+      ZomBet1_13: -6685837357683379628
+      ZomBet1_14: 7497542386655605903
+      ZomBet1_15: -5003473624162186745
+      ZomBet1_16: 8551683660670559982
+      ZomBet1_17: -4658120828843539805
+      ZomBet1_18: 4161458502385558652
+      ZomBet1_19: -6928341197919072797
+      ZomBet1_2: 1021684862619068899
+      ZomBet1_20: -7818074095238388987
+      ZomBet1_21: 4394100833549336419
+      ZomBet1_22: 7801672680998717673
+      ZomBet1_23: -4004470341924841903
+      ZomBet1_24: 8403409245613878794
+      ZomBet1_25: -4984326113022466195
+      ZomBet1_26: 1494939916976876091
+      ZomBet1_27: 288072352862198103
+      ZomBet1_28: -7829095262440780759
+      ZomBet1_29: 6639546173290800310
+      ZomBet1_3: -4468115079939430073
+      ZomBet1_30: -979764717710759559
+      ZomBet1_31: -171977160666210408
+      ZomBet1_32: 1699920023303149710
+      ZomBet1_33: 5779176403861510218
+      ZomBet1_34: 241517963806336716
+      ZomBet1_35: -14967461292596896
+      ZomBet1_36: -5885257678580874639
+      ZomBet1_37: -6333261422217360589
+      ZomBet1_38: -7098584628050978989
+      ZomBet1_39: 2188217586878803500
+      ZomBet1_4: 7993730280682888118
+      ZomBet1_40: 4484545718243363045
+      ZomBet1_41: 3458495340815701457
+      ZomBet1_42: 3188145320347631670
+      ZomBet1_43: 2085251900695001307
+      ZomBet1_44: -1954564939365308433
+      ZomBet1_45: -8035380237744537237
+      ZomBet1_5: 3658729835863970012
+      ZomBet1_6: 6090245171246942343
+      ZomBet1_7: 1397016743316603317
+      ZomBet1_8: -2864843270366804246
+      ZomBet1_9: -5395640390959652783
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
