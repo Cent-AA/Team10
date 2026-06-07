@@ -3,10 +3,6 @@ using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
-    [Header("═══ Стрельба ═══")]
-    public GameObject bulletPrefab; // Сюда пойдёт синий префаб из папки проекта
-    public Transform firePoint;     // Сюда пойдёт точка со сцены
-
     [Header("═══ Игрок ═══")]
     public int playerNumber = 1;
 
@@ -210,11 +206,6 @@ public class PlayerController : MonoBehaviour
 
         if (moveInput.magnitude > 0.1f)
             lastMoveDir = moveInput.normalized;
-
-        if (Input.GetKeyDown(KeyCode.J))
-        {
-            Shoot();
-        }
     }
 
     void FixedUpdate()

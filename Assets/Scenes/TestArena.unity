@@ -1028,6 +1028,11 @@ RectTransform:
   m_AnchoredPosition: {x: 550, y: 350}
   m_SizeDelta: {x: 100, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &517635292 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6380269197916917397, guid: bed4344cc792f40a7b289250704d1064, type: 3}
+  m_PrefabInstance: {fileID: 1871623712517197492}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &592600059
 GameObject:
   m_ObjectHideFlags: 0
@@ -1498,6 +1503,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &735566053 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 713725384086425430, guid: 8588c99adf4fe4a02a6b8524e7dd1735, type: 3}
+  m_PrefabInstance: {fileID: 6480607820422785798}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &749101481
 GameObject:
   m_ObjectHideFlags: 0
@@ -3297,6 +3307,22 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3827760025358320072, guid: 8588c99adf4fe4a02a6b8524e7dd1735, type: 3}
   m_PrefabInstance: {fileID: 6480607820422785798}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1730024716
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 735566053}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60c36cd820db14903a9012f1801b885b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerBoundsLock
+  minX: -18
+  maxX: 18
+  minY: -15
+  maxY: 15
 --- !u!1 &1898647781
 GameObject:
   m_ObjectHideFlags: 0
@@ -3718,7 +3744,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2131445382}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eb9eac0fa4eb8ee48bc5c6872243701a, type: 3}
   m_Name: 
@@ -3745,8 +3771,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a24abbb2e30a81a4981d1f3b71e62107, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraMoving
-  player1: {fileID: 0}
-  player2: {fileID: 0}
+  player1: {fileID: 1730024710}
+  player2: {fileID: 1948170561}
   minSizeY: 5
   pAmount: 0
 --- !u!1 &2140790980
@@ -3879,7 +3905,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6380269197916917397, guid: bed4344cc792f40a7b289250704d1064, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1948170567}
   m_SourcePrefab: {fileID: 100100000, guid: bed4344cc792f40a7b289250704d1064, type: 3}
 --- !u!1001 &6480607820422785798
 PrefabInstance:
@@ -3940,7 +3969,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 713725384086425430, guid: 8588c99adf4fe4a02a6b8524e7dd1735, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1730024716}
   m_SourcePrefab: {fileID: 100100000, guid: 8588c99adf4fe4a02a6b8524e7dd1735, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
