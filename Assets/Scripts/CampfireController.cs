@@ -222,10 +222,12 @@ public class CampfireController : MonoBehaviour
         shape.shapeType = ParticleSystemShapeType.Circle;
         shape.radius = 0.3f;
 
+        // ИСПРАВЛЕНИЕ ОШИБКИ: Явно принуждаем оси X и Y работать в одном режиме распределения ценностей
         var vel = ps.velocityOverLifetime;
         vel.enabled = true;
-        vel.x = new ParticleSystem.MinMaxCurve(-0.5f, 0.5f);
-        vel.y = new ParticleSystem.MinMaxCurve(0.5f, 2f);
+        vel.x = new ParticleSystem.MinMaxCurve(-0.5f, 0.5f) { mode = ParticleSystemCurveMode.TwoConstants };
+        vel.y = new ParticleSystem.MinMaxCurve(0.5f, 2f) { mode = ParticleSystemCurveMode.TwoConstants };
+        vel.z = new ParticleSystem.MinMaxCurve(0f, 0f) { mode = ParticleSystemCurveMode.TwoConstants };
 
         var colorLife = ps.colorOverLifetime;
         colorLife.enabled = true;
@@ -296,10 +298,12 @@ public class CampfireController : MonoBehaviour
             });
         colorLife.color = grad;
 
+        // ИСПРАВЛЕНИЕ ОШИБКИ: Явно принуждаем оси работать в одном режиме TwoConstants
         var vel = ps.velocityOverLifetime;
         vel.enabled = true;
-        vel.x = new ParticleSystem.MinMaxCurve(-0.2f, 0.2f);
-        vel.y = new ParticleSystem.MinMaxCurve(0.3f, 0.6f);
+        vel.x = new ParticleSystem.MinMaxCurve(-0.2f, 0.2f) { mode = ParticleSystemCurveMode.TwoConstants };
+        vel.y = new ParticleSystem.MinMaxCurve(0.3f, 0.6f) { mode = ParticleSystemCurveMode.TwoConstants };
+        vel.z = new ParticleSystem.MinMaxCurve(0f, 0f) { mode = ParticleSystemCurveMode.TwoConstants };
 
         var renderer = smokeObj.GetComponent<ParticleSystemRenderer>();
         renderer.material = new Material(Shader.Find("Sprites/Default"));
@@ -326,12 +330,12 @@ public class CampfireController : MonoBehaviour
         var emission = ps.emission;
         emission.rateOverTime = emberCount / 4f;
 
-        // Угольки летят по дуге
+        // ИСПРАВЛЕНИЕ БАГА: В Unity поворот модуля формы настраивается через структуру вращения, а не прямой заменой Vector3
         var shape = ps.shape;
         shape.shapeType = ParticleSystemShapeType.Cone;
         shape.angle = 25f;
         shape.radius = 0.2f;
-        shape.rotation = new Vector3(-90f, 0, 0);
+        shape.rotation = new Vector3(-90f, 0f, 0f);
 
         var noise = ps.noise;
         noise.enabled = true;
