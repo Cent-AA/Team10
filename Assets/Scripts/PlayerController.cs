@@ -363,7 +363,7 @@ public class PlayerController : MonoBehaviour
             audioSource.PlayOneShot(clip);
     }
 
-    // ═══════════ ВВОД ═══════════
+    // ═══════════ ИЗМЕНЕННЫЙ ВВОД КНОПОК ═══════════
     Vector2 GetMovementInput()
     {
         var type = playerNumber == 1 ? InputJoinManager.player1Input : InputJoinManager.player2Input;
@@ -388,7 +388,7 @@ public class PlayerController : MonoBehaviour
         switch (type)
         {
             case InputJoinManager.InputType.KeyboardWASD: return Input.GetKey(KeyCode.LeftShift);
-            case InputJoinManager.InputType.KeyboardArrows: return Input.GetKey(KeyCode.RightControl);
+            case InputJoinManager.InputType.KeyboardArrows: return Input.GetKey(KeyCode.RightShift); // Бег на правый Shift
         }
         return false;
     }
@@ -399,7 +399,7 @@ public class PlayerController : MonoBehaviour
         switch (type)
         {
             case InputJoinManager.InputType.KeyboardWASD: return Input.GetKeyDown(KeyCode.Space);
-            case InputJoinManager.InputType.KeyboardArrows: return Input.GetKeyDown(KeyCode.Alpha1);
+            case InputJoinManager.InputType.KeyboardArrows: return Input.GetKeyDown(KeyCode.Keypad0); // Простой удар на Numpad 0
         }
         return false;
     }
@@ -410,7 +410,7 @@ public class PlayerController : MonoBehaviour
         switch (type)
         {
             case InputJoinManager.InputType.KeyboardWASD: return Input.GetKey(KeyCode.Q);
-            case InputJoinManager.InputType.KeyboardArrows: return Input.GetKey(KeyCode.Alpha2);
+            case InputJoinManager.InputType.KeyboardArrows: return Input.GetKey(KeyCode.Keypad1); // Тяжелый удар/супер на Numpad 1
         }
         return false;
     }
@@ -421,7 +421,7 @@ public class PlayerController : MonoBehaviour
         switch (type)
         {
             case InputJoinManager.InputType.KeyboardWASD: return Input.GetKeyDown(KeyCode.R);
-            case InputJoinManager.InputType.KeyboardArrows: return Input.GetKeyDown(KeyCode.Alpha4);
+            case InputJoinManager.InputType.KeyboardArrows: return Input.GetKeyDown(KeyCode.Keypad2); // Рывок на Numpad 2
         }
         return false;
     }
@@ -432,7 +432,7 @@ public class PlayerController : MonoBehaviour
         switch (type)
         {
             case InputJoinManager.InputType.KeyboardWASD: return Input.GetKeyDown(KeyCode.F);
-            case InputJoinManager.InputType.KeyboardArrows: return Input.GetKeyDown(KeyCode.Alpha5);
+            case InputJoinManager.InputType.KeyboardArrows: return Input.GetKeyDown(KeyCode.Keypad3); // Перекат на Numpad 3
         }
         return false;
     }
@@ -443,7 +443,7 @@ public class PlayerController : MonoBehaviour
         switch (type)
         {
             case InputJoinManager.InputType.KeyboardWASD: return Input.GetKey(KeyCode.C);
-            case InputJoinManager.InputType.KeyboardArrows: return Input.GetKey(KeyCode.Alpha6);
+            case InputJoinManager.InputType.KeyboardArrows: return Input.GetKey(KeyCode.Keypad4); // Блок на Numpad 4
         }
         return false;
     }
