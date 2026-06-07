@@ -3,10 +3,6 @@ using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
-    [Header("═══ Стрельба ═══")]
-    public GameObject bulletPrefab; // Сюда пойдёт синий префаб из папки проекта
-    public Transform firePoint;     // Сюда пойдёт точка со сцены
-
     [Header("═══ Игрок ═══")]
     public int playerNumber = 1;
 
@@ -185,11 +181,6 @@ public class PlayerController : MonoBehaviour
 
         if (moveInput.magnitude > 0.1f)
             lastMoveDir = moveInput.normalized;
-
-        if (Input.GetKeyDown(KeyCode.J))
-        {
-            Shoot();
-        }
     }
 
     void FixedUpdate()
@@ -460,56 +451,5 @@ public class PlayerController : MonoBehaviour
     void OnDrawGizmosSelected()
     {
         if (attackPoint != null) { Gizmos.color = Color.red; Gizmos.DrawWireSphere(attackPoint.position, attackRange); }
-    }
-
-    void Shoot()
-    {
-        if (bulletPrefab == null || firePoint == null) return;
-
-        // По умолчанию направление выстрела — туда, куда смотрит сам игрок (или его точка)
-        Vector2 shootDirection = transform.right;
-
-        // Если у тебя спрайт поворачивается через flipX, скорректируем дефолтное направление:
-        SpriteRenderer sr = GetComponent<SpriteRenderer>();
-        if (sr != null && sr.flipX)
-        {
-            shootDirection = Vector2.left;
-        }
-
-        // НАЧАЛО БЛОКА АВТОПРИЦЕЛИВАНИЯ
-        // Находим всех зомби на сцене
-        ZombieAI[] enemies = FindObjectsByType<ZombieAI>(FindObjectsSortMode.None);
-        float closestDist = Mathf.Infinity;
-        Transform closestEnemy = null;
-
-        foreach (var enemy in enemies)
-        {
-            // Проверяем через его публичную переменную maxHealth/currentHealth или костыль, что он жив
-            // (В ZombieAI мы видели проверку на isDead, но если переменная приватная, 
-            // проверим просто наличие включенного коллайдера)
-            Collider2D enemyCollider = enemy.GetComponent<Collider2D>();
-            if (enemyCollider == null || !enemyCollider.enabled) continue; 
-
-            float dist = Vector2.Distance(firePoint.position, enemy.transform.position);
-            if (dist < closestDist)
-            {
-                closestDist = dist;
-                closestEnemy = enemy.transform;
-            }
-        }
-
-        // Если нашли живого зомби, пересчитываем вектор направления на него
-        if (closestEnemy != null)
-        {
-            shootDirection = ((Vector2)closestEnemy.position - (Vector2)firePoint.position).normalized;
-        }
-        // КОНЕЦ БЛОКА АВТОПРИЦЕЛИВАНИЯ
-
-        // Считаем угол поворота пули на основе финального направления
-        float angle = Mathf.Atan2(shootDirection.y, shootDirection.x) * Mathf.Rad2Deg;
-        Quaternion bulletRotation = Quaternion.Euler(0f, 0f, angle);
-
-        // Спавним пулю
-        Instantiate(bulletPrefab, firePoint.position, bulletRotation);
     }
 }
