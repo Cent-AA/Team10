@@ -3,6 +3,10 @@ using UnityEngine.UI;
 
 public class BG3PortraitHealthBar : MonoBehaviour
 {
+    [Header("Player")]
+    [SerializeField] private int playerNumber = 1;
+    [SerializeField] private bool autoFindPlayer = true;
+
     [Header("Health")]
     [SerializeField] private float maxHealth = 100f;
     [SerializeField] private float currentHealth = 100f;
@@ -21,9 +25,14 @@ public class BG3PortraitHealthBar : MonoBehaviour
 
     private float targetPercent = 1f;
     private Sprite generatedGraySprite;
+    private PlayerController boundPlayer;
+
+    public int PlayerNumber => playerNumber;
 
     private void Awake()
     {
+        InferPlayerNumberFromName();
+
         maxHealth = Mathf.Max(1f, maxHealth);
         currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
         targetPercent = currentHealth / maxHealth;
@@ -32,8 +41,24 @@ public class BG3PortraitHealthBar : MonoBehaviour
         ApplyHealthInstant();
     }
 
+    private void OnValidate()
+    {
+        playerNumber = Mathf.Max(1, playerNumber);
+        InferPlayerNumberFromName();
+    }
+
+    private void OnEnable()
+    {
+        TryAutoBind();
+    }
+
     private void Update()
     {
+        if (boundPlayer == null)
+        {
+            TryAutoBind();
+        }
+
         if (healthFill == null && colorPortrait == null)
         {
             return;
@@ -43,6 +68,62 @@ public class BG3PortraitHealthBar : MonoBehaviour
         float smoothFill = Mathf.MoveTowards(currentFill, targetPercent, smoothSpeed * Time.deltaTime);
 
         ApplyVisuals(smoothFill);
+    }
+
+    public void Bind(PlayerController player)
+    {
+        if (player != null)
+        {
+            SetPlayerNumber(player.playerNumber);
+        }
+
+        if (boundPlayer == player)
+        {
+            if (boundPlayer != null)
+            {
+                SetHealth(boundPlayer.currentHealth, boundPlayer.maxHealth);
+                ApplyHealthInstant();
+            }
+
+            return;
+        }
+
+        Unbind();
+        boundPlayer = player;
+
+        if (boundPlayer == null)
+        {
+            return;
+        }
+
+        boundPlayer.OnHealthChanged += SetHealth;
+        SetHealth(boundPlayer.currentHealth, boundPlayer.maxHealth);
+        ApplyHealthInstant();
+    }
+
+    public void SetPlayerNumber(int number)
+    {
+        int newPlayerNumber = Mathf.Max(1, number);
+        if (playerNumber == newPlayerNumber)
+        {
+            return;
+        }
+
+        playerNumber = newPlayerNumber;
+
+        if (boundPlayer != null && boundPlayer.playerNumber != playerNumber)
+        {
+            Unbind();
+        }
+    }
+
+    public void Unbind()
+    {
+        if (boundPlayer != null)
+        {
+            boundPlayer.OnHealthChanged -= SetHealth;
+            boundPlayer = null;
+        }
     }
 
     public void SetHealth(float current, float max)
@@ -222,8 +303,50 @@ public class BG3PortraitHealthBar : MonoBehaviour
         }
     }
 
+    private bool TryAutoBind()
+    {
+        if (!autoFindPlayer || boundPlayer != null)
+        {
+            return boundPlayer != null;
+        }
+
+        InferPlayerNumberFromName();
+
+        PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        for (int i = 0; i < players.Length; i++)
+        {
+            if (players[i] != null && players[i].playerNumber == playerNumber)
+            {
+                Bind(players[i]);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void InferPlayerNumberFromName()
+    {
+        string lowerName = gameObject.name.ToLowerInvariant();
+        if (lowerName.Contains("player2"))
+        {
+            SetPlayerNumber(2);
+        }
+        else if (lowerName.Contains("player1"))
+        {
+            SetPlayerNumber(1);
+        }
+    }
+
+    private void OnDisable()
+    {
+        Unbind();
+    }
+
     private void OnDestroy()
     {
+        Unbind();
+
         if (generatedGraySprite != null)
         {
             Destroy(generatedGraySprite.texture);

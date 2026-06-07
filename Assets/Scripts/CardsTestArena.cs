@@ -97,30 +97,19 @@ public class CardsTestArena : MonoBehaviour
 
         case 1:
             Debug.Log("Increase health");
-                if (who == 1)
-                {
-                    //Debug.Log("Player1");
-                    Debug.Log( Registry.Players[0].GetComponent<PlayerController>().maxHealth);
-                    Debug.Log( Registry.Players[0].GetComponent<PlayerController>().currentHealth);
-                    //Debug.Log("Players in registry: " + Registry.Players.Count);
-                    Registry.Players[0].GetComponent<PlayerController>().maxHealth *= 1.75f;
-                    Registry.Players[0].GetComponent<PlayerController>().currentHealth *= 1.75f;
-                    Debug.Log( Registry.Players[0].GetComponent<PlayerController>().maxHealth);
-                    Debug.Log( Registry.Players[0].GetComponent<PlayerController>().currentHealth);
-                }
-                if (who == 2)
-                {
-                   // Debug.Log("Both");
-                    Registry.Players[0].GetComponent<PlayerController>().maxHealth *= 1.75f;
-                    Registry.Players[0].GetComponent<PlayerController>().currentHealth *= 1.75f;                   
-                    Registry.Players[1].GetComponent<PlayerController>().maxHealth *= 1.75f;
-                    Registry.Players[1].GetComponent<PlayerController>().currentHealth *= 1.75f;
-                }
-                if (who == 3)
-                {
-                    Registry.Players[1].GetComponent<PlayerController>().maxHealth *= 1.75f;
-                    Registry.Players[1].GetComponent<PlayerController>().currentHealth *= 1.75f;
-                }
+            if (who == 1)
+            {
+                IncreasePlayerHealth(0, 1.75f);
+            }
+            else if (who == 2)
+            {
+                IncreasePlayerHealth(0, 1.75f);
+                IncreasePlayerHealth(1, 1.75f);
+            }
+            else if (who == 3)
+            {
+                IncreasePlayerHealth(1, 1.75f);
+            }
             break;
 
         case 2:
@@ -135,6 +124,32 @@ public class CardsTestArena : MonoBehaviour
     }
     PressCard();
     }
+
+    private void IncreasePlayerHealth(int playerIndex, float multiplier)
+    {
+        if (Registry.Players == null || playerIndex < 0 || playerIndex >= Registry.Players.Count || Registry.Players[playerIndex] == null)
+        {
+            return;
+        }
+
+        PlayerController controller = Registry.Players[playerIndex].GetComponent<PlayerController>();
+        if (controller == null)
+        {
+            controller = Registry.Players[playerIndex].GetComponentInChildren<PlayerController>();
+        }
+
+        if (controller == null)
+        {
+            return;
+        }
+
+        Debug.Log(controller.maxHealth);
+        Debug.Log(controller.currentHealth);
+        controller.MultiplyHealth(multiplier);
+        Debug.Log(controller.maxHealth);
+        Debug.Log(controller.currentHealth);
+    }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {

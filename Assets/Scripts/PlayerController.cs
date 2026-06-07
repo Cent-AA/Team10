@@ -74,10 +74,17 @@ public class PlayerController : MonoBehaviour
     private float heavyHoldTime = 0f;
     private bool chargeSoundPlayed = false;
 
+    void Awake()
+    {
+        maxHealth = Mathf.Max(1f, maxHealth);
+        currentHealth = maxHealth;
+    }
+
     void Start()
     {
-        currentHealth = maxHealth;
-        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+        maxHealth = Mathf.Max(1f, maxHealth);
+        currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
+        NotifyHealthChanged();
 
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
@@ -95,6 +102,24 @@ public class PlayerController : MonoBehaviour
             puppet.OnHitFrame += DealAttackDamage;
             puppet.OnBarrageHit += DealBarrageDamage;
         }
+    }
+
+    public void SetHealth(float current, float max)
+    {
+        maxHealth = Mathf.Max(1f, max);
+        currentHealth = Mathf.Clamp(current, 0f, maxHealth);
+        NotifyHealthChanged();
+    }
+
+    public void MultiplyHealth(float multiplier)
+    {
+        multiplier = Mathf.Max(0f, multiplier);
+        SetHealth(currentHealth * multiplier, maxHealth * multiplier);
+    }
+
+    public void NotifyHealthChanged()
+    {
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
 
     void Update()
@@ -316,8 +341,8 @@ public class PlayerController : MonoBehaviour
         if (isInvulnerable || puppet.IsDead()) return;
         if (puppet.IsBlocking()) { damage *= (1f - blockDamageReduction); knockbackDir *= 0.3f; }
 
-        currentHealth -= damage;
-        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+        currentHealth = Mathf.Clamp(currentHealth - damage, 0f, maxHealth);
+        NotifyHealthChanged();
 
         if (rb != null) StartCoroutine(KnockbackRoutine(knockbackDir));
         StartCoroutine(HitFlashRoutine());

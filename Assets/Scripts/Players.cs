@@ -111,20 +111,48 @@ public class Players : MonoBehaviour
 
     void AssignPortraitBar(PlayerInput player, int playerIndex)
     {
-        if (player == null || playerIndex < 0 || playerIndex >= playerPortraitBars.Length)
+        if (player == null || playerIndex < 0)
         {
             return;
         }
 
-       // Health health = player.GetComponent<Health>();
-        //if (health == null)
-        //{
-          //  health = player.GetComponentInChildren<Health>();
-        //}
+        PlayerController controller = player.GetComponent<PlayerController>();
+        if (controller == null)
+        {
+            controller = player.GetComponentInChildren<PlayerController>();
+        }
 
-        //if (health != null)
-        //{
-          //  health.SetPortraitHealthBar(playerPortraitBars[playerIndex]);
-        //}
+        if (controller == null)
+        {
+            return;
+        }
+
+        controller.playerNumber = playerIndex + 1;
+
+        BG3PortraitHealthBar portraitBar = GetPortraitBar(playerIndex);
+        if (portraitBar != null)
+        {
+            portraitBar.Bind(controller);
+        }
+    }
+
+    BG3PortraitHealthBar GetPortraitBar(int playerIndex)
+    {
+        if (playerPortraitBars != null && playerIndex >= 0 && playerIndex < playerPortraitBars.Length && playerPortraitBars[playerIndex] != null)
+        {
+            return playerPortraitBars[playerIndex];
+        }
+
+        int playerNumber = playerIndex + 1;
+        BG3PortraitHealthBar[] portraitBars = FindObjectsByType<BG3PortraitHealthBar>(FindObjectsSortMode.None);
+        for (int i = 0; i < portraitBars.Length; i++)
+        {
+            if (portraitBars[i] != null && portraitBars[i].PlayerNumber == playerNumber)
+            {
+                return portraitBars[i];
+            }
+        }
+
+        return null;
     }
 }
