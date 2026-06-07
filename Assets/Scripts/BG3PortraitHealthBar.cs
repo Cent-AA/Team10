@@ -312,7 +312,7 @@ public class BG3PortraitHealthBar : MonoBehaviour
 
         InferPlayerNumberFromName();
 
-        PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsInactive.Exclude);
         for (int i = 0; i < players.Length; i++)
         {
             if (players[i] != null && players[i].playerNumber == playerNumber)

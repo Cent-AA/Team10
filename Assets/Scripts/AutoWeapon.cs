@@ -9,9 +9,18 @@ public class AutoWeapon : MonoBehaviour
 
     [Header("Настройки вращения")]
     [SerializeField] private float rotationSpeed = 15f; // Скорость поворота оружия
+    [SerializeField] private float targetRefreshInterval = 0.15f;
 
     private float shootTimer;
+    private float targetRefreshTimer;
     private Transform targetEnemy;
+    private Transform owner;
+
+    void Awake()
+    {
+        PlayerController player = GetComponentInParent<PlayerController>();
+        owner = player != null ? player.transform : transform.root;
+    }
 
     void Update()
     {
@@ -22,7 +31,12 @@ public class AutoWeapon : MonoBehaviour
         }
 
         // 1. Оружие ВСЕГДА автоматически целится (крутится) за ближайшим зомби
-        FindClosestEnemy();
+        targetRefreshTimer -= Time.deltaTime;
+        if (targetRefreshTimer <= 0f)
+        {
+            targetRefreshTimer = targetRefreshInterval;
+            FindClosestEnemy();
+        }
 
         if (targetEnemy != null)
         {
@@ -39,12 +53,15 @@ public class AutoWeapon : MonoBehaviour
 
     void FindClosestEnemy()
     {
-        ZombieAI[] enemies = FindObjectsByType<ZombieAI>(FindObjectsSortMode.None);
+        Registry.CleanupZombies();
         float closestDist = Mathf.Infinity;
         Transform closest = null;
 
-        foreach (var enemy in enemies)
+        for (int i = 0; i < Registry.Zombies.Count; i++)
         {
+            ZombieAI enemy = Registry.Zombies[i];
+            if (enemy == null || !enemy.IsAlive) continue;
+
             Collider2D enemyCollider = enemy.GetComponent<Collider2D>();
             if (enemyCollider == null || !enemyCollider.enabled) continue;
 
@@ -73,7 +90,9 @@ public class AutoWeapon : MonoBehaviour
         if (bulletPrefab != null && firePoint != null)
         {
             // Спавним пулю с точным поворотом ствола
-            Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
+            GameObject bulletObject = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
+            Bullet bullet = bulletObject.GetComponent<Bullet>();
+            if (bullet != null) bullet.Init(owner);
         }
     }
 }

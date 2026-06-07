@@ -48,6 +48,8 @@ public class PlayerController : MonoBehaviour
     public float attackRange = 1.2f;
     public LayerMask enemyLayer;
     public TargetingSystem targeting;
+    public GameObject bulletPrefab;
+    public Transform firePoint;
 
     // События
     public System.Action<float, float> OnHealthChanged;
@@ -69,6 +71,16 @@ public class PlayerController : MonoBehaviour
     private bool isHoldingHeavy = false;
     private float heavyHoldTime = 0f;
     private bool chargeSoundPlayed = false;
+
+    void OnEnable()
+    {
+        Registry.Register(transform);
+    }
+
+    void OnDestroy()
+    {
+        Registry.Unregister(transform);
+    }
 
     void Awake()
     {
@@ -278,7 +290,7 @@ public class PlayerController : MonoBehaviour
             ZombieAI zombie = hit.GetComponent<ZombieAI>();
             if (zombie != null)
             {
-                zombie.TakeDamage(damage, knockDir);
+                zombie.TakeDamage(damage, knockDir, transform);
                 PlaySound(hitSound);
                 StartCoroutine(HitStopRoutine());
             }
@@ -303,7 +315,7 @@ public class PlayerController : MonoBehaviour
 
         // Бьём таргет
         ZombieAI zombie = targeting.currentTarget.GetComponent<ZombieAI>();
-        if (zombie != null) zombie.TakeDamage(damage, dir);
+        if (zombie != null) zombie.TakeDamage(damage, dir, transform);
 
         PlayerController enemy = targeting.currentTarget.GetComponent<PlayerController>();
         if (enemy != null && enemy != this)
@@ -496,7 +508,9 @@ public class PlayerController : MonoBehaviour
             Quaternion bulletRotation = Quaternion.Euler(0f, 0f, angle);
 
             // 5. Спавним пулю, сразу развернутую в сторону курсора
-            Instantiate(bulletPrefab, firePoint.position, bulletRotation);
+            GameObject bulletObject = Instantiate(bulletPrefab, firePoint.position, bulletRotation);
+            Bullet bullet = bulletObject.GetComponent<Bullet>();
+            if (bullet != null) bullet.Init(transform);
         }
     }
 }

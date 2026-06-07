@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections;
 public class CameraMoving : MonoBehaviour
 {
     private Camera Cam;
@@ -13,14 +12,7 @@ public class CameraMoving : MonoBehaviour
     void Start()
     {
     Cam= GetComponent<Camera>();
-    Registry.Players.Clear();
-
-    GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
-
-    foreach (GameObject player in players)
-    {
-        Registry.Players.Add(player.transform);
-    }
+    Registry.CleanupPlayers();
 
     }
     void SetCameraPos()
@@ -43,14 +35,15 @@ public class CameraMoving : MonoBehaviour
 
 		float camSizeX = Mathf.Max(width, minSizeX);
 
-        GetComponent<UnityEngine.Camera>().orthographicSize  =Mathf.Max(height,
-             camSizeX * Screen.height / Screen.width, minSizeY);;
+        Cam.orthographicSize  =Mathf.Max(height,
+             camSizeX * Screen.height / Screen.width, minSizeY);
             
 	}
     // Update is called once per frame
     void Update()
     {
-       // GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+        Registry.CleanupPlayers();
+
         if (Registry.Players.Count == 0)
         {
             return;
@@ -70,8 +63,5 @@ public class CameraMoving : MonoBehaviour
         player2 = Registry.Players[1];
             SetCameraPos();
             SetCameraSize();
-    //SetCameraPos();
-    //SetCameraSize();
-   // }
     }
 }

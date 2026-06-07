@@ -8,6 +8,12 @@ public class Bullet : MonoBehaviour
     [SerializeField] private float lifeTime = 3f;    // Время жизни пули в секундах
 
     private Rigidbody2D rb;
+    private Transform owner;
+
+    public void Init(Transform ownerTransform)
+    {
+        owner = ownerTransform;
+    }
 
     void Awake()
     {
@@ -42,7 +48,7 @@ public class Bullet : MonoBehaviour
                 Vector2 knockbackDir = transform.right;
 
                 // Вызываем метод урона у зомби, передавая урон и нокбэк
-                zombie.TakeDamage(damage, knockbackDir);
+                zombie.TakeDamage(damage, knockbackDir, owner);
             }
 
             // Уничтожаем пулю при любом столкновении (со стеной или врагом)

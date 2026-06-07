@@ -144,7 +144,7 @@ public class Players : MonoBehaviour
         }
 
         int playerNumber = playerIndex + 1;
-        BG3PortraitHealthBar[] portraitBars = FindObjectsByType<BG3PortraitHealthBar>(FindObjectsSortMode.None);
+        BG3PortraitHealthBar[] portraitBars = FindObjectsByType<BG3PortraitHealthBar>(FindObjectsInactive.Exclude);
         for (int i = 0; i < portraitBars.Length; i++)
         {
             if (portraitBars[i] != null && portraitBars[i].PlayerNumber == playerNumber)

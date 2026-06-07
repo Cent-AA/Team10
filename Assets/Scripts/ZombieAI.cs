@@ -2,61 +2,81 @@ using UnityEngine;
 
 public class ZombieAI : MonoBehaviour
 {
-    [Header("═══ Здоровье ═══")]
+    [Header("Health")]
     public float maxHealth = 60f;
     private float currentHealth;
 
-    [Header("═══ Движение ═══")]
+    [Header("Movement")]
     public float moveSpeed = 2f;
     public float runSpeed = 4f;
-    public float patrolSpeed = 1.5f;
+    public float campfireStopDistance = 0.8f;
 
-    [Header("═══ Обнаружение ═══")]
-    public float detectRange = 8f;       // Видит игрока
-    public float chaseRange = 12f;       // Преследует до этого расстояния
-    public float attackRange = 1.5f;     // Бьёт
-    public float loseTargetTime = 3f;    // Теряет цель через N сек
+    [Header("Targeting")]
+    public Transform campfireTarget;
+    public float detectRange = 8f;
+    public float chaseRange = 12f;
+    public float attackRange = 1.5f;
+    public float loseTargetTime = 3f;
+    public float targetRefreshInterval = 0.2f;
+    public float attackerSwitchRange = 5f;
+    public float groupedPlayersDistance = 2.5f;
+    public float groupedLockDelay = 2f;
 
-    [Header("═══ Атака ═══")]
+    [Header("Attack")]
     public float attackCooldown = 1.5f;
     public float attackDamage = 15f;
     public float knockbackForce = 3f;
 
-    [Header("═══ Патруль ═══")]
-    public float patrolRadius = 5f;      // Радиус бродяжничества
-    public float patrolWaitMin = 1f;
-    public float patrolWaitMax = 3f;
-    public float waypointThreshold = 0.3f;
-
-    [Header("═══ Компоненты ═══")]
+    [Header("Components")]
     public Animator animator;
     public Rigidbody2D rb;
     public SpriteRenderer spriteRenderer;
 
-    [Header("═══ Эффекты ═══")]
+    [Header("Effects")]
     public Color hitFlashColor = Color.red;
     public float hitFlashDuration = 0.1f;
 
-    public enum ZombieState { Idle, Patrol, Chase, Attack, Hit, Dead }
-    private ZombieState currentState = ZombieState.Idle;
+    public enum ZombieState { Idle, MoveToCampfire, Chase, Attack, Hit, Dead }
+    private ZombieState currentState = ZombieState.MoveToCampfire;
 
     private Transform target;
-    private Vector3 spawnPoint;
-    private Vector2 patrolTarget;
     private float attackTimer;
     private float loseTargetTimer;
-    private float patrolWaitTimer;
-    private bool isWaiting = false;
+    private float targetRefreshTimer;
+    private float groupedPlayersTimer;
+    private bool committedToTarget;
     private Color originalColor;
-    private bool isDead = false;
+    private bool isDead;
+
+    public bool IsAlive => !isDead;
+
+    void Awake()
+    {
+        if (rb == null) rb = GetComponent<Rigidbody2D>();
+        if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
+    void OnEnable()
+    {
+        Registry.RegisterZombie(this);
+    }
+
+    void OnDestroy()
+    {
+        Registry.UnregisterZombie(this);
+    }
 
     void Start()
     {
         currentHealth = maxHealth;
-        spawnPoint = transform.position;
         originalColor = spriteRenderer != null ? spriteRenderer.color : Color.white;
-        SetNewPatrolPoint();
-        patrolWaitTimer = Random.Range(patrolWaitMin, patrolWaitMax);
+        loseTargetTimer = loseTargetTime;
+
+        if (campfireTarget == null)
+        {
+            CampfireController campfire = FindAnyObjectByType<CampfireController>();
+            if (campfire != null) campfireTarget = campfire.transform;
+        }
     }
 
     void Update()
@@ -64,24 +84,27 @@ public class ZombieAI : MonoBehaviour
         if (isDead) return;
 
         attackTimer -= Time.deltaTime;
-        FindClosestPlayer();
+        targetRefreshTimer -= Time.deltaTime;
+
+        if (targetRefreshTimer <= 0f)
+        {
+            targetRefreshTimer = targetRefreshInterval;
+            RefreshTarget();
+        }
+
+        UpdateGroupedTargetLock();
 
         switch (currentState)
         {
             case ZombieState.Idle:
-                UpdateIdle();
-                break;
-            case ZombieState.Patrol:
-                UpdatePatrol();
+            case ZombieState.MoveToCampfire:
+                MoveToCampfire();
                 break;
             case ZombieState.Chase:
                 UpdateChase();
                 break;
             case ZombieState.Attack:
-                // Ждём конца анимации атаки
-                break;
             case ZombieState.Hit:
-                // Ждём конца анимации
                 break;
         }
 
@@ -89,124 +112,189 @@ public class ZombieAI : MonoBehaviour
         UpdateFacing();
     }
 
-    // ═══════════ ПОИСК ИГРОКА ═══════════
-    void FindClosestPlayer()
+    public void SetCampfireTarget(Transform newTarget)
+    {
+        campfireTarget = newTarget;
+    }
+
+    void RefreshTarget()
     {
         if (currentState == ZombieState.Attack || currentState == ZombieState.Hit) return;
 
-        PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
-        float closestDist = Mathf.Infinity;
-        Transform closest = null;
-
-        foreach (var p in players)
+        if (!IsValidPlayerTarget(target))
         {
-            if (p.currentHealth <= 0) continue;
-            float dist = Vector2.Distance(transform.position, p.transform.position);
-            if (dist < closestDist)
-            {
-                closestDist = dist;
-                closest = p.transform;
-            }
+            ClearTarget();
         }
 
-        if (closest != null && closestDist <= detectRange)
+        Transform closest = FindClosestVisiblePlayer();
+        if (target == null)
         {
-            target = closest;
-            loseTargetTimer = loseTargetTime;
-            if (currentState != ZombieState.Chase && currentState != ZombieState.Attack)
-                currentState = ZombieState.Chase;
-        }
-        else if (target != null)
-        {
-            loseTargetTimer -= Time.deltaTime;
-            if (loseTargetTimer <= 0)
-            {
-                target = null;
-                currentState = ZombieState.Patrol;
-            }
-        }
-    }
-
-    // ═══════════ IDLE ═══════════
-    void UpdateIdle()
-    {
-        patrolWaitTimer -= Time.deltaTime;
-        if (patrolWaitTimer <= 0)
-        {
-            SetNewPatrolPoint();
-            currentState = ZombieState.Patrol;
-        }
-    }
-
-    // ═══════════ ПАТРУЛЬ ═══════════
-    void UpdatePatrol()
-    {
-        Vector2 dir = (patrolTarget - (Vector2)transform.position);
-        float dist = dir.magnitude;
-
-        if (dist < waypointThreshold)
-        {
-            currentState = ZombieState.Idle;
-            patrolWaitTimer = Random.Range(patrolWaitMin, patrolWaitMax);
+            if (closest != null) SetTarget(closest);
             return;
         }
 
-        Vector2 newPos = rb.position + dir.normalized * patrolSpeed * Time.fixedDeltaTime;
-        rb.MovePosition(newPos);
+        float targetDistSqr = ((Vector2)target.position - (Vector2)transform.position).sqrMagnitude;
+        if (targetDistSqr <= chaseRange * chaseRange)
+        {
+            loseTargetTimer = loseTargetTime;
+            return;
+        }
+
+        loseTargetTimer -= targetRefreshInterval;
+        if (loseTargetTimer <= 0f)
+        {
+            ClearTarget();
+            if (closest != null) SetTarget(closest);
+        }
     }
 
-    void SetNewPatrolPoint()
+    Transform FindClosestVisiblePlayer()
     {
-        Vector2 randomDir = Random.insideUnitCircle * patrolRadius;
-        patrolTarget = (Vector2)spawnPoint + randomDir;
+        Registry.CleanupPlayers();
+
+        float closestDistSqr = detectRange * detectRange;
+        Transform closest = null;
+
+        for (int i = 0; i < Registry.Players.Count; i++)
+        {
+            Transform player = Registry.Players[i];
+            if (!IsValidPlayerTarget(player)) continue;
+
+            float distSqr = ((Vector2)player.position - (Vector2)transform.position).sqrMagnitude;
+            if (distSqr < closestDistSqr)
+            {
+                closestDistSqr = distSqr;
+                closest = player;
+            }
+        }
+
+        return closest;
     }
 
-    // ═══════════ ПОГОНЯ ═══════════
+    bool IsValidPlayerTarget(Transform player)
+    {
+        if (player == null) return false;
+
+        PlayerController controller = player.GetComponent<PlayerController>();
+        if (controller == null) controller = player.GetComponentInChildren<PlayerController>();
+
+        return controller != null && controller.currentHealth > 0f;
+    }
+
+    void SetTarget(Transform newTarget)
+    {
+        if (newTarget == null) return;
+
+        target = newTarget;
+        loseTargetTimer = loseTargetTime;
+        currentState = ZombieState.Chase;
+    }
+
+    void ClearTarget()
+    {
+        target = null;
+        committedToTarget = false;
+        groupedPlayersTimer = 0f;
+        loseTargetTimer = loseTargetTime;
+        currentState = ZombieState.MoveToCampfire;
+    }
+
+    void UpdateGroupedTargetLock()
+    {
+        if (target == null || committedToTarget)
+        {
+            return;
+        }
+
+        int playersNearTarget = 0;
+        float groupDistSqr = groupedPlayersDistance * groupedPlayersDistance;
+
+        for (int i = 0; i < Registry.Players.Count; i++)
+        {
+            Transform player = Registry.Players[i];
+            if (!IsValidPlayerTarget(player)) continue;
+
+            float distSqr = ((Vector2)player.position - (Vector2)target.position).sqrMagnitude;
+            if (distSqr <= groupDistSqr)
+            {
+                playersNearTarget++;
+            }
+        }
+
+        if (playersNearTarget >= 2)
+        {
+            groupedPlayersTimer += Time.deltaTime;
+            if (groupedPlayersTimer >= groupedLockDelay)
+            {
+                committedToTarget = true;
+            }
+        }
+        else
+        {
+            groupedPlayersTimer = 0f;
+        }
+    }
+
+    void MoveToCampfire()
+    {
+        Vector2 destination = campfireTarget != null ? (Vector2)campfireTarget.position : Vector2.zero;
+        Vector2 delta = destination - rb.position;
+
+        if (delta.sqrMagnitude <= campfireStopDistance * campfireStopDistance)
+        {
+            currentState = ZombieState.Idle;
+            return;
+        }
+
+        currentState = ZombieState.MoveToCampfire;
+        rb.MovePosition(rb.position + delta.normalized * moveSpeed * Time.deltaTime);
+    }
+
     void UpdateChase()
     {
         if (target == null)
         {
-            currentState = ZombieState.Patrol;
+            ClearTarget();
             return;
         }
 
         float dist = Vector2.Distance(transform.position, target.position);
 
-        // Слишком далеко — потерял
         if (dist > chaseRange)
         {
             loseTargetTimer -= Time.deltaTime;
-            if (loseTargetTimer <= 0)
+            if (loseTargetTimer <= 0f)
             {
-                target = null;
-                currentState = ZombieState.Patrol;
+                ClearTarget();
                 return;
             }
         }
+        else
+        {
+            loseTargetTimer = loseTargetTime;
+        }
 
-        // В зоне атаки
-        if (dist <= attackRange && attackTimer <= 0)
+        if (dist <= attackRange && attackTimer <= 0f)
         {
             currentState = ZombieState.Attack;
             PerformAttack();
             return;
         }
 
-        // Бежим к цели
         Vector2 dir = ((Vector2)target.position - rb.position).normalized;
         float speed = dist > detectRange * 0.5f ? runSpeed : moveSpeed;
-        rb.MovePosition(rb.position + dir * speed * Time.fixedDeltaTime);
+        rb.MovePosition(rb.position + dir * speed * Time.deltaTime);
     }
 
-    // ═══════════ АТАКА ═══════════
     void PerformAttack()
     {
         attackTimer = attackCooldown;
 
         if (animator != null)
+        {
             animator.SetTrigger("attack");
+        }
 
-        // Наносим урон с задержкой (в середине анимации)
         Invoke(nameof(DealDamage), 0.3f);
         Invoke(nameof(EndAttack), 0.6f);
     }
@@ -219,6 +307,8 @@ public class ZombieAI : MonoBehaviour
         if (dist <= attackRange * 1.5f)
         {
             PlayerController player = target.GetComponent<PlayerController>();
+            if (player == null) player = target.GetComponentInChildren<PlayerController>();
+
             if (player != null)
             {
                 Vector2 knockDir = (target.position - transform.position).normalized;
@@ -231,26 +321,26 @@ public class ZombieAI : MonoBehaviour
     void EndAttack()
     {
         if (isDead) return;
-        currentState = target != null ? ZombieState.Chase : ZombieState.Patrol;
+        currentState = target != null ? ZombieState.Chase : ZombieState.MoveToCampfire;
     }
 
-    // ═══════════ ПОЛУЧЕНИЕ УРОНА ═══════════
     public void TakeDamage(float damage, Vector2 knockbackDir)
+    {
+        TakeDamage(damage, knockbackDir, null);
+    }
+
+    public void TakeDamage(float damage, Vector2 knockbackDir, Transform attacker)
     {
         if (isDead) return;
 
+        TrySwitchToAttacker(attacker);
         currentHealth -= damage;
 
-        // Вспышка
         StartCoroutine(HitFlash());
-
-        // Нокбэк
         StartCoroutine(Knockback(knockbackDir));
-
-        // Камера
         ArenaCamera.Shake(damage * 0.03f, 0.1f);
 
-        if (currentHealth <= 0)
+        if (currentHealth <= 0f)
         {
             Die();
         }
@@ -262,10 +352,21 @@ public class ZombieAI : MonoBehaviour
         }
     }
 
+    void TrySwitchToAttacker(Transform attacker)
+    {
+        if (attacker == null || committedToTarget || !IsValidPlayerTarget(attacker)) return;
+
+        float distSqr = ((Vector2)attacker.position - (Vector2)transform.position).sqrMagnitude;
+        if (distSqr > attackerSwitchRange * attackerSwitchRange) return;
+
+        SetTarget(attacker);
+        groupedPlayersTimer = 0f;
+    }
+
     void RecoverFromHit()
     {
         if (isDead) return;
-        currentState = target != null ? ZombieState.Chase : ZombieState.Patrol;
+        currentState = target != null ? ZombieState.Chase : ZombieState.MoveToCampfire;
     }
 
     System.Collections.IEnumerator HitFlash()
@@ -278,6 +379,8 @@ public class ZombieAI : MonoBehaviour
 
     System.Collections.IEnumerator Knockback(Vector2 dir)
     {
+        if (rb == null) yield break;
+
         float elapsed = 0f;
         while (elapsed < 0.15f)
         {
@@ -287,31 +390,28 @@ public class ZombieAI : MonoBehaviour
         }
     }
 
-    // ═══════════ СМЕРТЬ ═══════════
     void Die()
     {
         isDead = true;
         currentState = ZombieState.Dead;
+        CancelInvoke();
+        Registry.UnregisterZombie(this);
 
         if (animator != null) animator.SetTrigger("die");
 
-        // Отключаем коллайдер
         Collider2D col = GetComponent<Collider2D>();
         if (col != null) col.enabled = false;
 
-        rb.bodyType = RigidbodyType2D.Kinematic;
+        if (rb != null) rb.bodyType = RigidbodyType2D.Kinematic;
 
-        // Исчезаем через 3 секунды
         Destroy(gameObject, 3f);
     }
 
-    // ═══════════ АНИМАТОР ═══════════
     void UpdateAnimator()
     {
         if (animator == null) return;
 
-        bool isMoving = currentState == ZombieState.Patrol ||
-                        currentState == ZombieState.Chase;
+        bool isMoving = currentState == ZombieState.MoveToCampfire || currentState == ZombieState.Chase;
         bool isRunning = currentState == ZombieState.Chase &&
                          target != null &&
                          Vector2.Distance(transform.position, target.position) > detectRange * 0.5f;
@@ -320,31 +420,34 @@ public class ZombieAI : MonoBehaviour
         animator.SetBool("isRunning", isRunning);
     }
 
-    // ═══════════ НАПРАВЛЕНИЕ ═══════════
     void UpdateFacing()
     {
         if (spriteRenderer == null) return;
 
-        if (currentState == ZombieState.Chase && target != null)
+        if (target != null && currentState == ZombieState.Chase)
         {
             spriteRenderer.flipX = target.position.x < transform.position.x;
+            return;
         }
-        else if (currentState == ZombieState.Patrol)
+
+        Vector2 destination = campfireTarget != null ? (Vector2)campfireTarget.position : Vector2.zero;
+        Vector2 dir = destination - (Vector2)transform.position;
+        if (Mathf.Abs(dir.x) > 0.1f)
         {
-            Vector2 dir = patrolTarget - (Vector2)transform.position;
-            if (Mathf.Abs(dir.x) > 0.1f)
-                spriteRenderer.flipX = dir.x < 0;
+            spriteRenderer.flipX = dir.x < 0f;
         }
     }
 
-    // ═══════════ ГИЗМО ═══════════
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectRange);
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position, patrolRadius);
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, attackerSwitchRange);
+        Gizmos.color = Color.green;
+        Vector3 center = campfireTarget != null ? campfireTarget.position : Vector3.zero;
+        Gizmos.DrawWireSphere(center, campfireStopDistance);
     }
 }

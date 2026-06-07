@@ -9,6 +9,12 @@ public class WaveManager : MonoBehaviour
     [Header("═══ Зомби ═══")]
     public GameObject zombiePrefab;
     public Transform[] spawnPoints;            // Точки спавна по краям арены
+    public Transform campfireTarget;
+    public bool useSpawnPointsWhenAvailable = true;
+    public float spawnPointJitter = 1f;
+    public float safeZoneRadius = 7f;
+    public float spawnRingExtraDistance = 4f;
+    public float spawnRingRandomness = 3f;
 
     [Header("═══ Волны ═══")]
     public int startZombies = 3;               // Зомби на первой волне
@@ -41,6 +47,12 @@ public class WaveManager : MonoBehaviour
 
     void Start()
     {
+        if (campfireTarget == null)
+        {
+            CampfireController campfire = FindAnyObjectByType<CampfireController>();
+            if (campfire != null) campfireTarget = campfire.transform;
+        }
+
         if (waveText != null) waveText.gameObject.SetActive(false);
         UpdateZombieCountUI();
 
@@ -51,7 +63,7 @@ public class WaveManager : MonoBehaviour
     void Update()
     {
         // Очищаем мёртвых зомби из списка
-        activeZombies.RemoveAll(z => z == null);
+        activeZombies.RemoveAll(IsZombieInactive);
         zombiesAlive = activeZombies.Count;
 
         UpdateZombieCountUI();
@@ -149,19 +161,7 @@ public class WaveManager : MonoBehaviour
         if (zombiePrefab == null) return;
 
         // Выбираем случайную точку спавна
-        Vector3 spawnPos;
-        if (spawnPoints != null && spawnPoints.Length > 0)
-        {
-            Transform point = spawnPoints[Random.Range(0, spawnPoints.Length)];
-            spawnPos = point.position + (Vector3)(Random.insideUnitCircle * 1f);
-        }
-        else
-        {
-            // Спавн по краям если точки не заданы
-            float angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
-            float dist = 8f;
-            spawnPos = new Vector3(Mathf.Cos(angle) * dist, Mathf.Sin(angle) * dist, 0);
-        }
+        Vector3 spawnPos = GetSpawnPosition();
 
         GameObject zombie = Instantiate(zombiePrefab, spawnPos, Quaternion.identity);
 
@@ -174,10 +174,39 @@ public class WaveManager : MonoBehaviour
             ai.moveSpeed += waveBonus * zombieSpeedIncrease;
             ai.runSpeed += waveBonus * zombieSpeedIncrease;
             ai.attackDamage += waveBonus * zombieDamageIncrease;
+            ai.SetCampfireTarget(campfireTarget);
         }
 
         activeZombies.Add(zombie);
         zombiesAlive++;
+    }
+
+    Vector3 GetSpawnPosition()
+    {
+        Transform point = GetRandomSpawnPoint();
+        if (useSpawnPointsWhenAvailable && point != null)
+        {
+            return point.position + (Vector3)(Random.insideUnitCircle * spawnPointJitter);
+        }
+
+        Vector3 center = campfireTarget != null ? campfireTarget.position : Vector3.zero;
+        float angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
+        float distance = safeZoneRadius + spawnRingExtraDistance + Random.Range(0f, spawnRingRandomness);
+        return center + new Vector3(Mathf.Cos(angle) * distance, Mathf.Sin(angle) * distance, 0f);
+    }
+
+    Transform GetRandomSpawnPoint()
+    {
+        if (spawnPoints == null || spawnPoints.Length == 0) return null;
+
+        int startIndex = Random.Range(0, spawnPoints.Length);
+        for (int i = 0; i < spawnPoints.Length; i++)
+        {
+            Transform point = spawnPoints[(startIndex + i) % spawnPoints.Length];
+            if (point != null) return point;
+        }
+
+        return null;
     }
 
     void UpdateZombieCountUI()
@@ -187,6 +216,14 @@ public class WaveManager : MonoBehaviour
     }
 
     // Публичные методы
+    bool IsZombieInactive(GameObject zombie)
+    {
+        if (zombie == null) return true;
+
+        ZombieAI ai = zombie.GetComponent<ZombieAI>();
+        return ai == null || !ai.IsAlive;
+    }
+
     public int GetCurrentWave() => currentWave;
     public int GetZombiesAlive() => zombiesAlive;
     public bool IsWaveInProgress() => waveInProgress;
