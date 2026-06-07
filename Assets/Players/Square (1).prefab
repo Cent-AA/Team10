@@ -215,6 +215,7 @@ Transform:
   m_Children:
   - {fileID: 4056757383962106205}
   - {fileID: 8241587753158227379}
+  - {fileID: 8254553928631824462}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &6182019440322228710
@@ -301,6 +302,8 @@ MonoBehaviour:
   attackableLayer:
     serializedVersion: 2
     m_Bits: 64
+  bulletPrefab: {fileID: 2494202439001056463, guid: 367d038feb75d4faab0bc17eca657007, type: 3}
+  firePoint: {fileID: 8254553928631824462}
 --- !u!114 &746122811424483858
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -374,6 +377,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 2a3d397a-c4bd-4b91-82f5-c9190b8caed5
     m_ActionName: 'New action map/Attack[/Keyboard/e,/Keyboard/rightShift]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4324739528404049881}
+        m_TargetAssemblyTypeName: PlayerControl, Assembly-CSharp
+        m_MethodName: Shoot
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 74f3f649-d838-4696-b130-ef0e25342b70
+    m_ActionName: 'New action map/Shoot[/Mouse/leftButton]'
   m_NeverAutoSwitchControlSchemes: 1
   m_DefaultControlScheme: 
   m_DefaultActionMap: New action map
@@ -392,7 +411,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
   starthp: 160.9
-  portraitBar: {fileID: 0}
+  portraitHealthBar: {fileID: 0}
 --- !u!50 &-6144931542565016327
 Rigidbody2D:
   serializedVersion: 5
@@ -915,6 +934,37 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7219485897169809987}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7291763415755687941
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8254553928631824462}
+  m_Layer: 0
+  m_Name: FirePoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8254553928631824462
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7291763415755687941}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.606, y: 0.019, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
