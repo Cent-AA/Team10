@@ -19,6 +19,10 @@ public class PlayerControl : MonoBehaviour
     [SerializeField] public float luck;
     [SerializeField] private Transform attackTransform;
     [SerializeField] private LayerMask attackableLayer;
+
+    [Header("Ranged Attack")]
+    [SerializeField] private GameObject bulletPrefab; // Сюда перетащим префаб пули
+    [SerializeField] private Transform firePoint;     // Сюда перетащим пустой объект FirePoint
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public void Move(InputAction.CallbackContext context)
     {
@@ -51,6 +55,25 @@ public class PlayerControl : MonoBehaviour
             if(health != null)
             {
                 health.TakeDamage(damage,luck);
+            }
+        }
+    }
+
+    public void Shoot(InputAction.CallbackContext context)
+    {
+        // Выстрел срабатывает один раз строго в момент НАЖАТИЯ на кнопку
+        if (context.performed)
+        {
+            // Создаем пулю в координатах firePoint
+            GameObject newBullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
+            
+            // Находим на пуле её скрипт и запускаем вперед
+            Bullet bulletScript = newBullet.GetComponent<Bullet>();
+            if (bulletScript != null)
+            {
+                // transform.right сам смотрит влево или вправо, 
+                // так как ты разворачиваешь персонажа через localScale в Update!
+                bulletScript.Launch(transform.right);
             }
         }
     }
