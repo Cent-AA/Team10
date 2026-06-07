@@ -57,6 +57,8 @@ public class CharacterSelectTransition : MonoBehaviour
     private Vector2 p1ArrowTarget, p1LetterTarget, p1NumberTarget;
     private Vector2 p2ArrowTarget, p2LetterTarget, p2NumberTarget;
     private bool isTransitioning = false;
+    private AudioSource audioSource;
+    [SerializeField]private AudioClip bushTrans;
 
     void Start()
     {
@@ -326,6 +328,11 @@ public class CharacterSelectTransition : MonoBehaviour
         Vector2 forestCenter = new Vector2(0, 0);
         Vector2 bushBottom = new Vector2(0, -1400f);
         Vector2 bushCenter = new Vector2(0, 100f);   // Кусты чуть выше (поверх леса)
+
+        audioSource = GetComponent<AudioSource>();
+
+        audioSource.clip = bushTrans;
+        audioSource.Play();
 
         forestOverlay.anchoredPosition = forestBottom;
         if (bushOverlay != null) bushOverlay.anchoredPosition = bushBottom;
