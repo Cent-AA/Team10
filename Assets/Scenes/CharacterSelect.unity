@@ -1246,6 +1246,8 @@ MonoBehaviour:
   p2HighlightColor: {r: 1, g: 0.7, b: 0.2, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   transition: {fileID: 753744261}
+  browseSound: {fileID: 8300000, guid: dee840e979cf51a47a6221084f74ecc8, type: 3}
+  confirmSound: {fileID: 8300000, guid: dce7acca641811849b03b5b340c1a33c, type: 3}
 --- !u!114 &753744264
 MonoBehaviour:
   m_ObjectHideFlags: 0
