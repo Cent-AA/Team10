@@ -6,6 +6,7 @@ public class BG3PortraitHealthBar : MonoBehaviour
     [Header("Player")]
     [SerializeField] private int playerNumber = 1;
     [SerializeField] private bool autoFindPlayer = true;
+    [SerializeField] private float autoFindInterval = 0.25f;
 
     [Header("Health")]
     [SerializeField] private float maxHealth = 100f;
@@ -24,6 +25,7 @@ public class BG3PortraitHealthBar : MonoBehaviour
     [SerializeField] private bool makeGraySpriteAtRuntime = true;
 
     private float targetPercent = 1f;
+    private float nextAutoFindTime;
     private Sprite generatedGraySprite;
     private PlayerController boundPlayer;
 
@@ -54,8 +56,9 @@ public class BG3PortraitHealthBar : MonoBehaviour
 
     private void Update()
     {
-        if (boundPlayer == null)
+        if (boundPlayer == null && autoFindPlayer && Time.unscaledTime >= nextAutoFindTime)
         {
+            nextAutoFindTime = Time.unscaledTime + autoFindInterval;
             TryAutoBind();
         }
 
@@ -289,7 +292,9 @@ public class BG3PortraitHealthBar : MonoBehaviour
             }
 
             makeGraySpriteAtRuntime = false;
+#if UNITY_EDITOR
             Debug.LogWarning("Could not create gray portrait sprite. Using tint fallback instead. " + exception.Message);
+#endif
             return source;
         }
         finally
@@ -311,6 +316,22 @@ public class BG3PortraitHealthBar : MonoBehaviour
         }
 
         InferPlayerNumberFromName();
+
+        Registry.CleanupPlayers();
+        for (int i = 0; i < Registry.Players.Count; i++)
+        {
+            Transform playerTransform = Registry.Players[i];
+            if (playerTransform == null) continue;
+
+            PlayerController player = playerTransform.GetComponent<PlayerController>();
+            if (player == null) player = playerTransform.GetComponentInChildren<PlayerController>();
+
+            if (player != null && player.playerNumber == playerNumber)
+            {
+                Bind(player);
+                return true;
+            }
+        }
 
         PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsInactive.Exclude);
         for (int i = 0; i < players.Length; i++)

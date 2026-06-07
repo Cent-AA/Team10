@@ -50,7 +50,7 @@ public class Players : MonoBehaviour
         if(Keyboard.current == null) return;
         if(!wasdjoined && Keyboard.current.spaceKey.wasPressedThisFrame && pAmount < 2)
         {
-            Debug.Log("pressed");
+            EditorLog("pressed");
             if(pAmount == 0)
             {
                 var player = PlayerInput.Instantiate(playerPrefab, controlScheme: "Keyboard1", pairWithDevice: Keyboard.current);
@@ -61,10 +61,10 @@ public class Players : MonoBehaviour
                     player.transform.position = spawnPoints[0].position;
                 }
                 wasdjoined = true;
-                Debug.Log("Spawn start");
+                EditorLog("Spawn start");
 
                 Registry.Register(player.transform);
-                Debug.Log("Spawn finished");
+                EditorLog("Spawn finished");
             }
             else if(pAmount == 1)
             {
@@ -154,5 +154,11 @@ public class Players : MonoBehaviour
         }
 
         return null;
+    }
+
+    [System.Diagnostics.Conditional("UNITY_EDITOR")]
+    private static void EditorLog(object message)
+    {
+        Debug.Log(message);
     }
 }

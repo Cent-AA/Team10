@@ -72,7 +72,9 @@ public class UIBarsManager : MonoBehaviour
 
         if (currentHealth <= 0)
         {
+#if UNITY_EDITOR
             Debug.Log("Игрок погиб!");
+#endif
             // Здесь можно вызвать метод смерти игрока
         }
     }

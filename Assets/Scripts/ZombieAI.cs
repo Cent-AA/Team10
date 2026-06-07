@@ -35,6 +35,7 @@ public class ZombieAI : MonoBehaviour
     [Header("Effects")]
     public Color hitFlashColor = Color.red;
     public float hitFlashDuration = 0.1f;
+    public float deathDespawnDelay = 3f;
 
     public enum ZombieState { Idle, MoveToCampfire, Chase, Attack, Hit, Dead }
     private ZombieState currentState = ZombieState.MoveToCampfire;
@@ -45,15 +46,19 @@ public class ZombieAI : MonoBehaviour
     private float targetRefreshTimer;
     private float groupedPlayersTimer;
     private bool committedToTarget;
+    private bool poolManaged;
     private Color originalColor;
     private bool isDead;
 
     public bool IsAlive => !isDead;
+    public float DeathDespawnDelay => deathDespawnDelay;
+    public System.Action<ZombieAI> OnDied;
 
     void Awake()
     {
         if (rb == null) rb = GetComponent<Rigidbody2D>();
         if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
+        originalColor = spriteRenderer != null ? spriteRenderer.color : Color.white;
     }
 
     void OnEnable()
@@ -66,10 +71,14 @@ public class ZombieAI : MonoBehaviour
         Registry.UnregisterZombie(this);
     }
 
+    void OnDisable()
+    {
+        Registry.UnregisterZombie(this);
+    }
+
     void Start()
     {
         currentHealth = maxHealth;
-        originalColor = spriteRenderer != null ? spriteRenderer.color : Color.white;
         loseTargetTimer = loseTargetTime;
 
         if (campfireTarget == null)
@@ -115,6 +124,43 @@ public class ZombieAI : MonoBehaviour
     public void SetCampfireTarget(Transform newTarget)
     {
         campfireTarget = newTarget;
+    }
+
+    public void SetPoolManaged(bool managed)
+    {
+        poolManaged = managed;
+    }
+
+    public void ResetForSpawn(Transform newCampfireTarget)
+    {
+        StopAllCoroutines();
+        CancelInvoke();
+
+        campfireTarget = newCampfireTarget;
+        currentHealth = maxHealth;
+        isDead = false;
+        currentState = ZombieState.MoveToCampfire;
+        target = null;
+        attackTimer = 0f;
+        loseTargetTimer = loseTargetTime;
+        targetRefreshTimer = 0f;
+        groupedPlayersTimer = 0f;
+        committedToTarget = false;
+
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null) col.enabled = true;
+
+        if (rb != null)
+        {
+            rb.bodyType = RigidbodyType2D.Dynamic;
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+        }
+
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = originalColor;
+        }
     }
 
     void RefreshTarget()
@@ -404,7 +450,12 @@ public class ZombieAI : MonoBehaviour
 
         if (rb != null) rb.bodyType = RigidbodyType2D.Kinematic;
 
-        Destroy(gameObject, 3f);
+        OnDied?.Invoke(this);
+
+        if (!poolManaged)
+        {
+            Destroy(gameObject, deathDespawnDelay);
+        }
     }
 
     void UpdateAnimator()

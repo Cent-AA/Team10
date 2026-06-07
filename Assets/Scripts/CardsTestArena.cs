@@ -56,7 +56,7 @@ public class CardsTestArena : MonoBehaviour
         }
             lvlup.SetActive(true);
             Time.timeScale = 0f;
-            Debug.Log(who);
+            EditorLog(who);
         }
     public void PressCard()
     {
@@ -92,11 +92,11 @@ public class CardsTestArena : MonoBehaviour
     switch (cardID)
     {
         case 0:
-            Debug.Log("Increase damage");
+            EditorLog("Increase damage");
             break;
 
         case 1:
-            Debug.Log("Increase health");
+            EditorLog("Increase health");
             if (who == 1)
             {
                 IncreasePlayerHealth(0, 1.75f);
@@ -113,13 +113,13 @@ public class CardsTestArena : MonoBehaviour
             break;
 
         case 2:
-            Debug.Log("Increase speed");
+            EditorLog("Increase speed");
             break;
         case 3:
-            Debug.Log("Increase STUFF");
+            EditorLog("Increase STUFF");
             break;
         default:
-            Debug.Log("Something idk");
+            EditorLog("Something idk");
             break;
     }
     PressCard();
@@ -143,11 +143,11 @@ public class CardsTestArena : MonoBehaviour
             return;
         }
 
-        Debug.Log(controller.maxHealth);
-        Debug.Log(controller.currentHealth);
+        EditorLog(controller.maxHealth);
+        EditorLog(controller.currentHealth);
         controller.MultiplyHealth(multiplier);
-        Debug.Log(controller.maxHealth);
-        Debug.Log(controller.currentHealth);
+        EditorLog(controller.maxHealth);
+        EditorLog(controller.currentHealth);
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -165,5 +165,11 @@ public class CardsTestArena : MonoBehaviour
         {
             TestCard();
         }
+    }
+
+    [System.Diagnostics.Conditional("UNITY_EDITOR")]
+    private static void EditorLog(object message)
+    {
+        Debug.Log(message);
     }
 }

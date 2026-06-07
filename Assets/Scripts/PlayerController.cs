@@ -66,6 +66,7 @@ public class PlayerController : MonoBehaviour
     private int comboStep = 0;
     private float comboTimer = 0f;
     private Color[] originalColors;
+    private readonly Collider2D[] attackHitBuffer = new Collider2D[32];
 
     // Зарядка Heavy
     private bool isHoldingHeavy = false;
@@ -277,11 +278,18 @@ public class PlayerController : MonoBehaviour
     void DealAttackDamage()
     {
         if (attackPoint == null) return;
-        Collider2D[] hits = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayer);
+        ContactFilter2D attackFilter = new ContactFilter2D();
+        attackFilter.SetLayerMask(enemyLayer);
+        attackFilter.useLayerMask = true;
+        attackFilter.useTriggers = Physics2D.queriesHitTriggers;
+
+        int hitCount = Physics2D.OverlapCircle(attackPoint.position, attackRange, attackFilter, attackHitBuffer);
         float damage = GetCurrentDamage();
 
-        foreach (var hit in hits)
+        for (int i = 0; i < hitCount; i++)
         {
+            Collider2D hit = attackHitBuffer[i];
+            if (hit == null) continue;
             if (hit.transform == transform) continue;
 
             Vector2 knockDir = (hit.transform.position - transform.position).normalized;
@@ -303,6 +311,8 @@ public class PlayerController : MonoBehaviour
                 PlaySound(hitSound);
                 StartCoroutine(HitStopRoutine());
             }
+
+            attackHitBuffer[i] = null;
         }
     }
 
@@ -508,9 +518,7 @@ public class PlayerController : MonoBehaviour
             Quaternion bulletRotation = Quaternion.Euler(0f, 0f, angle);
 
             // 5. Спавним пулю, сразу развернутую в сторону курсора
-            GameObject bulletObject = Instantiate(bulletPrefab, firePoint.position, bulletRotation);
-            Bullet bullet = bulletObject.GetComponent<Bullet>();
-            if (bullet != null) bullet.Init(transform);
+            Bullet.Spawn(bulletPrefab, firePoint.position, bulletRotation, transform);
         }
     }
 }

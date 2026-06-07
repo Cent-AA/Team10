@@ -1,14 +1,44 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
     [Header("Settings")]
-    [SerializeField] private float speed = 12f;      // Скорость полета пули
-    [SerializeField] private float damage = 15f;     // Урон, который получит враг
-    [SerializeField] private float lifeTime = 3f;    // Время жизни пули в секундах
+    [SerializeField] private float speed = 12f;
+    [SerializeField] private float damage = 15f;
+    [SerializeField] private float lifeTime = 3f;
+
+    private static readonly Dictionary<GameObject, Queue<Bullet>> Pools = new Dictionary<GameObject, Queue<Bullet>>();
 
     private Rigidbody2D rb;
     private Transform owner;
+    private GameObject prefabSource;
+    private Coroutine lifeRoutine;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetPools()
+    {
+        Pools.Clear();
+    }
+
+    public static GameObject Spawn(GameObject prefab, Vector3 position, Quaternion rotation, Transform ownerTransform)
+    {
+        if (prefab == null) return null;
+
+        Bullet bullet = GetFromPool(prefab);
+        if (bullet == null)
+        {
+            GameObject fallback = Instantiate(prefab, position, rotation);
+            bullet = fallback.GetComponent<Bullet>();
+            if (bullet == null) return fallback;
+
+            bullet.prefabSource = prefab;
+        }
+
+        bullet.Activate(position, rotation, ownerTransform, prefab);
+        return bullet.gameObject;
+    }
 
     public void Init(Transform ownerTransform)
     {
@@ -17,42 +47,98 @@ public class Bullet : MonoBehaviour
 
     void Awake()
     {
-        // Находим компонент физики в момент появления пули
         rb = GetComponent<Rigidbody2D>();
     }
 
-    void Start()
+    static Bullet GetFromPool(GameObject prefab)
     {
-        // Автоматически уничтожаем пулю через заданное время, чтобы не забивать память
-        Destroy(gameObject, lifeTime);
+        if (!Pools.TryGetValue(prefab, out Queue<Bullet> pool))
+        {
+            return null;
+        }
 
-        // Пуля летит САМА сразу при создании
+        while (pool.Count > 0)
+        {
+            Bullet bullet = pool.Dequeue();
+            if (bullet != null) return bullet;
+        }
+
+        return null;
+    }
+
+    void Activate(Vector3 position, Quaternion rotation, Transform ownerTransform, GameObject prefab)
+    {
+        prefabSource = prefab;
+        owner = ownerTransform;
+
+        transform.SetPositionAndRotation(position, rotation);
+        gameObject.SetActive(true);
+
         if (rb != null)
         {
             rb.linearVelocity = transform.right * speed;
+            rb.angularVelocity = 0f;
         }
+
+        if (lifeRoutine != null)
+        {
+            StopCoroutine(lifeRoutine);
+        }
+
+        lifeRoutine = StartCoroutine(ReturnAfterLifetime());
     }
 
-    // Фиксируем столкновение пули с объектами
-    private void OnTriggerEnter2D(Collider2D collision)
+    IEnumerator ReturnAfterLifetime()
     {
-        // Проверяем, что пуля врезалась НЕ в самого игрока
-        if (!collision.CompareTag("Player"))
+        yield return new WaitForSeconds(lifeTime);
+        ReturnToPool();
+    }
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player")) return;
+
+        ZombieAI zombie = collision.GetComponent<ZombieAI>();
+        if (zombie != null)
         {
-            // Проверяем, есть ли на объекте скрипт зомби
-            ZombieAI zombie = collision.GetComponent<ZombieAI>();
-            
-            if (zombie != null)
-            {
-                // Направление толчка — вектор полета пули (куда летит, туда и толкает)
-                Vector2 knockbackDir = transform.right;
-
-                // Вызываем метод урона у зомби, передавая урон и нокбэк
-                zombie.TakeDamage(damage, knockbackDir, owner);
-            }
-
-            // Уничтожаем пулю при любом столкновении (со стеной или врагом)
-            Destroy(gameObject);
+            Vector2 knockbackDir = transform.right;
+            zombie.TakeDamage(damage, knockbackDir, owner);
         }
+
+        ReturnToPool();
+    }
+
+    void ReturnToPool()
+    {
+        if (!gameObject.activeSelf) return;
+
+        if (lifeRoutine != null)
+        {
+            StopCoroutine(lifeRoutine);
+            lifeRoutine = null;
+        }
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+        }
+
+        owner = null;
+        gameObject.SetActive(false);
+
+        if (prefabSource == null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        if (!Pools.TryGetValue(prefabSource, out Queue<Bullet> pool))
+        {
+            pool = new Queue<Bullet>();
+            Pools.Add(prefabSource, pool);
+        }
+
+        pool.Enqueue(this);
     }
 }

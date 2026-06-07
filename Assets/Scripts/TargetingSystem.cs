@@ -21,6 +21,7 @@ public class TargetingSystem : MonoBehaviour
     private GameObject targetIndicator;
     private List<SpriteRenderer> triangles = new List<SpriteRenderer>();
     private float currentAngle = 0f;
+    private readonly Collider2D[] targetHitBuffer = new Collider2D[32];
 
     void Start()
     {
@@ -35,37 +36,43 @@ public class TargetingSystem : MonoBehaviour
 
     void FindTarget()
     {
-        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, detectRange, enemyLayer);
-        float closestDist = Mathf.Infinity;
+        ContactFilter2D targetFilter = new ContactFilter2D();
+        targetFilter.SetLayerMask(enemyLayer);
+        targetFilter.useLayerMask = true;
+        targetFilter.useTriggers = Physics2D.queriesHitTriggers;
+
+        int hitCount = Physics2D.OverlapCircle(transform.position, detectRange, targetFilter, targetHitBuffer);
+        float closestDistSqr = autoTargetRange * autoTargetRange;
         Transform closest = null;
 
-        foreach (var hit in hits)
+        for (int i = 0; i < hitCount; i++)
         {
+            Collider2D hit = targetHitBuffer[i];
+            if (hit == null) continue;
             if (hit.transform == transform) continue;
 
-            // Проверяем здоровье
             ZombieAI zombie = hit.GetComponent<ZombieAI>();
             PlayerController player = hit.GetComponent<PlayerController>();
+            float distSqr = ((Vector2)hit.transform.position - (Vector2)transform.position).sqrMagnitude;
 
-            // Пропускаем мёртвых
             if (zombie != null)
             {
-                float dist = Vector2.Distance(transform.position, hit.transform.position);
-                if (dist < closestDist && dist <= autoTargetRange)
+                if (distSqr < closestDistSqr)
                 {
-                    closestDist = dist;
+                    closestDistSqr = distSqr;
                     closest = hit.transform;
                 }
             }
             else if (player != null && player.currentHealth > 0 && player.playerNumber != playerNumber)
             {
-                float dist = Vector2.Distance(transform.position, hit.transform.position);
-                if (dist < closestDist && dist <= autoTargetRange)
+                if (distSqr < closestDistSqr)
                 {
-                    closestDist = dist;
+                    closestDistSqr = distSqr;
                     closest = hit.transform;
                 }
             }
+
+            targetHitBuffer[i] = null;
         }
 
         currentTarget = closest;

@@ -12,7 +12,9 @@ public class DebugInputSetup : MonoBehaviour
             InputJoinManager.player1Input = InputJoinManager.InputType.KeyboardWASD;
             InputJoinManager.player2Input = InputJoinManager.InputType.KeyboardArrows;
             InputJoinManager.bothJoined = true;
+#if UNITY_EDITOR
             Debug.Log("DEBUG: Автоматически назначен P1=WASD, P2=Arrows");
+#endif
         }
     }
 }

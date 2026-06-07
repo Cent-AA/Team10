@@ -63,11 +63,11 @@ public class Cards : MonoBehaviour
         BuffTarget.text =Target[who];
         foreach (int index in uniqueIndices)
         {
-            Debug.Log("Selected Index: " + index);
+            EditorLog("Selected Index: " + index);
         }
             lvlup.SetActive(true);
             Time.timeScale = 0f;
-            Debug.Log(who);
+            EditorLog(who);
         }
     /*public void PressCard()
     {
@@ -114,5 +114,11 @@ public class Cards : MonoBehaviour
         {
             TestCard();
         }
+    }
+
+    [System.Diagnostics.Conditional("UNITY_EDITOR")]
+    private static void EditorLog(object message)
+    {
+        Debug.Log(message);
     }
 }

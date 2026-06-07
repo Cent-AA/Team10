@@ -7,6 +7,14 @@ public class CameraMoving : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public int pAmount;
 
+    void Awake()
+    {
+        ArenaCamera arenaCamera = GetComponent<ArenaCamera>();
+        if (arenaCamera != null && arenaCamera.enabled)
+        {
+            enabled = false;
+        }
+    }
 
     
     void Start()

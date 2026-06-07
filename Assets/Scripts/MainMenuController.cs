@@ -71,7 +71,9 @@ public class MainMenuController : MonoBehaviour
 
     public void ConfirmExit()
     {
+#if UNITY_EDITOR
         Debug.Log("Игра закрывается... (В билде это закроет приложение)"); 
+#endif
         Application.Quit(); 
     }
 

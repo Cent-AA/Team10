@@ -84,6 +84,7 @@ public class PuppetAnimator : MonoBehaviour
     private GameObject chargeCircle;
     private SpriteRenderer chargeCircleRenderer;
     private List<GameObject> barrageClones = new List<GameObject>();
+    private List<SpriteRenderer> barrageCloneRenderers = new List<SpriteRenderer>();
 
     // Начальные позиции
     private Vector3 headStartPos;
@@ -334,20 +335,9 @@ public class PuppetAnimator : MonoBehaviour
         Sprite armSpr = armSprite != null ? armSprite.sprite : null;
         int armOrder = armSprite != null ? armSprite.sortingOrder : 5;
 
-        List<GameObject> clones = new List<GameObject>();
-        for (int i = 0; i < barrageArmClones; i++)
-        {
-            GameObject c = new GameObject("BarrageArm" + i);
-            c.transform.SetParent(transform.parent);
-            if (armSpr != null)
-            {
-                SpriteRenderer sr = c.AddComponent<SpriteRenderer>();
-                sr.sprite = armSpr;
-                sr.color = new Color(1, 1, 1, 0.6f);
-                sr.sortingOrder = armOrder + i;
-            }
-            clones.Add(c);
-        }
+        EnsureBarrageClones(armSpr, armOrder);
+        ActivateBarrageClones(armSpr, armOrder);
+        int activeCloneCount = Mathf.Min(barrageArmClones, barrageClones.Count);
 
         float elapsed = 0f;
         float hitTimer = 0f;
@@ -367,15 +357,16 @@ public class PuppetAnimator : MonoBehaviour
             Vector3 targetPos = currentTarget != null ? currentTarget.position : transform.position + (Vector3)(targetDir * 3f);
 
             // Каждый клон летит к врагу с разных сторон
-            for (int i = 0; i < clones.Count; i++)
+            for (int i = 0; i < activeCloneCount; i++)
             {
-                if (clones[i] == null) continue;
+                GameObject clone = barrageClones[i];
+                if (clone == null) continue;
 
                 float phase = i * 1.3f + elapsed * 8f;
                 float cycleT = Mathf.Repeat(phase, 1f);
 
                 // Стартовая позиция — вокруг игрока
-                float angle = (360f / clones.Count) * i + elapsed * 200f;
+                float angle = (360f / activeCloneCount) * i + elapsed * 200f;
                 float rad = angle * Mathf.Deg2Rad;
                 Vector3 startPos = transform.position + new Vector3(Mathf.Cos(rad), Mathf.Sin(rad), 0) * 1f;
 
@@ -383,23 +374,23 @@ public class PuppetAnimator : MonoBehaviour
                 if (cycleT < 0.5f)
                 {
                     float t = cycleT / 0.5f;
-                    clones[i].transform.position = Vector3.Lerp(startPos, targetPos, t * t);
-                    clones[i].transform.localScale = Vector3.one * Mathf.Lerp(barrageArmScale * 0.5f, barrageArmScale, t);
+                    clone.transform.position = Vector3.Lerp(startPos, targetPos, t * t);
+                    clone.transform.localScale = Vector3.one * Mathf.Lerp(barrageArmScale * 0.5f, barrageArmScale, t);
                 }
                 else
                 {
                     float t = (cycleT - 0.5f) / 0.5f;
-                    clones[i].transform.position = Vector3.Lerp(targetPos, startPos, t);
-                    clones[i].transform.localScale = Vector3.one * Mathf.Lerp(barrageArmScale, barrageArmScale * 0.3f, t);
+                    clone.transform.position = Vector3.Lerp(targetPos, startPos, t);
+                    clone.transform.localScale = Vector3.one * Mathf.Lerp(barrageArmScale, barrageArmScale * 0.3f, t);
                 }
 
                 // Поворот к врагу
-                Vector2 dir = (targetPos - clones[i].transform.position).normalized;
+                Vector2 dir = (targetPos - clone.transform.position).normalized;
                 float a = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-                clones[i].transform.rotation = Quaternion.Euler(0, 0, a - 270);
+                clone.transform.rotation = Quaternion.Euler(0, 0, a - 270);
 
                 // Прозрачность
-                SpriteRenderer sr = clones[i].GetComponent<SpriteRenderer>();
+                SpriteRenderer sr = barrageCloneRenderers[i];
                 if (sr != null) sr.color = new Color(1, 1, 1, 0.3f + Mathf.Sin(phase * 5f) * 0.3f);
             }
 
@@ -415,8 +406,7 @@ public class PuppetAnimator : MonoBehaviour
         }
 
         // Очистка
-        foreach (var c in clones) if (c != null) Destroy(c);
-        clones.Clear();
+        DeactivateBarrageClones();
 
         // Возвращаем оригинальные руки
         if (leftArm != null) { leftArm.gameObject.SetActive(true); leftArm.localPosition = leftArmStartPos; leftArm.localScale = leftArmStartScale; leftArm.localRotation = leftArmStartRot; }
@@ -428,6 +418,78 @@ public class PuppetAnimator : MonoBehaviour
     }
 
     // ═══════════ РЫВОК ═══════════
+    void EnsureBarrageClones(Sprite armSprite, int armOrder)
+    {
+        Transform cloneParent = transform.parent != null ? transform.parent : transform;
+
+        while (barrageClones.Count < barrageArmClones)
+        {
+            int index = barrageClones.Count;
+            GameObject clone = new GameObject("BarrageArm" + index);
+            clone.transform.SetParent(cloneParent);
+
+            SpriteRenderer sr = clone.AddComponent<SpriteRenderer>();
+            sr.sprite = armSprite;
+            sr.color = new Color(1, 1, 1, 0.6f);
+            sr.sortingOrder = armOrder + index;
+
+            clone.SetActive(false);
+            barrageClones.Add(clone);
+            barrageCloneRenderers.Add(sr);
+        }
+
+        for (int i = 0; i < barrageClones.Count; i++)
+        {
+            GameObject clone = barrageClones[i];
+            if (clone == null) continue;
+
+            clone.transform.SetParent(cloneParent);
+
+            SpriteRenderer sr = barrageCloneRenderers[i];
+            if (sr == null)
+            {
+                sr = clone.GetComponent<SpriteRenderer>();
+                if (sr == null) sr = clone.AddComponent<SpriteRenderer>();
+                barrageCloneRenderers[i] = sr;
+            }
+
+            sr.sprite = armSprite;
+            sr.sortingOrder = armOrder + i;
+        }
+    }
+
+    void ActivateBarrageClones(Sprite armSprite, int armOrder)
+    {
+        for (int i = 0; i < barrageClones.Count; i++)
+        {
+            GameObject clone = barrageClones[i];
+            if (clone == null) continue;
+
+            bool active = i < barrageArmClones;
+            clone.SetActive(active);
+            if (!active) continue;
+
+            SpriteRenderer sr = barrageCloneRenderers[i];
+            if (sr != null)
+            {
+                sr.sprite = armSprite;
+                sr.color = new Color(1, 1, 1, 0.6f);
+                sr.sortingOrder = armOrder + i;
+            }
+        }
+    }
+
+    void DeactivateBarrageClones()
+    {
+        for (int i = 0; i < barrageClones.Count; i++)
+        {
+            if (barrageClones[i] != null)
+            {
+                barrageClones[i].SetActive(false);
+            }
+        }
+    }
+
     void AnimateDash()
     {
         if (stateTimer < dashDuration)

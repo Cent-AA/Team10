@@ -90,9 +90,7 @@ public class AutoWeapon : MonoBehaviour
         if (bulletPrefab != null && firePoint != null)
         {
             // Спавним пулю с точным поворотом ствола
-            GameObject bulletObject = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
-            Bullet bullet = bulletObject.GetComponent<Bullet>();
-            if (bullet != null) bullet.Init(owner);
+            Bullet.Spawn(bulletPrefab, firePoint.position, firePoint.rotation, owner);
         }
     }
 }
