@@ -37,6 +37,11 @@ public class CharacterSelector : MonoBehaviour
     [Header("Переход")]
     public CharacterSelectTransition transition;
 
+    [Header("═══ Аудиоэффекты ═══")]
+    [SerializeField] private AudioClip browseSound;    // Звук перелистывания (влево/вправо)
+    [SerializeField] private AudioClip confirmSound;   // Звук подтверждения (готов)
+    private AudioSource audioSource;
+
     // Статические данные — доступны из арены
     public static int player1Character = 0;
     public static int player2Character = 0;
@@ -50,7 +55,20 @@ public class CharacterSelector : MonoBehaviour
     private bool active = false;
     private bool bothConfirmed = false;
 
-    public void Activate() { active = true; }
+    public void Activate() 
+    { 
+        active = true; 
+    }
+
+    void Start()
+    {
+        // Инициализируем аудиокомпонент
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+    }
 
     void Update()
     {
@@ -100,9 +118,21 @@ public class CharacterSelector : MonoBehaviour
                 break;
         }
 
-        if (left) p1Selection = Mathf.Max(0, p1Selection - 1);
-        if (right) p1Selection = Mathf.Min(characterCards.Length - 1, p1Selection + 1);
-        if (confirm) p1Confirmed = true;
+        if (left)
+        {
+            int nextSelection = Mathf.Max(0, p1Selection - 1);
+            if (nextSelection != p1Selection) { p1Selection = nextSelection; PlaySound(browseSound); }
+        }
+        if (right)
+        {
+            int nextSelection = Mathf.Min(characterCards.Length - 1, p1Selection + 1);
+            if (nextSelection != p1Selection) { p1Selection = nextSelection; PlaySound(browseSound); }
+        }
+        if (confirm)
+        {
+            p1Confirmed = true;
+            PlaySound(confirmSound);
+        }
     }
 
     void HandleP2Input()
@@ -131,9 +161,21 @@ public class CharacterSelector : MonoBehaviour
                 break;
         }
 
-        if (left) p2Selection = Mathf.Max(0, p2Selection - 1);
-        if (right) p2Selection = Mathf.Min(characterCards.Length - 1, p2Selection + 1);
-        if (confirm) p2Confirmed = true;
+        if (left)
+        {
+            int nextSelection = Mathf.Max(0, p2Selection - 1);
+            if (nextSelection != p2Selection) { p2Selection = nextSelection; PlaySound(browseSound); }
+        }
+        if (right)
+        {
+            int nextSelection = Mathf.Min(characterCards.Length - 1, p2Selection + 1);
+            if (nextSelection != p2Selection) { p2Selection = nextSelection; PlaySound(browseSound); }
+        }
+        if (confirm)
+        {
+            p2Confirmed = true;
+            PlaySound(confirmSound);
+        }
     }
 
     bool GetGamepadButton(int pad, int button)
@@ -196,6 +238,14 @@ public class CharacterSelector : MonoBehaviour
                 else target = normalColor;
                 img.color = Color.Lerp(img.color, target, Time.deltaTime * scaleSpeed);
             }
+        }
+    }
+
+    void PlaySound(AudioClip clip)
+    {
+        if (clip != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(clip);
         }
     }
 }
