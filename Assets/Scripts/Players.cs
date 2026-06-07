@@ -116,15 +116,15 @@ public class Players : MonoBehaviour
             return;
         }
 
-        Health health = player.GetComponent<Health>();
-        if (health == null)
-        {
-            health = player.GetComponentInChildren<Health>();
-        }
+       // Health health = player.GetComponent<Health>();
+        //if (health == null)
+        //{
+          //  health = player.GetComponentInChildren<Health>();
+        //}
 
-        if (health != null)
-        {
-            health.SetPortraitHealthBar(playerPortraitBars[playerIndex]);
-        }
+        //if (health != null)
+        //{
+          //  health.SetPortraitHealthBar(playerPortraitBars[playerIndex]);
+        //}
     }
 }
