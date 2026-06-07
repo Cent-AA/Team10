@@ -11,6 +11,11 @@ public class MenuTransition : MonoBehaviour
     public RectTransform forestOverlay;
     public RectTransform bushOverlay;         // Кусты (поверх леса)
 
+    [Header("Звуковое сопровождение")]
+    public AudioSource audioSource;           // Источник звука (желательно на этом же объекте)
+    public AudioClip forestSound;             // Звук движения леса (например, гул, шелест деревьев)
+    public AudioClip bushSound;               // Звук шуршания кустов
+
     [Header("Настройки выхода (Play)")]
     public float logoSlideDuration = 1.2f;
     public float buttonsSlideDuration = 1.2f;
@@ -46,9 +51,22 @@ public class MenuTransition : MonoBehaviour
         }
     }
 
+    // Вспомогательный метод для безопасного воспроизведения звуков
+    private void PlaySound(AudioClip clip)
+    {
+        if (audioSource != null && clip != null)
+        {
+            audioSource.PlayOneShot(clip);
+        }
+    }
+
     // === ВХОДНАЯ АНИМАЦИЯ ===
     IEnumerator PlayEntryAnimation()
     {
+        // Запускаем звуки при возврате на сцену
+        PlaySound(forestSound);
+        PlaySound(bushSound);
+
         Vector2 logoTarget = logo.anchoredPosition;
         Vector2[] btnTargets = new Vector2[buttons.Length];
 
@@ -123,6 +141,10 @@ public class MenuTransition : MonoBehaviour
 
     IEnumerator PlayExitTransition()
     {
+        // Запускаем звуки при переходе в другую сцену
+        PlaySound(forestSound);
+        PlaySound(bushSound);
+
         Vector2 logoStart = logo.anchoredPosition;
         Vector2 moonStart = moon.anchoredPosition;
         Vector2 forestStart = forestOverlay.anchoredPosition;

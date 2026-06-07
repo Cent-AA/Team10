@@ -57,11 +57,13 @@ public class CharacterSelectTransition : MonoBehaviour
     private Vector2 p1ArrowTarget, p1LetterTarget, p1NumberTarget;
     private Vector2 p2ArrowTarget, p2LetterTarget, p2NumberTarget;
     private bool isTransitioning = false;
-    private AudioSource audioSource;
-    [SerializeField]private AudioClip bushTrans;
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip bushTrans;
 
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
+
         forestOverlay.anchoredPosition = forestStartPos;
         if (bushOverlay != null) bushOverlay.anchoredPosition = bushStartPos;
         moon.anchoredPosition = moonStartPos;
@@ -106,6 +108,7 @@ public class CharacterSelectTransition : MonoBehaviour
         float bushDuration = forestSlideDuration / bushSpeedMultiplier;
         float elapsed = 0f;
         float phase1Duration = Mathf.Max(forestSlideDuration, moonMoveDuration);
+
 
         while (elapsed < phase1Duration)
         {
@@ -198,6 +201,7 @@ public class CharacterSelectTransition : MonoBehaviour
         Vector2 p1ArrCur = GetPos(p1Arrow), p1LetCur = GetPos(p1Letter), p1NumCur = GetPos(p1Number);
         Vector2 p2ArrCur = GetPos(p2Arrow), p2LetCur = GetPos(p2Letter), p2NumCur = GetPos(p2Number);
 
+
         Vector2[] cardCurs = new Vector2[characterCards.Length];
         for (int i = 0; i < characterCards.Length; i++)
             cardCurs[i] = characterCards[i].anchoredPosition;
@@ -238,6 +242,8 @@ public class CharacterSelectTransition : MonoBehaviour
         Vector2 forestCur = forestOverlay.anchoredPosition;
         Vector2 bushCur = bushOverlay != null ? bushOverlay.anchoredPosition : Vector2.zero;
         float bushDuration = exitForestDuration / bushSpeedMultiplier;
+        
+        PlayBushTransitionSound();
 
         elapsed = 0f;
         float phase2Duration = Mathf.Max(exitMoonDuration, exitForestDuration);
@@ -329,10 +335,7 @@ public class CharacterSelectTransition : MonoBehaviour
         Vector2 bushBottom = new Vector2(0, -1400f);
         Vector2 bushCenter = new Vector2(0, 100f);   // Кусты чуть выше (поверх леса)
 
-        audioSource = GetComponent<AudioSource>();
-
-        audioSource.clip = bushTrans;
-        audioSource.Play();
+        PlayBushTransitionSound();
 
         forestOverlay.anchoredPosition = forestBottom;
         if (bushOverlay != null) bushOverlay.anchoredPosition = bushBottom;
@@ -372,6 +375,17 @@ public class CharacterSelectTransition : MonoBehaviour
     }
 
     Vector2 GetPos(RectTransform rt) { return rt != null ? rt.anchoredPosition : Vector2.zero; }
+
+    void PlayBushTransitionSound()
+    {
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
+
+        if (audioSource == null || bushTrans == null)
+            return;
+
+        audioSource.PlayOneShot(bushTrans);
+    }
 
     float EaseInOutSine(float t) { return -(Mathf.Cos(Mathf.PI * t) - 1f) / 2f; }
     float EaseInCubic(float t) { return t * t * t; }
