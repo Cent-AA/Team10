@@ -9,10 +9,11 @@ public class Players : MonoBehaviour
     [SerializeField] private Transform[] spawnPoints;
     [SerializeField] private BG3PortraitHealthBar[] playerPortraitBars = new BG3PortraitHealthBar[2];
 
-    private bool wasdjoined=false;
-    private bool arrowsjoined=false;
-    public int pAmount=0;
+    private bool wasdjoined = false;
+    private bool arrowsjoined = false;
+    public int pAmount = 0;
     private List<Gamepad> usedGamepads = new List<Gamepad>();
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -27,16 +28,17 @@ public class Players : MonoBehaviour
             if (usedGamepads.Contains(gamePad)) continue;
             if (gamePad.rightTrigger.wasPressedThisFrame)
             {
-                if(pAmount ==0)
+                if(pAmount == 0)
                 {
-                var player =PlayerInput.Instantiate(playerPrefab,controlScheme: "Gamepad",pairWithDevice:gamePad);
-                AssignPortraitBar(player, 0);
-                pAmount++;
-                usedGamepads.Add(gamePad);
-                Registry.Register(player.transform);
-                }else if (pAmount ==1)
+                    var player = PlayerInput.Instantiate(playerPrefab, controlScheme: "Gamepad", pairWithDevice: gamePad);
+                    AssignPortraitBar(player, 0);
+                    pAmount++;
+                    usedGamepads.Add(gamePad);
+                    Registry.Register(player.transform);
+                }
+                else if (pAmount == 1)
                 {
-                    var player =PlayerInput.Instantiate(playerPrefab2,controlScheme: "Gamepad",pairWithDevice:gamePad);
+                    var player = PlayerInput.Instantiate(playerPrefab2, controlScheme: "Gamepad", pairWithDevice: gamePad);
                     AssignPortraitBar(player, 1);
                     pAmount++;
                     usedGamepads.Add(gamePad);
@@ -45,70 +47,64 @@ public class Players : MonoBehaviour
             }
         }
 
-
-
-        if(Keyboard.current ==null) return;
+        if(Keyboard.current == null) return;
         if(!wasdjoined && Keyboard.current.spaceKey.wasPressedThisFrame && pAmount < 2)
         {
             Debug.Log("pressed");
-            if(pAmount ==0)
+            if(pAmount == 0)
             {
-            var player =PlayerInput.Instantiate(playerPrefab,controlScheme: "Keyboard1",
-            pairWithDevice: Keyboard.current);
-            AssignPortraitBar(player, 0);
-            pAmount++;
-            if (spawnPoints.Length > 0)
-            {
-                player.transform.position =spawnPoints[0].position;
-            }
-            wasdjoined=true;
-            Debug.Log("Spawn start");
+                var player = PlayerInput.Instantiate(playerPrefab, controlScheme: "Keyboard1", pairWithDevice: Keyboard.current);
+                AssignPortraitBar(player, 0);
+                pAmount++;
+                if (spawnPoints.Length > 0)
+                {
+                    player.transform.position = spawnPoints[0].position;
+                }
+                wasdjoined = true;
+                Debug.Log("Spawn start");
 
-            Registry.Register(player.transform);
-            Debug.Log("Spawn finished");
+                Registry.Register(player.transform);
+                Debug.Log("Spawn finished");
             }
-            else if(pAmount ==1)
+            else if(pAmount == 1)
             {
-            var player =PlayerInput.Instantiate(playerPrefab2,controlScheme: "Keyboard1",
-            pairWithDevice: Keyboard.current);
-            AssignPortraitBar(player, 1);
-            pAmount++;
-            if (spawnPoints.Length > 0)
-            {
-                player.transform.position =spawnPoints[0].position;
-            }
-            wasdjoined=true;
-            Registry.Register(player.transform);
+                var player = PlayerInput.Instantiate(playerPrefab2, controlScheme: "Keyboard1", pairWithDevice: Keyboard.current);
+                AssignPortraitBar(player, 1);
+                pAmount++;
+                if (spawnPoints.Length > 0)
+                {
+                    player.transform.position = spawnPoints[0].position;
+                }
+                wasdjoined = true;
+                Registry.Register(player.transform);
             }
         }
 
         if(!arrowsjoined && Keyboard.current.backspaceKey.wasPressedThisFrame && pAmount < 2)
         {
-            if(pAmount ==0)
+            if(pAmount == 0)
             {
-            var player =PlayerInput.Instantiate(playerPrefab,controlScheme: "Keyboard2",
-            pairWithDevice: Keyboard.current);
-            AssignPortraitBar(player, 0);
-            pAmount++;
-            if (spawnPoints.Length > 0)
-            {
-                player.transform.position =spawnPoints[0].position;
+                var player = PlayerInput.Instantiate(playerPrefab, controlScheme: "Keyboard2", pairWithDevice: Keyboard.current);
+                AssignPortraitBar(player, 0);
+                pAmount++;
+                if (spawnPoints.Length > 0)
+                {
+                    player.transform.position = spawnPoints[0].position;
+                }
+                arrowsjoined = true;
+                Registry.Register(player.transform);
             }
-            arrowsjoined=true;
-            Registry.Register(player.transform);
-            }
-            else if(pAmount ==1)
+            else if(pAmount == 1)
             {
-            var player =PlayerInput.Instantiate(playerPrefab2,controlScheme: "Keyboard2",
-            pairWithDevice: Keyboard.current);
-            AssignPortraitBar(player, 1);
-            pAmount++;
-            if (spawnPoints.Length > 0)
-            {
-                player.transform.position =spawnPoints[0].position;
-            }
-            arrowsjoined=true;
-            Registry.Register(player.transform);
+                var player = PlayerInput.Instantiate(playerPrefab2, controlScheme: "Keyboard2", pairWithDevice: Keyboard.current);
+                AssignPortraitBar(player, 1);
+                pAmount++;
+                if (spawnPoints.Length > 0)
+                {
+                    player.transform.position = spawnPoints[0].position;
+                }
+                arrowsjoined = true;
+                Registry.Register(player.transform);
             }
         }
     }
@@ -131,6 +127,4 @@ public class Players : MonoBehaviour
             health.SetPortraitHealthBar(playerPortraitBars[playerIndex]);
         }
     }
-
 }
-
