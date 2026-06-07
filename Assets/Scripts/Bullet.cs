@@ -5,7 +5,7 @@ public class Bullet : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private float speed = 12f;      // Скорость полета пули
     [SerializeField] private float damage = 15f;     // Урон, который получит враг
-    [SerializeField] private float lifeTime = 3f;   // Время жизни пули в секундах
+    [SerializeField] private float lifeTime = 3f;    // Время жизни пули в секундах
 
     private Rigidbody2D rb;
 
@@ -17,18 +17,13 @@ public class Bullet : MonoBehaviour
 
     void Start()
     {
-        // Автоматически уничтожаем пулю через 3 секунды, 
-        // чтобы улетевшие за экран пули не тратили память игры
+        // Автоматически уничтожаем пулю через заданное время, чтобы не забивать память
         Destroy(gameObject, lifeTime);
-    }
 
-    // Этот метод вызывается из скрипта игрока (PlayerControl) и толкает пулю
-    public void Launch(Vector2 direction)
-    {
+        // Пуля летит САМА сразу при создании
         if (rb != null)
         {
-            // Задаем физическую скорость в указанном направлении
-            rb.linearVelocity = direction * speed;
+            rb.linearVelocity = transform.right * speed;
         }
     }
 
@@ -38,16 +33,19 @@ public class Bullet : MonoBehaviour
         // Проверяем, что пуля врезалась НЕ в самого игрока
         if (!collision.CompareTag("Player"))
         {
-            // Проверяем, есть ли у объекта, в который мы попали, скрипт Health
-            Health enemyHealth = collision.GetComponent<Health>();
+            // Проверяем, есть ли на объекте скрипт зомби
+            ZombieAI zombie = collision.GetComponent<ZombieAI>();
             
-            if (enemyHealth != null)
+            if (zombie != null)
             {
-                // Наносим врагу урон
-                enemyHealth.TakeDamage(damage);
+                // Направление толчка — вектор полета пули (куда летит, туда и толкает)
+                Vector2 knockbackDir = transform.right;
+
+                // Вызываем метод урона у зомби, передавая урон и нокбэк
+                zombie.TakeDamage(damage, knockbackDir);
             }
 
-            // В любом случае уничтожаем саму пулю при столкновении (со стеной или врагом)
+            // Уничтожаем пулю при любом столкновении (со стеной или врагом)
             Destroy(gameObject);
         }
     }

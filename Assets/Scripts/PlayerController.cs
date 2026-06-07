@@ -3,6 +3,10 @@ using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
+    [Header("═══ Стрельба ═══")]
+    public GameObject bulletPrefab; // Сюда пойдёт синий префаб из папки проекта
+    public Transform firePoint;     // Сюда пойдёт точка со сцены
+
     [Header("═══ Игрок ═══")]
     public int playerNumber = 1;
 
@@ -181,6 +185,11 @@ public class PlayerController : MonoBehaviour
 
         if (moveInput.magnitude > 0.1f)
             lastMoveDir = moveInput.normalized;
+
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            Shoot();
+        }
     }
 
     void FixedUpdate()
@@ -451,5 +460,27 @@ public class PlayerController : MonoBehaviour
     void OnDrawGizmosSelected()
     {
         if (attackPoint != null) { Gizmos.color = Color.red; Gizmos.DrawWireSphere(attackPoint.position, attackRange); }
+    }
+
+    void Shoot()
+    {
+        if (bulletPrefab != null && firePoint != null)
+        {
+            // 1. Переводим позицию курсора с экрана в координаты игрового мира
+            Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            mousePosition.z = 0f; // Зануляем Z, так как игра в 2D
+
+            // 2. Считаем вектор направления от дула пушки (firePoint) до мышки
+            Vector2 shootDirection = (mousePosition - firePoint.position).normalized;
+
+            // 3. Высчитываем угол поворота в градусах с помощью тригонометрии
+            float angle = Mathf.Atan2(shootDirection.y, shootDirection.x) * Mathf.Rad2Deg;
+
+            // 4. Создаем вращение на основе этого угла по оси Z
+            Quaternion bulletRotation = Quaternion.Euler(0f, 0f, angle);
+
+            // 5. Спавним пулю, сразу развернутую в сторону курсора
+            Instantiate(bulletPrefab, firePoint.position, bulletRotation);
+        }
     }
 }
