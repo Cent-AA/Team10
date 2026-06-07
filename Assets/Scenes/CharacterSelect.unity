@@ -1195,6 +1195,7 @@ MonoBehaviour:
   bushEndPos: {x: -1800, y: -82}
   moonStartPos: {x: 0, y: 236}
   moonEndPos: {x: -600, y: 236}
+  bushTrans: {fileID: 8300000, guid: 7d3786c2eda1ac442a329fb105f9dedd, type: 3}
 --- !u!4 &753744262
 Transform:
   m_ObjectHideFlags: 0
