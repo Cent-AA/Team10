@@ -13,6 +13,15 @@ public class CameraMoving : MonoBehaviour
     void Start()
     {
     Cam= GetComponent<Camera>();
+    Registry.Players.Clear();
+
+    GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+
+    foreach (GameObject player in players)
+    {
+        Registry.Players.Add(player.transform);
+    }
+
     }
     void SetCameraPos()
     {
