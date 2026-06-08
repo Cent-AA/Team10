@@ -1,13 +1,79 @@
 fileFormatVersion: 2
-guid: 666dacfc98fcbe240989540b6a54dabe
+guid: c090b8511bb0ee84e8864e7854a3ab78
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6150130006427965320
-    second: logo.bluemoon_0
+      213: -2933503656390931526
+    second: InputPick 1_0
   - first:
-      213: -5051383603096650476
-    second: logo.bluemoon_1
+      213: 7054891222666882126
+    second: InputPick 1_1
+  - first:
+      213: -665148579060221538
+    second: InputPick 1_2
+  - first:
+      213: -7483218493794099945
+    second: InputPick 1_3
+  - first:
+      213: 3486492449395749321
+    second: InputPick 1_4
+  - first:
+      213: -675009590599810604
+    second: InputPick 1_5
+  - first:
+      213: 4870147560451325060
+    second: InputPick 1_6
+  - first:
+      213: -7349176165353265171
+    second: InputPick 1_7
+  - first:
+      213: -4585821109770419598
+    second: InputPick 1_8
+  - first:
+      213: 3346415534661717381
+    second: InputPick 1_9
+  - first:
+      213: 4321586233257491125
+    second: InputPick 1_10
+  - first:
+      213: -4452718680909760315
+    second: InputPick 1_11
+  - first:
+      213: 8208670281408569581
+    second: InputPick 1_12
+  - first:
+      213: 2730240953775658008
+    second: InputPick 1_13
+  - first:
+      213: -3650359283038349214
+    second: InputPick 1_14
+  - first:
+      213: -5170755442253580883
+    second: InputPick 1_15
+  - first:
+      213: 291087743967962978
+    second: InputPick 1_16
+  - first:
+      213: 1164993103306901178
+    second: InputPick 1_17
+  - first:
+      213: 8241550844447397876
+    second: InputPick 1_18
+  - first:
+      213: -249245886362272455
+    second: InputPick 1_19
+  - first:
+      213: -6734771345987875667
+    second: InputPick 1_20
+  - first:
+      213: 71051164377869367
+    second: InputPick 1_21
+  - first:
+      213: 313772415514876272
+    second: InputPick 1_22
+  - first:
+      213: 5196053073995283022
+    second: InputPick 1_23
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -40,7 +106,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -78,7 +144,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -103,45 +169,45 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: logo.bluemoon_0
+      name: InputPick 1_0
       rect:
         serializedVersion: 2
-        x: 11
+        x: 0
         y: 0
-        width: 1513
-        height: 1024
+        width: 319
+        height: 42
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 878e36c085956aaa0800000000000000
-      internalID: -6150130006427965320
+      spriteID: abb428587f91a47d0800000000000000
+      internalID: -2933503656390931526
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: logo.bluemoon_1
+      name: InputPick 1_1
       rect:
         serializedVersion: 2
-        x: 82
-        y: 622
-        width: 6
-        height: 6
+        x: 319
+        y: 0
+        width: 319
+        height: 42
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 41df0395061e5e9b0800000000000000
-      internalID: -5051383603096650476
+      spriteID: e4ca418403208e160800000000000000
+      internalID: 7054891222666882126
       vertices: []
       indices: 
       edges: []
@@ -150,7 +216,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: b697b2f4d7d59ad40a015a6461d4e850
     internalID: 0
     vertices: []
     indices: 
@@ -158,10 +224,12 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":319.0,"y":42.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      logo.bluemoon_0: -6150130006427965320
-      logo.bluemoon_1: -5051383603096650476
+      InputPick 1_0: -2933503656390931526
+      InputPick 1_1: 7054891222666882126
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

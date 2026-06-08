@@ -1,19 +1,19 @@
 fileFormatVersion: 2
-guid: 42302422e1c561549ae3a10d68f5341e
+guid: 57fcbda5354f54547a8c5069d5af7453
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8912760082684505365
-    second: WASD_0
+      213: -6847985688581542837
+    second: WASD 1_0
   - first:
-      213: 5728013866925015623
-    second: WASD_1
+      213: 6141545545883067898
+    second: WASD 1_1
   - first:
-      213: 1549631535302605962
-    second: WASD_2
+      213: -5398382216970951902
+    second: WASD 1_2
   - first:
-      213: 2549854409150798468
-    second: WASD_3
+      213: 3279507985601781362
+    second: WASD 1_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,13 +109,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: WASD_0
+      name: WASD 1_0
       rect:
         serializedVersion: 2
-        x: 275
-        y: 583
-        width: 725
-        height: 411
+        x: 71
+        y: 71
+        width: 66
+        height: 65
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -124,20 +124,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: be21f473de38f4480800000000000000
-      internalID: -8912760082684505365
+      spriteID: b4c63256c4117f0a0800000000000000
+      internalID: -6847985688581542837
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WASD_1
+      name: WASD 1_1
       rect:
         serializedVersion: 2
-        x: 119
-        y: 88
-        width: 250
-        height: 483
+        x: 0
+        y: 0
+        width: 65
+        height: 65
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -146,20 +146,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 742c39e734efd7f40800000000000000
-      internalID: 5728013866925015623
+      spriteID: af52e3a72272b3550800000000000000
+      internalID: 6141545545883067898
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WASD_2
+      name: WASD 1_2
       rect:
         serializedVersion: 2
-        x: 375
-        y: 343
-        width: 266
-        height: 228
+        x: 71
+        y: 0
+        width: 66
+        height: 65
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -168,20 +168,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a8c747acba5618510800000000000000
-      internalID: 1549631535302605962
+      spriteID: 22329abb9f71515b0800000000000000
+      internalID: -5398382216970951902
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WASD_3
+      name: WASD 1_3
       rect:
         serializedVersion: 2
-        x: 655
-        y: 343
-        width: 250
-        height: 228
+        x: 143
+        y: 0
+        width: 65
+        height: 65
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -190,8 +190,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 48a956e4317e26320800000000000000
-      internalID: 2549854409150798468
+      spriteID: 27ed9d72327238d20800000000000000
+      internalID: 3279507985601781362
       vertices: []
       indices: 
       edges: []
@@ -210,10 +210,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      WASD_0: -8912760082684505365
-      WASD_1: 5728013866925015623
-      WASD_2: 1549631535302605962
-      WASD_3: 2549854409150798468
+      WASD 1_0: -6847985688581542837
+      WASD 1_1: 6141545545883067898
+      WASD 1_2: -5398382216970951902
+      WASD 1_3: 3279507985601781362
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

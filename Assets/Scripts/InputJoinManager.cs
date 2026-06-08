@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
@@ -36,6 +36,8 @@ public class InputJoinManager : MonoBehaviour
     public static bool bothJoined = false;
 
     public enum InputType { None, KeyboardWASD, KeyboardArrows, Gamepad }
+
+    private const int GamepadJoinButton = 3; // Y на Xbox, Triangle на PlayStation
 
     private bool p1Joined = false;
     private bool p2Joined = false;
@@ -96,8 +98,8 @@ public class InputJoinManager : MonoBehaviour
         }
 
         // Проверяем ввод
-        if (CheckWASD()) TryJoin(InputType.KeyboardWASD, -1);
-        if (CheckArrows()) TryJoin(InputType.KeyboardArrows, -1);
+        if (!p1Joined && CheckWASDJoin()) JoinPlayer1(InputType.KeyboardWASD, -1);
+        if (p1Joined && !p2Joined && CheckArrowsJoin()) JoinPlayer2(InputType.KeyboardArrows, -1);
         for (int g = 1; g <= 4; g++)
         {
             if (CheckGamepad(g)) TryJoin(InputType.Gamepad, g);
@@ -131,29 +133,25 @@ public class InputJoinManager : MonoBehaviour
         gamepadImg.rectTransform.anchoredPosition = new Vector2(gpPos.x, floatY);
     }
 
-    bool CheckWASD()
+    bool CheckWASDJoin()
     {
-        return Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.A) ||
-               Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.D) ||
-               Input.GetKeyDown(KeyCode.Space);
+        return Input.GetKeyDown(KeyCode.W);
     }
 
-    bool CheckArrows()
+    bool CheckArrowsJoin()
     {
-        return Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow) ||
-               Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow) ||
-               Input.GetKeyDown(KeyCode.RightShift);
+        return Input.GetKeyDown(KeyCode.UpArrow);
     }
 
     bool CheckGamepad(int index)
     {
-        string prefix = "Joystick" + index + "Button";
-        for (int b = 0; b < 10; b++)
-        {
-            KeyCode kc = (KeyCode)System.Enum.Parse(typeof(KeyCode), prefix + b);
-            if (Input.GetKeyDown(kc)) return true;
-        }
-        return false;
+        return GetGamepadButton(index, GamepadJoinButton);
+    }
+
+    bool GetGamepadButton(int pad, int button)
+    {
+        KeyCode kc = (KeyCode)System.Enum.Parse(typeof(KeyCode), "Joystick" + pad + "Button" + button);
+        return Input.GetKeyDown(kc);
     }
 
     void TryJoin(InputType type, int gamepadIndex)
@@ -165,21 +163,49 @@ public class InputJoinManager : MonoBehaviour
 
         if (!p1Joined)
         {
-            p1Joined = true;
-            player1Input = type;
-            player1GamepadIndex = gamepadIndex;
-            LockSlot(slot1KeyboardIcon, slot1GamepadIcon, type, wasdPressed);
+            JoinPlayer1(type, gamepadIndex);
         }
         else if (!p2Joined)
         {
-            p2Joined = true;
-            player2Input = type;
-            player2GamepadIndex = gamepadIndex;
-            LockSlot(slot2KeyboardIcon, slot2GamepadIcon, type, arrowsPressed);
-
-            bothJoined = true;
-            StartCoroutine(OnBothJoined());
+            JoinPlayer2(type, gamepadIndex);
         }
+    }
+
+    void JoinPlayer1(InputType type, int gamepadIndex)
+    {
+        if (p1Joined)
+            return;
+        if (p2Joined && IsSameInput(player2Input, player2GamepadIndex, type, gamepadIndex))
+            return;
+
+        p1Joined = true;
+        player1Input = type;
+        player1GamepadIndex = gamepadIndex;
+        LockSlot(slot1KeyboardIcon, slot1GamepadIcon, type, wasdPressed);
+        CompleteJoinIfReady();
+    }
+
+    void JoinPlayer2(InputType type, int gamepadIndex)
+    {
+        if (!p1Joined || p2Joined)
+            return;
+        if (p1Joined && IsSameInput(player1Input, player1GamepadIndex, type, gamepadIndex))
+            return;
+
+        p2Joined = true;
+        player2Input = type;
+        player2GamepadIndex = gamepadIndex;
+        LockSlot(slot2KeyboardIcon, slot2GamepadIcon, type, arrowsPressed);
+        CompleteJoinIfReady();
+    }
+
+    void CompleteJoinIfReady()
+    {
+        if (!p1Joined || !p2Joined || bothJoined)
+            return;
+
+        bothJoined = true;
+        StartCoroutine(OnBothJoined());
     }
 
     void LockSlot(Image keyboardImg, Image gamepadImg, InputType type, Sprite pressedSprite)

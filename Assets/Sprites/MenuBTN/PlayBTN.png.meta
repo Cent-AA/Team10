@@ -1,19 +1,16 @@
 fileFormatVersion: 2
-guid: 0bd5124ae932306488909156f4229240
+guid: 439444937c89ae946a13c2046af64c1c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6457633965181962730
-    second: WASDpressed_0
+      213: 7585812508196092434
+    second: PlayBTN_0
   - first:
-      213: -2890122387754086584
-    second: WASDpressed_1
+      213: -5481102550086949730
+    second: PlayBTN_1
   - first:
-      213: -2551740913932987573
-    second: WASDpressed_2
-  - first:
-      213: -5721374675499250115
-    second: WASDpressed_3
+      213: 2456903386984061620
+    second: PlayBTN_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +43,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -55,7 +52,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -84,7 +81,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -109,13 +106,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: WASDpressed_0
+      name: PlayBTN_0
       rect:
         serializedVersion: 2
-        x: 107
-        y: 88
-        width: 255
-        height: 603
+        x: 0
+        y: 0
+        width: 257
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -124,20 +121,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ae90b2890ef1e9950800000000000000
-      internalID: 6457633965181962730
+      spriteID: 21a3ebbe848364960800000000000000
+      internalID: 7585812508196092434
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WASDpressed_1
+      name: PlayBTN_1
       rect:
         serializedVersion: 2
-        x: 383
-        y: 592
-        width: 583
-        height: 427
+        x: 257
+        y: 0
+        width: 258
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -146,20 +143,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 84f8388300934e7d0800000000000000
-      internalID: -2890122387754086584
+      spriteID: e94649455463fe3b0800000000000000
+      internalID: -5481102550086949730
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WASDpressed_2
+      name: PlayBTN_2
       rect:
         serializedVersion: 2
-        x: 383
-        y: 351
-        width: 250
-        height: 234
+        x: 515
+        y: 0
+        width: 257
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -168,30 +165,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b4391329825669cd0800000000000000
-      internalID: -2551740913932987573
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: WASDpressed_3
-      rect:
-        serializedVersion: 2
-        x: 655
-        y: 351
-        width: 367
-        height: 233
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: d3e83f7bb089990b0800000000000000
-      internalID: -5721374675499250115
+      spriteID: 4ba93acfc9ca81220800000000000000
+      internalID: 2456903386984061620
       vertices: []
       indices: 
       edges: []
@@ -200,7 +175,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -210,10 +185,9 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      WASDpressed_0: 6457633965181962730
-      WASDpressed_1: -2890122387754086584
-      WASDpressed_2: -2551740913932987573
-      WASDpressed_3: -5721374675499250115
+      PlayBTN_0: 7585812508196092434
+      PlayBTN_1: -5481102550086949730
+      PlayBTN_2: 2456903386984061620
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

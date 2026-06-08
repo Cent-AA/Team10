@@ -476,7 +476,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -8816862768355811920, guid: e7ea74b2505110e4f968204fbca02b1e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 765ae8e3a21952344b70f84d10dc015d, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -723,7 +723,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &639115852
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1265,12 +1265,12 @@ MonoBehaviour:
   slot1Panel: {fileID: 1676496902}
   slot1KeyboardIcon: {fileID: 1785830165}
   slot1GamepadIcon: {fileID: 180682568}
-  wasdNormal: {fileID: 21300000, guid: 42302422e1c561549ae3a10d68f5341e, type: 3}
+  wasdNormal: {fileID: 21300000, guid: 57fcbda5354f54547a8c5069d5af7453, type: 3}
   wasdPressed: {fileID: 21300000, guid: 0bd5124ae932306488909156f4229240, type: 3}
   slot2Panel: {fileID: 645513730}
   slot2KeyboardIcon: {fileID: 196420429}
   slot2GamepadIcon: {fileID: 697344034}
-  arrowsNormal: {fileID: -8816862768355811920, guid: e7ea74b2505110e4f968204fbca02b1e, type: 3}
+  arrowsNormal: {fileID: 21300000, guid: 765ae8e3a21952344b70f84d10dc015d, type: 3}
   arrowsPressed: {fileID: 21300000, guid: 2de5c0a092c798f4984cbb69c4d12da8, type: 3}
   gamepadSprite: {fileID: 1654444215403999795, guid: 6f9485a06f9d997419d711b837fb5f4f, type: 3}
   switchInterval: 2
@@ -1617,14 +1617,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.7058824, b: 0.19607843, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: a6653766dd662444b9de9dc42ff41f57, type: 3}
+  m_Sprite: {fileID: 7054891222666882126, guid: c090b8511bb0ee84e8864e7854a3ab78, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -1711,14 +1711,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0.6666667, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: a6653766dd662444b9de9dc42ff41f57, type: 3}
+  m_Sprite: {fileID: -2933503656390931526, guid: c090b8511bb0ee84e8864e7854a3ab78, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -2094,7 +2094,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 2
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -2104,8 +2104,8 @@ MonoBehaviour:
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
+    m_HighlightedSprite: {fileID: -6737213424609934509, guid: 9f70091aa0a6d3f4d9ae28bbbe43288f, type: 3}
+    m_PressedSprite: {fileID: -8090584519348379114, guid: 9f70091aa0a6d3f4d9ae28bbbe43288f, type: 3}
     m_SelectedSprite: {fileID: 0}
     m_DisabledSprite: {fileID: 0}
   m_AnimationTriggers:
@@ -2151,7 +2151,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 8764369263889164410, guid: 2c08f382bba31fd41a6ce9d4407f2571, type: 3}
+  m_Sprite: {fileID: -1421351461655490861, guid: 9f70091aa0a6d3f4d9ae28bbbe43288f, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -2690,7 +2690,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1755098590
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2786,7 +2786,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 42302422e1c561549ae3a10d68f5341e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 57fcbda5354f54547a8c5069d5af7453, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1

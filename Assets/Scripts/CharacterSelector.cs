@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class CharacterSelector : MonoBehaviour
@@ -54,6 +54,8 @@ public class CharacterSelector : MonoBehaviour
     private float p2FloatAmount = 1f;
     private bool active = false;
     private bool bothConfirmed = false;
+
+    private const int GamepadConfirmButton = 3; // Y на Xbox, Triangle на PlayStation
 
     public void Activate() 
     { 
@@ -114,7 +116,7 @@ public class CharacterSelector : MonoBehaviour
             case InputJoinManager.InputType.Gamepad:
                 left = GetGamepadButton(pad, 13);
                 right = GetGamepadButton(pad, 14);
-                confirm = GetGamepadButton(pad, 0);
+                confirm = GetGamepadConfirm(pad);
                 break;
         }
 
@@ -157,7 +159,7 @@ public class CharacterSelector : MonoBehaviour
             case InputJoinManager.InputType.Gamepad:
                 left = GetGamepadButton(pad, 13);
                 right = GetGamepadButton(pad, 14);
-                confirm = GetGamepadButton(pad, 0);
+                confirm = GetGamepadConfirm(pad);
                 break;
         }
 
@@ -182,6 +184,11 @@ public class CharacterSelector : MonoBehaviour
     {
         KeyCode kc = (KeyCode)System.Enum.Parse(typeof(KeyCode), "Joystick" + pad + "Button" + button);
         return Input.GetKeyDown(kc);
+    }
+
+    bool GetGamepadConfirm(int pad)
+    {
+        return GetGamepadButton(pad, GamepadConfirmButton);
     }
 
     void UpdateArrows()
