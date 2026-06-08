@@ -41,6 +41,7 @@ public class CharacterSelector : MonoBehaviour
     [SerializeField] private AudioClip browseSound;    // Звук перелистывания (влево/вправо)
     [SerializeField] private AudioClip confirmSound;   // Звук подтверждения (готов)
     private AudioSource audioSource;
+    private Image[] characterCardImages;
 
     // Статические данные — доступны из арены
     public static int player1Character = 0;
@@ -55,8 +56,6 @@ public class CharacterSelector : MonoBehaviour
     private bool active = false;
     private bool bothConfirmed = false;
 
-    private const int GamepadConfirmButton = 3; // Y на Xbox, Triangle на PlayStation
-
     public void Activate() 
     { 
         active = true; 
@@ -70,6 +69,8 @@ public class CharacterSelector : MonoBehaviour
         {
             audioSource = gameObject.AddComponent<AudioSource>();
         }
+
+        CacheCardImages();
     }
 
     void Update()
@@ -97,98 +98,50 @@ public class CharacterSelector : MonoBehaviour
     void HandleP1Input()
     {
         if (p1Confirmed) return;
-        var type = InputJoinManager.player1Input;
-        int pad = InputJoinManager.player1GamepadIndex;
-        bool left = false, right = false, confirm = false;
-
-        switch (type)
-        {
-            case InputJoinManager.InputType.KeyboardWASD:
-                left = Input.GetKeyDown(KeyCode.A);
-                right = Input.GetKeyDown(KeyCode.D);
-                confirm = Input.GetKeyDown(KeyCode.W);
-                break;
-            case InputJoinManager.InputType.KeyboardArrows:
-                left = Input.GetKeyDown(KeyCode.LeftArrow);
-                right = Input.GetKeyDown(KeyCode.RightArrow);
-                confirm = Input.GetKeyDown(KeyCode.UpArrow);
-                break;
-            case InputJoinManager.InputType.Gamepad:
-                left = GetGamepadButton(pad, 13);
-                right = GetGamepadButton(pad, 14);
-                confirm = GetGamepadConfirm(pad);
-                break;
-        }
-
-        if (left)
-        {
-            int nextSelection = Mathf.Max(0, p1Selection - 1);
-            if (nextSelection != p1Selection) { p1Selection = nextSelection; PlaySound(browseSound); }
-        }
-        if (right)
-        {
-            int nextSelection = Mathf.Min(characterCards.Length - 1, p1Selection + 1);
-            if (nextSelection != p1Selection) { p1Selection = nextSelection; PlaySound(browseSound); }
-        }
-        if (confirm)
-        {
-            p1Confirmed = true;
-            PlaySound(confirmSound);
-        }
+        HandlePlayerInput(1, InputJoinManager.player1Input, InputJoinManager.player1GamepadIndex, ref p1Selection, ref p1Confirmed);
     }
 
     void HandleP2Input()
     {
         if (p2Confirmed) return;
-        var type = InputJoinManager.player2Input;
-        int pad = InputJoinManager.player2GamepadIndex;
-        bool left = false, right = false, confirm = false;
+        HandlePlayerInput(2, InputJoinManager.player2Input, InputJoinManager.player2GamepadIndex, ref p2Selection, ref p2Confirmed);
+    }
 
-        switch (type)
-        {
-            case InputJoinManager.InputType.KeyboardWASD:
-                left = Input.GetKeyDown(KeyCode.A);
-                right = Input.GetKeyDown(KeyCode.D);
-                confirm = Input.GetKeyDown(KeyCode.W);
-                break;
-            case InputJoinManager.InputType.KeyboardArrows:
-                left = Input.GetKeyDown(KeyCode.LeftArrow);
-                right = Input.GetKeyDown(KeyCode.RightArrow);
-                confirm = Input.GetKeyDown(KeyCode.UpArrow);
-                break;
-            case InputJoinManager.InputType.Gamepad:
-                left = GetGamepadButton(pad, 13);
-                right = GetGamepadButton(pad, 14);
-                confirm = GetGamepadConfirm(pad);
-                break;
-        }
+    void HandlePlayerInput(int playerNumber, InputJoinManager.InputType type, int gamepadIndex, ref int selection, ref bool confirmed)
+    {
+        bool left = GetActionDown(playerNumber, type, gamepadIndex, PlayerControlAction.SelectLeft);
+        bool right = GetActionDown(playerNumber, type, gamepadIndex, PlayerControlAction.SelectRight);
+        bool confirm = GetActionDown(playerNumber, type, gamepadIndex, PlayerControlAction.Confirm);
 
         if (left)
         {
-            int nextSelection = Mathf.Max(0, p2Selection - 1);
-            if (nextSelection != p2Selection) { p2Selection = nextSelection; PlaySound(browseSound); }
+            int nextSelection = Mathf.Max(0, selection - 1);
+            if (nextSelection != selection) { selection = nextSelection; PlaySound(browseSound); }
         }
         if (right)
         {
-            int nextSelection = Mathf.Min(characterCards.Length - 1, p2Selection + 1);
-            if (nextSelection != p2Selection) { p2Selection = nextSelection; PlaySound(browseSound); }
+            int nextSelection = Mathf.Min(characterCards.Length - 1, selection + 1);
+            if (nextSelection != selection) { selection = nextSelection; PlaySound(browseSound); }
         }
         if (confirm)
         {
-            p2Confirmed = true;
+            confirmed = true;
             PlaySound(confirmSound);
         }
     }
 
-    bool GetGamepadButton(int pad, int button)
+    bool GetActionDown(int playerNumber, InputJoinManager.InputType type, int gamepadIndex, PlayerControlAction action)
     {
-        KeyCode kc = (KeyCode)System.Enum.Parse(typeof(KeyCode), "Joystick" + pad + "Button" + button);
-        return Input.GetKeyDown(kc);
-    }
+        switch (type)
+        {
+            case InputJoinManager.InputType.KeyboardWASD:
+            case InputJoinManager.InputType.KeyboardArrows:
+                return PlayerInputBindings.GetKeyboardActionDown(playerNumber, action);
+            case InputJoinManager.InputType.Gamepad:
+                return PlayerInputBindings.GetGamepadActionDown(playerNumber, action, gamepadIndex);
+        }
 
-    bool GetGamepadConfirm(int pad)
-    {
-        return GetGamepadButton(pad, GamepadConfirmButton);
+        return false;
     }
 
     void UpdateArrows()
@@ -224,6 +177,22 @@ public class CharacterSelector : MonoBehaviour
         if (number != null) number.anchoredPosition = new Vector2(basePos.x + numberOffsetX, basePos.y + floatY);
     }
 
+    void CacheCardImages()
+    {
+        if (characterCards == null)
+        {
+            characterCardImages = new Image[0];
+            return;
+        }
+
+        characterCardImages = new Image[characterCards.Length];
+        for (int i = 0; i < characterCards.Length; i++)
+        {
+            if (characterCards[i] != null)
+                characterCardImages[i] = characterCards[i].GetComponent<Image>();
+        }
+    }
+
     void UpdateCardVisuals()
     {
         for (int i = 0; i < characterCards.Length; i++)
@@ -235,7 +204,7 @@ public class CharacterSelector : MonoBehaviour
             float newScale = Mathf.Lerp(current, targetScale, Time.deltaTime * scaleSpeed);
             characterCards[i].localScale = new Vector3(newScale, newScale, 1f);
 
-            Image img = characterCards[i].GetComponent<Image>();
+            Image img = characterCardImages != null && i < characterCardImages.Length ? characterCardImages[i] : null;
             if (img != null)
             {
                 Color target;

@@ -37,8 +37,6 @@ public class InputJoinManager : MonoBehaviour
 
     public enum InputType { None, KeyboardWASD, KeyboardArrows, Gamepad }
 
-    private const int GamepadJoinButton = 3; // Y на Xbox, Triangle на PlayStation
-
     private bool p1Joined = false;
     private bool p2Joined = false;
     private bool joinPhaseComplete = false;
@@ -98,11 +96,22 @@ public class InputJoinManager : MonoBehaviour
         }
 
         // Проверяем ввод
-        if (!p1Joined && CheckWASDJoin()) JoinPlayer1(InputType.KeyboardWASD, -1);
-        if (p1Joined && !p2Joined && CheckArrowsJoin()) JoinPlayer2(InputType.KeyboardArrows, -1);
+        if (!p1Joined && PlayerInputBindings.GetKeyboardActionDown(1, PlayerControlAction.Confirm))
+            JoinPlayer1(InputType.KeyboardWASD, -1);
+
+        if (p1Joined && !p2Joined && PlayerInputBindings.GetKeyboardActionDown(2, PlayerControlAction.Confirm))
+            JoinPlayer2(InputType.KeyboardArrows, -1);
+
         for (int g = 1; g <= 4; g++)
         {
-            if (CheckGamepad(g)) TryJoin(InputType.Gamepad, g);
+            if (!p1Joined && PlayerInputBindings.GetGamepadActionDown(1, PlayerControlAction.Confirm, g))
+            {
+                JoinPlayer1(InputType.Gamepad, g);
+            }
+            else if (p1Joined && !p2Joined && PlayerInputBindings.GetGamepadActionDown(2, PlayerControlAction.Confirm, g))
+            {
+                JoinPlayer2(InputType.Gamepad, g);
+            }
         }
     }
 
@@ -131,27 +140,6 @@ public class InputJoinManager : MonoBehaviour
         Vector2 gpPos = gamepadImg.rectTransform.anchoredPosition;
         keyboardImg.rectTransform.anchoredPosition = new Vector2(kbPos.x, floatY);
         gamepadImg.rectTransform.anchoredPosition = new Vector2(gpPos.x, floatY);
-    }
-
-    bool CheckWASDJoin()
-    {
-        return Input.GetKeyDown(KeyCode.W);
-    }
-
-    bool CheckArrowsJoin()
-    {
-        return Input.GetKeyDown(KeyCode.UpArrow);
-    }
-
-    bool CheckGamepad(int index)
-    {
-        return GetGamepadButton(index, GamepadJoinButton);
-    }
-
-    bool GetGamepadButton(int pad, int button)
-    {
-        KeyCode kc = (KeyCode)System.Enum.Parse(typeof(KeyCode), "Joystick" + pad + "Button" + button);
-        return Input.GetKeyDown(kc);
     }
 
     void TryJoin(InputType type, int gamepadIndex)

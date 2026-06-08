@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
 public class PlayerController : MonoBehaviour
@@ -413,86 +413,87 @@ public class PlayerController : MonoBehaviour
     // ═══════════ ИЗМЕНЕННЫЙ ВВОД КНОПОК ═══════════
     Vector2 GetMovementInput()
     {
-        var type = playerNumber == 1 ? InputJoinManager.player1Input : InputJoinManager.player2Input;
-        Vector2 input = Vector2.zero;
+        var type = GetInputType();
         switch (type)
         {
             case InputJoinManager.InputType.KeyboardWASD:
-                if (Input.GetKey(KeyCode.W)) input.y += 1; if (Input.GetKey(KeyCode.S)) input.y -= 1;
-                if (Input.GetKey(KeyCode.A)) input.x -= 1; if (Input.GetKey(KeyCode.D)) input.x += 1; break;
             case InputJoinManager.InputType.KeyboardArrows:
-                if (Input.GetKey(KeyCode.UpArrow)) input.y += 1; if (Input.GetKey(KeyCode.DownArrow)) input.y -= 1;
-                if (Input.GetKey(KeyCode.LeftArrow)) input.x -= 1; if (Input.GetKey(KeyCode.RightArrow)) input.x += 1; break;
+                return PlayerInputBindings.GetKeyboardMovement(playerNumber);
             case InputJoinManager.InputType.Gamepad:
-                input.x = Input.GetAxis("Horizontal"); input.y = Input.GetAxis("Vertical"); break;
+                return PlayerInputBindings.GetGamepadMovement(playerNumber, GetGamepadIndex());
         }
-        return input.normalized;
+
+        return Vector2.zero;
     }
 
     bool GetRunInput()
     {
-        var type = playerNumber == 1 ? InputJoinManager.player1Input : InputJoinManager.player2Input;
-        switch (type)
-        {
-            case InputJoinManager.InputType.KeyboardWASD: return Input.GetKey(KeyCode.LeftShift);
-            case InputJoinManager.InputType.KeyboardArrows: return Input.GetKey(KeyCode.RightShift); // Бег на правый Shift
-        }
-        return false;
+        return GetHeldInput(PlayerControlAction.Run);
     }
 
     bool GetLightAttackInput()
     {
-        var type = playerNumber == 1 ? InputJoinManager.player1Input : InputJoinManager.player2Input;
-        switch (type)
-        {
-            case InputJoinManager.InputType.KeyboardWASD: return Input.GetKeyDown(KeyCode.Space);
-            case InputJoinManager.InputType.KeyboardArrows: return Input.GetKeyDown(KeyCode.Keypad0); // Простой удар на Numpad 0
-        }
-        return false;
+        return GetDownInput(PlayerControlAction.LightAttack);
     }
 
     bool GetHeavyAttackHeld()
     {
-        var type = playerNumber == 1 ? InputJoinManager.player1Input : InputJoinManager.player2Input;
-        switch (type)
-        {
-            case InputJoinManager.InputType.KeyboardWASD: return Input.GetKey(KeyCode.Q);
-            case InputJoinManager.InputType.KeyboardArrows: return Input.GetKey(KeyCode.Keypad1); // Тяжелый удар/супер на Numpad 1
-        }
-        return false;
+        return GetHeldInput(PlayerControlAction.HeavyAttack);
     }
 
     bool GetDashInput()
     {
-        var type = playerNumber == 1 ? InputJoinManager.player1Input : InputJoinManager.player2Input;
-        switch (type)
-        {
-            case InputJoinManager.InputType.KeyboardWASD: return Input.GetKeyDown(KeyCode.R);
-            case InputJoinManager.InputType.KeyboardArrows: return Input.GetKeyDown(KeyCode.Keypad2); // Рывок на Numpad 2
-        }
-        return false;
+        return GetDownInput(PlayerControlAction.Dash);
     }
 
     bool GetRollInput()
     {
-        var type = playerNumber == 1 ? InputJoinManager.player1Input : InputJoinManager.player2Input;
-        switch (type)
-        {
-            case InputJoinManager.InputType.KeyboardWASD: return Input.GetKeyDown(KeyCode.F);
-            case InputJoinManager.InputType.KeyboardArrows: return Input.GetKeyDown(KeyCode.Keypad3); // Перекат на Numpad 3
-        }
-        return false;
+        return GetDownInput(PlayerControlAction.Roll);
     }
 
     bool GetBlockInput()
     {
-        var type = playerNumber == 1 ? InputJoinManager.player1Input : InputJoinManager.player2Input;
+        return GetHeldInput(PlayerControlAction.Block);
+    }
+
+    bool GetHeldInput(PlayerControlAction action)
+    {
+        var type = GetInputType();
         switch (type)
         {
-            case InputJoinManager.InputType.KeyboardWASD: return Input.GetKey(KeyCode.C);
-            case InputJoinManager.InputType.KeyboardArrows: return Input.GetKey(KeyCode.Keypad4); // Блок на Numpad 4
+            case InputJoinManager.InputType.KeyboardWASD:
+            case InputJoinManager.InputType.KeyboardArrows:
+                return PlayerInputBindings.GetKeyboardAction(playerNumber, action);
+            case InputJoinManager.InputType.Gamepad:
+                return PlayerInputBindings.GetGamepadAction(playerNumber, action, GetGamepadIndex());
         }
+
         return false;
+    }
+
+    bool GetDownInput(PlayerControlAction action)
+    {
+        var type = GetInputType();
+        switch (type)
+        {
+            case InputJoinManager.InputType.KeyboardWASD:
+            case InputJoinManager.InputType.KeyboardArrows:
+                return PlayerInputBindings.GetKeyboardActionDown(playerNumber, action);
+            case InputJoinManager.InputType.Gamepad:
+                return PlayerInputBindings.GetGamepadActionDown(playerNumber, action, GetGamepadIndex());
+        }
+
+        return false;
+    }
+
+    InputJoinManager.InputType GetInputType()
+    {
+        return playerNumber == 1 ? InputJoinManager.player1Input : InputJoinManager.player2Input;
+    }
+
+    int GetGamepadIndex()
+    {
+        return playerNumber == 1 ? InputJoinManager.player1GamepadIndex : InputJoinManager.player2GamepadIndex;
     }
 
     void OnDrawGizmosSelected()

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ZombieAI : MonoBehaviour
 {
@@ -41,16 +41,20 @@ public class ZombieAI : MonoBehaviour
     private ZombieState currentState = ZombieState.MoveToCampfire;
 
     private Transform target;
+    private PlayerController targetPlayer;
+    private Collider2D cachedCollider;
     private float attackTimer;
     private float loseTargetTimer;
     private float targetRefreshTimer;
     private float groupedPlayersTimer;
+    private float currentTargetDistanceSqr;
     private bool committedToTarget;
     private bool poolManaged;
     private Color originalColor;
     private bool isDead;
 
     public bool IsAlive => !isDead;
+    public bool HasActiveCollider => cachedCollider != null && cachedCollider.enabled;
     public float DeathDespawnDelay => deathDespawnDelay;
     public System.Action<ZombieAI> OnDied;
 
@@ -58,6 +62,7 @@ public class ZombieAI : MonoBehaviour
     {
         if (rb == null) rb = GetComponent<Rigidbody2D>();
         if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
+        cachedCollider = GetComponent<Collider2D>();
         originalColor = spriteRenderer != null ? spriteRenderer.color : Color.white;
     }
 
@@ -141,14 +146,15 @@ public class ZombieAI : MonoBehaviour
         isDead = false;
         currentState = ZombieState.MoveToCampfire;
         target = null;
+        targetPlayer = null;
         attackTimer = 0f;
         loseTargetTimer = loseTargetTime;
         targetRefreshTimer = 0f;
         groupedPlayersTimer = 0f;
+        currentTargetDistanceSqr = 0f;
         committedToTarget = false;
 
-        Collider2D col = GetComponent<Collider2D>();
-        if (col != null) col.enabled = true;
+        if (cachedCollider != null) cachedCollider.enabled = true;
 
         if (rb != null)
         {
@@ -201,16 +207,17 @@ public class ZombieAI : MonoBehaviour
         float closestDistSqr = detectRange * detectRange;
         Transform closest = null;
 
-        for (int i = 0; i < Registry.Players.Count; i++)
+        for (int i = 0; i < Registry.PlayerControllers.Count; i++)
         {
-            Transform player = Registry.Players[i];
-            if (!IsValidPlayerTarget(player)) continue;
+            PlayerController player = Registry.PlayerControllers[i];
+            if (!IsValidPlayerController(player)) continue;
 
-            float distSqr = ((Vector2)player.position - (Vector2)transform.position).sqrMagnitude;
+            Transform playerTransform = player.transform;
+            float distSqr = ((Vector2)playerTransform.position - (Vector2)transform.position).sqrMagnitude;
             if (distSqr < closestDistSqr)
             {
                 closestDistSqr = distSqr;
-                closest = player;
+                closest = playerTransform;
             }
         }
 
@@ -219,11 +226,11 @@ public class ZombieAI : MonoBehaviour
 
     bool IsValidPlayerTarget(Transform player)
     {
-        if (player == null) return false;
+        return IsValidPlayerController(Registry.GetPlayerController(player));
+    }
 
-        PlayerController controller = player.GetComponent<PlayerController>();
-        if (controller == null) controller = player.GetComponentInChildren<PlayerController>();
-
+    bool IsValidPlayerController(PlayerController controller)
+    {
         return controller != null && controller.currentHealth > 0f;
     }
 
@@ -232,6 +239,7 @@ public class ZombieAI : MonoBehaviour
         if (newTarget == null) return;
 
         target = newTarget;
+        targetPlayer = Registry.GetPlayerController(newTarget);
         loseTargetTimer = loseTargetTime;
         currentState = ZombieState.Chase;
     }
@@ -239,6 +247,7 @@ public class ZombieAI : MonoBehaviour
     void ClearTarget()
     {
         target = null;
+        targetPlayer = null;
         committedToTarget = false;
         groupedPlayersTimer = 0f;
         loseTargetTimer = loseTargetTime;
@@ -255,12 +264,12 @@ public class ZombieAI : MonoBehaviour
         int playersNearTarget = 0;
         float groupDistSqr = groupedPlayersDistance * groupedPlayersDistance;
 
-        for (int i = 0; i < Registry.Players.Count; i++)
+        for (int i = 0; i < Registry.PlayerControllers.Count; i++)
         {
-            Transform player = Registry.Players[i];
-            if (!IsValidPlayerTarget(player)) continue;
+            PlayerController player = Registry.PlayerControllers[i];
+            if (!IsValidPlayerController(player)) continue;
 
-            float distSqr = ((Vector2)player.position - (Vector2)target.position).sqrMagnitude;
+            float distSqr = ((Vector2)player.transform.position - (Vector2)target.position).sqrMagnitude;
             if (distSqr <= groupDistSqr)
             {
                 playersNearTarget++;
@@ -304,9 +313,11 @@ public class ZombieAI : MonoBehaviour
             return;
         }
 
-        float dist = Vector2.Distance(transform.position, target.position);
+        Vector2 delta = (Vector2)target.position - rb.position;
+        float distSqr = delta.sqrMagnitude;
+        currentTargetDistanceSqr = distSqr;
 
-        if (dist > chaseRange)
+        if (distSqr > chaseRange * chaseRange)
         {
             loseTargetTimer -= Time.deltaTime;
             if (loseTargetTimer <= 0f)
@@ -320,16 +331,19 @@ public class ZombieAI : MonoBehaviour
             loseTargetTimer = loseTargetTime;
         }
 
-        if (dist <= attackRange && attackTimer <= 0f)
+        if (distSqr <= attackRange * attackRange && attackTimer <= 0f)
         {
             currentState = ZombieState.Attack;
             PerformAttack();
             return;
         }
 
-        Vector2 dir = ((Vector2)target.position - rb.position).normalized;
-        float speed = dist > detectRange * 0.5f ? runSpeed : moveSpeed;
-        rb.MovePosition(rb.position + dir * speed * Time.deltaTime);
+        if (distSqr <= 0.0001f)
+            return;
+
+        float runThresholdSqr = detectRange * detectRange * 0.25f;
+        float speed = distSqr > runThresholdSqr ? runSpeed : moveSpeed;
+        rb.MovePosition(rb.position + delta.normalized * speed * Time.deltaTime);
     }
 
     void PerformAttack()
@@ -349,15 +363,14 @@ public class ZombieAI : MonoBehaviour
     {
         if (target == null) return;
 
-        float dist = Vector2.Distance(transform.position, target.position);
-        if (dist <= attackRange * 1.5f)
+        Vector2 delta = (Vector2)target.position - (Vector2)transform.position;
+        float attackReach = attackRange * 1.5f;
+        if (delta.sqrMagnitude <= attackReach * attackReach)
         {
-            PlayerController player = target.GetComponent<PlayerController>();
-            if (player == null) player = target.GetComponentInChildren<PlayerController>();
-
+            PlayerController player = targetPlayer != null ? targetPlayer : Registry.GetPlayerController(target);
             if (player != null)
             {
-                Vector2 knockDir = (target.position - transform.position).normalized;
+                Vector2 knockDir = delta.sqrMagnitude > 0.0001f ? delta.normalized : Vector2.right;
                 player.TakeDamage(attackDamage, knockDir);
                 ArenaCamera.Shake(0.3f, 0.1f);
             }
@@ -400,7 +413,10 @@ public class ZombieAI : MonoBehaviour
 
     void TrySwitchToAttacker(Transform attacker)
     {
-        if (attacker == null || committedToTarget || !IsValidPlayerTarget(attacker)) return;
+        if (attacker == null || committedToTarget) return;
+
+        PlayerController attackerController = Registry.GetPlayerController(attacker);
+        if (!IsValidPlayerController(attackerController)) return;
 
         float distSqr = ((Vector2)attacker.position - (Vector2)transform.position).sqrMagnitude;
         if (distSqr > attackerSwitchRange * attackerSwitchRange) return;
@@ -445,8 +461,7 @@ public class ZombieAI : MonoBehaviour
 
         if (animator != null) animator.SetTrigger("die");
 
-        Collider2D col = GetComponent<Collider2D>();
-        if (col != null) col.enabled = false;
+        if (cachedCollider != null) cachedCollider.enabled = false;
 
         if (rb != null) rb.bodyType = RigidbodyType2D.Kinematic;
 
@@ -465,7 +480,7 @@ public class ZombieAI : MonoBehaviour
         bool isMoving = currentState == ZombieState.MoveToCampfire || currentState == ZombieState.Chase;
         bool isRunning = currentState == ZombieState.Chase &&
                          target != null &&
-                         Vector2.Distance(transform.position, target.position) > detectRange * 0.5f;
+                         currentTargetDistanceSqr > detectRange * detectRange * 0.25f;
 
         animator.SetBool("isMoving", isMoving);
         animator.SetBool("isRunning", isRunning);

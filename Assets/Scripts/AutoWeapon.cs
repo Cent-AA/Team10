@@ -1,14 +1,14 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class AutoWeapon : MonoBehaviour
 {
-    [Header("Настройки стрельбы")]
-    [SerializeField] private GameObject bulletPrefab; // Префаб пули
-    [SerializeField] private Transform firePoint;     // Откуда вылетает пуля
-    [SerializeField] private float fireRate = 0.2f;    // Скорость стрельбы (задержка между выстрелами)
+    [Header("РќР°СЃС‚СЂРѕР№РєРё СЃС‚СЂРµР»СЊР±С‹")]
+    [SerializeField] private GameObject bulletPrefab; // РџСЂРµС„Р°Р± РїСѓР»Рё
+    [SerializeField] private Transform firePoint;     // РћС‚РєСѓРґР° РІС‹Р»РµС‚Р°РµС‚ РїСѓР»СЏ
+    [SerializeField] private float fireRate = 0.2f;    // РЎРєРѕСЂРѕСЃС‚СЊ СЃС‚СЂРµР»СЊР±С‹ (Р·Р°РґРµСЂР¶РєР° РјРµР¶РґСѓ РІС‹СЃС‚СЂРµР»Р°РјРё)
 
-    [Header("Настройки вращения")]
-    [SerializeField] private float rotationSpeed = 15f; // Скорость поворота оружия
+    [Header("РќР°СЃС‚СЂРѕР№РєРё РІСЂР°С‰РµРЅРёСЏ")]
+    [SerializeField] private float rotationSpeed = 15f; // РЎРєРѕСЂРѕСЃС‚СЊ РїРѕРІРѕСЂРѕС‚Р° РѕСЂСѓР¶РёСЏ
     [SerializeField] private float targetRefreshInterval = 0.15f;
 
     private float shootTimer;
@@ -24,13 +24,13 @@ public class AutoWeapon : MonoBehaviour
 
     void Update()
     {
-        // Уменьшаем таймер задержки каждый кадр
+        // РЈРјРµРЅСЊС€Р°РµРј С‚Р°Р№РјРµСЂ Р·Р°РґРµСЂР¶РєРё РєР°Р¶РґС‹Р№ РєР°РґСЂ
         if (shootTimer > 0)
         {
             shootTimer -= Time.deltaTime;
         }
 
-        // 1. Оружие ВСЕГДА автоматически целится (крутится) за ближайшим зомби
+        // 1. РћСЂСѓР¶РёРµ Р’РЎР•Р“Р”Рђ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё С†РµР»РёС‚СЃСЏ (РєСЂСѓС‚РёС‚СЃСЏ) Р·Р° Р±Р»РёР¶Р°Р№С€РёРј Р·РѕРјР±Рё
         targetRefreshTimer -= Time.deltaTime;
         if (targetRefreshTimer <= 0f)
         {
@@ -43,32 +43,29 @@ public class AutoWeapon : MonoBehaviour
             RotateTowardsTarget();
         }
 
-        // 2. СТРЕЛЬБА ТОЛЬКО ПО НАЖАТИЮ (ИЛИ ЗАЖАТИЮ) КЛАВИШИ J
+        // 2. РЎРўР Р•Р›Р¬Р‘Рђ РўРћР›Р¬РљРћ РџРћ РќРђР–РђРўРР® (РР›Р Р—РђР–РђРўРР®) РљР›РђР’РРЁР J
         if (Input.GetKey(KeyCode.J) && shootTimer <= 0f)
         {
             Shoot();
-            shootTimer = fireRate; // Сбрасываем таймер задержки
+            shootTimer = fireRate; // РЎР±СЂР°СЃС‹РІР°РµРј С‚Р°Р№РјРµСЂ Р·Р°РґРµСЂР¶РєРё
         }
     }
 
     void FindClosestEnemy()
     {
-        Registry.CleanupZombies();
-        float closestDist = Mathf.Infinity;
+        float closestDistSqr = float.PositiveInfinity;
         Transform closest = null;
+        Vector2 selfPosition = transform.position;
 
         for (int i = 0; i < Registry.Zombies.Count; i++)
         {
             ZombieAI enemy = Registry.Zombies[i];
-            if (enemy == null || !enemy.IsAlive) continue;
+            if (enemy == null || !enemy.IsAlive || !enemy.HasActiveCollider) continue;
 
-            Collider2D enemyCollider = enemy.GetComponent<Collider2D>();
-            if (enemyCollider == null || !enemyCollider.enabled) continue;
-
-            float dist = Vector2.Distance(transform.position, enemy.transform.position);
-            if (dist < closestDist)
+            float distSqr = ((Vector2)enemy.transform.position - selfPosition).sqrMagnitude;
+            if (distSqr < closestDistSqr)
             {
-                closestDist = dist;
+                closestDistSqr = distSqr;
                 closest = enemy.transform;
             }
         }
@@ -89,8 +86,9 @@ public class AutoWeapon : MonoBehaviour
     {
         if (bulletPrefab != null && firePoint != null)
         {
-            // Спавним пулю с точным поворотом ствола
+            // РЎРїР°РІРЅРёРј РїСѓР»СЋ СЃ С‚РѕС‡РЅС‹Рј РїРѕРІРѕСЂРѕС‚РѕРј СЃС‚РІРѕР»Р°
             Bullet.Spawn(bulletPrefab, firePoint.position, firePoint.rotation, owner);
         }
     }
 }
+

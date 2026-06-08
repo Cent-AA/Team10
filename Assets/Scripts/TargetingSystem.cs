@@ -1,16 +1,17 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 
 public class TargetingSystem : MonoBehaviour
 {
-    [Header("═══ Настройки ═══")]
+    [Header("в•ђв•ђв•ђ РќР°СЃС‚СЂРѕР№РєРё в•ђв•ђв•ђ")]
     public int playerNumber = 1;
     public float detectRange = 10f;
     public float autoTargetRange = 6f;
+    public float targetRefreshInterval = 0.12f;
     public LayerMask enemyLayer;
 
-    [Header("═══ Визуал таргета ═══")]
-    public Color targetColor = new Color(0.3f, 0.6f, 1f, 0.5f);  // Синий для P1
+    [Header("в•ђв•ђв•ђ Р’РёР·СѓР°Р» С‚Р°СЂРіРµС‚Р° в•ђв•ђв•ђ")]
+    public Color targetColor = new Color(0.3f, 0.6f, 1f, 0.5f);
     public float triangleSize = 0.3f;
     public float triangleDistance = 1f;
     public float rotationSpeed = 90f;
@@ -20,30 +21,44 @@ public class TargetingSystem : MonoBehaviour
 
     private GameObject targetIndicator;
     private List<SpriteRenderer> triangles = new List<SpriteRenderer>();
+    private ContactFilter2D targetFilter;
     private float currentAngle = 0f;
+    private float targetRefreshTimer;
     private readonly Collider2D[] targetHitBuffer = new Collider2D[32];
 
     void Start()
     {
+        ConfigureTargetFilter();
         CreateTargetIndicator();
+        FindTarget();
     }
 
     void Update()
     {
-        FindTarget();
+        targetRefreshTimer -= Time.deltaTime;
+        if (targetRefreshTimer <= 0f)
+        {
+            targetRefreshTimer = targetRefreshInterval;
+            FindTarget();
+        }
+
         UpdateIndicator();
+    }
+
+    void ConfigureTargetFilter()
+    {
+        targetFilter = new ContactFilter2D();
+        targetFilter.SetLayerMask(enemyLayer);
+        targetFilter.useLayerMask = true;
+        targetFilter.useTriggers = Physics2D.queriesHitTriggers;
     }
 
     void FindTarget()
     {
-        ContactFilter2D targetFilter = new ContactFilter2D();
-        targetFilter.SetLayerMask(enemyLayer);
-        targetFilter.useLayerMask = true;
-        targetFilter.useTriggers = Physics2D.queriesHitTriggers;
-
         int hitCount = Physics2D.OverlapCircle(transform.position, detectRange, targetFilter, targetHitBuffer);
         float closestDistSqr = autoTargetRange * autoTargetRange;
         Transform closest = null;
+        Vector2 selfPosition = transform.position;
 
         for (int i = 0; i < hitCount; i++)
         {
@@ -51,21 +66,24 @@ public class TargetingSystem : MonoBehaviour
             if (hit == null) continue;
             if (hit.transform == transform) continue;
 
-            ZombieAI zombie = hit.GetComponent<ZombieAI>();
-            PlayerController player = hit.GetComponent<PlayerController>();
-            float distSqr = ((Vector2)hit.transform.position - (Vector2)transform.position).sqrMagnitude;
-
-            if (zombie != null)
+            float distSqr = ((Vector2)hit.transform.position - selfPosition).sqrMagnitude;
+            if (distSqr >= closestDistSqr)
             {
-                if (distSqr < closestDistSqr)
+                targetHitBuffer[i] = null;
+                continue;
+            }
+
+            if (hit.TryGetComponent(out ZombieAI zombie))
+            {
+                if (zombie.IsAlive)
                 {
                     closestDistSqr = distSqr;
                     closest = hit.transform;
                 }
             }
-            else if (player != null && player.currentHealth > 0 && player.playerNumber != playerNumber)
+            else if (hit.TryGetComponent(out PlayerController player))
             {
-                if (distSqr < closestDistSqr)
+                if (player.currentHealth > 0 && player.playerNumber != playerNumber)
                 {
                     closestDistSqr = distSqr;
                     closest = hit.transform;
@@ -81,6 +99,7 @@ public class TargetingSystem : MonoBehaviour
     void CreateTargetIndicator()
     {
         targetIndicator = new GameObject("TargetIndicator_P" + playerNumber);
+        Sprite triangleSprite = CreateTriangleSprite();
 
         for (int i = 0; i < triangleCount; i++)
         {
@@ -88,7 +107,7 @@ public class TargetingSystem : MonoBehaviour
             triObj.transform.SetParent(targetIndicator.transform);
 
             SpriteRenderer sr = triObj.AddComponent<SpriteRenderer>();
-            sr.sprite = CreateTriangleSprite();
+            sr.sprite = triangleSprite;
             sr.color = targetColor;
             sr.sortingOrder = 100;
 
@@ -103,14 +122,15 @@ public class TargetingSystem : MonoBehaviour
     {
         if (currentTarget == null)
         {
-            targetIndicator.SetActive(false);
+            if (targetIndicator.activeSelf)
+                targetIndicator.SetActive(false);
             return;
         }
 
-        targetIndicator.SetActive(true);
-        targetIndicator.transform.position = currentTarget.position;
+        if (!targetIndicator.activeSelf)
+            targetIndicator.SetActive(true);
 
-        // Вращение
+        targetIndicator.transform.position = currentTarget.position;
         currentAngle += rotationSpeed * Time.deltaTime;
 
         for (int i = 0; i < triangles.Count; i++)
@@ -120,11 +140,9 @@ public class TargetingSystem : MonoBehaviour
             Vector3 pos = new Vector3(Mathf.Cos(rad), Mathf.Sin(rad), 0) * triangleDistance;
             triangles[i].transform.localPosition = pos;
 
-            // Треугольники смотрят на цель
             float lookAngle = angle + 90f;
             triangles[i].transform.localRotation = Quaternion.Euler(0, 0, lookAngle);
 
-            // Пульсация прозрачности
             float pulse = 0.3f + Mathf.Sin(Time.time * 3f + i) * 0.2f;
             Color c = targetColor;
             c.a = pulse;
@@ -143,7 +161,6 @@ public class TargetingSystem : MonoBehaviour
             for (int x = 0; x < size; x++)
                 tex.SetPixel(x, y, clear);
 
-        // Рисуем треугольник
         for (int y = 0; y < size; y++)
         {
             float t = (float)y / size;

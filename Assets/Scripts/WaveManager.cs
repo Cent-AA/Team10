@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections;
@@ -6,9 +6,9 @@ using System.Collections.Generic;
 
 public class WaveManager : MonoBehaviour
 {
-    [Header("═══ Зомби ═══")]
+    [Header("в•ђв•ђв•ђ Р—РѕРјР±Рё в•ђв•ђв•ђ")]
     public GameObject zombiePrefab;
-    public Transform[] spawnPoints;            // Точки спавна по краям арены
+    public Transform[] spawnPoints;
     public Transform campfireTarget;
     public bool useSpawnPointsWhenAvailable = true;
     public float spawnPointJitter = 1f;
@@ -18,38 +18,38 @@ public class WaveManager : MonoBehaviour
     public int initialZombiePoolSize = 0;
     public int maxZombiePoolSize = 64;
 
-    [Header("═══ Волны ═══")]
-    public int startZombies = 3;               // Зомби на первой волне
-    public int zombiesPerWave = 2;             // +N зомби каждую волну
-    public float spawnInterval = 0.5f;         // Задержка между спавнами
-    public float timeBetweenWaves = 5f;        // Пауза между волнами
-    public float zombieHealthIncrease = 10f;   // +HP каждую волну
-    public float zombieSpeedIncrease = 0.3f;   // +скорость каждую волну
-    public float zombieDamageIncrease = 2f;    // +урон каждую волну
+    [Header("в•ђв•ђв•ђ Р’РѕР»РЅС‹ в•ђв•ђв•ђ")]
+    public int startZombies = 3;
+    public int zombiesPerWave = 2;
+    public float spawnInterval = 0.5f;
+    public float timeBetweenWaves = 5f;
+    public float zombieHealthIncrease = 10f;
+    public float zombieSpeedIncrease = 0.3f;
+    public float zombieDamageIncrease = 2f;
 
-    [Header("═══ UI ═══")]
-    public TextMeshProUGUI waveText;                       // "Волна 3"
-    public TextMeshProUGUI zombieCountText;                // "Зомби: 5"
+    [Header("в•ђв•ђв•ђ UI в•ђв•ђв•ђ")]
+    public TextMeshProUGUI waveText;
+    public TextMeshProUGUI zombieCountText;
     public float waveTextDisplayTime = 3f;
 
-    [Header("═══ Камера ═══")]
+    [Header("в•ђв•ђв•ђ РљР°РјРµСЂР° в•ђв•ђв•ђ")]
     public float waveShakeIntensity = 0.3f;
 
-    // Состояние
     private int currentWave = 0;
     private int zombiesAlive = 0;
+    private int lastDisplayedZombiesAlive = -1;
     private int totalZombiesThisWave = 0;
     private bool waveInProgress = false;
-    private List<GameObject> activeZombies = new List<GameObject>();
-    private Queue<GameObject> zombiePool = new Queue<GameObject>();
+    private bool spawningWave = false;
+    private readonly List<ZombieAI> activeZombies = new List<ZombieAI>();
+    private readonly Queue<ZombieAI> zombiePool = new Queue<ZombieAI>();
     private float baseZombieHealth;
     private float baseZombieMoveSpeed;
     private float baseZombieRunSpeed;
     private float baseZombieAttackDamage;
     private bool hasZombieBaseStats;
 
-    // События
-    public System.Action<int> OnWaveStart;      // номер волны
+    public System.Action<int> OnWaveStart;
     public System.Action<int> OnWaveComplete;
     public System.Action OnAllWavesComplete;
 
@@ -65,22 +65,14 @@ public class WaveManager : MonoBehaviour
         PrewarmZombiePool();
 
         if (waveText != null) waveText.gameObject.SetActive(false);
-        UpdateZombieCountUI();
+        UpdateZombieCountUI(true);
 
-        // Начинаем первую волну через паузу
         StartCoroutine(StartNextWaveAfterDelay(3f));
     }
 
     void Update()
     {
-        // Очищаем мёртвых зомби из списка
-        activeZombies.RemoveAll(IsZombieInactive);
-        zombiesAlive = activeZombies.Count;
-
-        UpdateZombieCountUI();
-
-        // Все зомби убиты — следующая волна
-        if (waveInProgress && zombiesAlive <= 0)
+        if (waveInProgress && !spawningWave && zombiesAlive <= 0)
         {
             waveInProgress = false;
             OnWaveComplete?.Invoke(currentWave);
@@ -90,7 +82,6 @@ public class WaveManager : MonoBehaviour
 
     IEnumerator StartNextWaveAfterDelay(float delay)
     {
-        // Отсчёт
         float remaining = delay;
         while (remaining > 0)
         {
@@ -98,9 +89,9 @@ public class WaveManager : MonoBehaviour
             {
                 waveText.gameObject.SetActive(true);
                 if (currentWave == 0)
-                    waveText.text = "ПРИГОТОВЬСЯ!\n" + Mathf.CeilToInt(remaining);
+                    waveText.text = "РџР РР“РћРўРћР’Р¬РЎРЇ!\n" + Mathf.CeilToInt(remaining);
                 else
-                    waveText.text = "ВОЛНА " + currentWave + " ПРОЙДЕНА!\nСЛЕДУЮЩАЯ ЧЕРЕЗ " + Mathf.CeilToInt(remaining);
+                    waveText.text = "Р’РћР›РќРђ " + currentWave + " РџР РћР™Р”Р•РќРђ!\nРЎР›Р•Р”РЈР®Р©РђРЇ Р§Р•Р Р•Р— " + Mathf.CeilToInt(remaining);
             }
             remaining -= Time.deltaTime;
             yield return null;
@@ -114,16 +105,13 @@ public class WaveManager : MonoBehaviour
         currentWave++;
         totalZombiesThisWave = startZombies + (currentWave - 1) * zombiesPerWave;
         waveInProgress = true;
+        activeZombies.Clear();
+        zombiesAlive = 0;
+        UpdateZombieCountUI(true);
 
         OnWaveStart?.Invoke(currentWave);
-
-        // Показываем номер волны
         StartCoroutine(ShowWaveText());
-
-        // Тряска камеры
         ArenaCamera.Shake(waveShakeIntensity, 0.5f);
-
-        // Спавним зомби
         StartCoroutine(SpawnWaveZombies());
     }
 
@@ -132,9 +120,8 @@ public class WaveManager : MonoBehaviour
         if (waveText != null)
         {
             waveText.gameObject.SetActive(true);
-            waveText.text = "ВОЛНА " + currentWave;
+            waveText.text = "Р’РћР›РќРђ " + currentWave;
 
-            // Мерцание
             float elapsed = 0f;
             while (elapsed < waveTextDisplayTime)
             {
@@ -160,50 +147,64 @@ public class WaveManager : MonoBehaviour
 
     IEnumerator SpawnWaveZombies()
     {
+        spawningWave = true;
+
         for (int i = 0; i < totalZombiesThisWave; i++)
         {
             SpawnZombie();
             yield return new WaitForSeconds(spawnInterval);
         }
+
+        spawningWave = false;
     }
 
     void SpawnZombie()
     {
         if (zombiePrefab == null) return;
 
-        // Выбираем случайную точку спавна
         Vector3 spawnPos = GetSpawnPosition();
+        ZombieAI ai = GetZombieInstance(spawnPos);
+        if (ai == null) return;
 
-        GameObject zombie = GetZombieInstance(spawnPos);
+        ApplyWaveStats(ai);
+        ai.SetPoolManaged(true);
+        ai.ResetForSpawn(campfireTarget);
+        ai.OnDied -= HandleZombieDied;
+        ai.OnDied += HandleZombieDied;
 
-        // Усиление по волнам
-        ZombieAI ai = zombie.GetComponent<ZombieAI>();
-        if (ai != null)
-        {
-            ApplyWaveStats(ai);
-            ai.SetPoolManaged(true);
-            ai.ResetForSpawn(campfireTarget);
-            ai.OnDied -= HandleZombieDied;
-            ai.OnDied += HandleZombieDied;
-        }
+        ai.transform.SetPositionAndRotation(spawnPos, Quaternion.identity);
+        ai.gameObject.SetActive(true);
 
-        zombie.SetActive(true);
-        activeZombies.Add(zombie);
-        zombiesAlive++;
+        if (!activeZombies.Contains(ai))
+            activeZombies.Add(ai);
+
+        zombiesAlive = activeZombies.Count;
+        UpdateZombieCountUI(false);
     }
 
-    GameObject GetZombieInstance(Vector3 spawnPos)
+    ZombieAI GetZombieInstance(Vector3 spawnPos)
     {
         while (zombiePool.Count > 0)
         {
-            GameObject pooledZombie = zombiePool.Dequeue();
+            ZombieAI pooledZombie = zombiePool.Dequeue();
             if (pooledZombie == null) continue;
 
             pooledZombie.transform.SetPositionAndRotation(spawnPos, Quaternion.identity);
             return pooledZombie;
         }
 
-        return Instantiate(zombiePrefab, spawnPos, Quaternion.identity);
+        GameObject zombie = Instantiate(zombiePrefab, spawnPos, Quaternion.identity);
+        if (zombie == null)
+            return null;
+
+        ZombieAI ai = zombie.GetComponent<ZombieAI>();
+        if (ai == null)
+        {
+            Destroy(zombie);
+            return null;
+        }
+
+        return ai;
     }
 
     void CacheZombieBaseStats()
@@ -247,25 +248,31 @@ public class WaveManager : MonoBehaviour
         for (int i = 0; i < initialZombiePoolSize; i++)
         {
             GameObject zombie = Instantiate(zombiePrefab);
-            ZombieAI ai = zombie.GetComponent<ZombieAI>();
-            if (ai != null)
+            ZombieAI ai = zombie != null ? zombie.GetComponent<ZombieAI>() : null;
+            if (ai == null)
             {
-                ai.SetPoolManaged(true);
-                ai.OnDied -= HandleZombieDied;
-                Registry.UnregisterZombie(ai);
+                if (zombie != null) Destroy(zombie);
+                continue;
             }
 
+            ai.SetPoolManaged(true);
+            ai.OnDied -= HandleZombieDied;
+            Registry.UnregisterZombie(ai);
             zombie.SetActive(false);
-            zombiePool.Enqueue(zombie);
+            zombiePool.Enqueue(ai);
         }
     }
 
     void HandleZombieDied(ZombieAI zombie)
     {
-        if (zombie != null)
-        {
-            StartCoroutine(ReturnZombieToPoolAfterDelay(zombie));
-        }
+        if (zombie == null)
+            return;
+
+        zombie.OnDied -= HandleZombieDied;
+        activeZombies.Remove(zombie);
+        zombiesAlive = activeZombies.Count;
+        UpdateZombieCountUI(false);
+        StartCoroutine(ReturnZombieToPoolAfterDelay(zombie));
     }
 
     IEnumerator ReturnZombieToPoolAfterDelay(ZombieAI zombie)
@@ -274,7 +281,6 @@ public class WaveManager : MonoBehaviour
 
         if (zombie == null) yield break;
 
-        zombie.OnDied -= HandleZombieDied;
         GameObject zombieObject = zombie.gameObject;
 
         if (zombiePool.Count >= maxZombiePoolSize)
@@ -284,7 +290,7 @@ public class WaveManager : MonoBehaviour
         }
 
         zombieObject.SetActive(false);
-        zombiePool.Enqueue(zombieObject);
+        zombiePool.Enqueue(zombie);
     }
 
     Vector3 GetSpawnPosition()
@@ -315,22 +321,18 @@ public class WaveManager : MonoBehaviour
         return null;
     }
 
-    void UpdateZombieCountUI()
+    void UpdateZombieCountUI(bool force)
     {
+        if (!force && zombiesAlive == lastDisplayedZombiesAlive)
+            return;
+
+        lastDisplayedZombiesAlive = zombiesAlive;
         if (zombieCountText != null)
-            zombieCountText.text = "Зомби: " + zombiesAlive;
-    }
-
-    // Публичные методы
-    bool IsZombieInactive(GameObject zombie)
-    {
-        if (zombie == null) return true;
-
-        ZombieAI ai = zombie.GetComponent<ZombieAI>();
-        return ai == null || !ai.IsAlive;
+            zombieCountText.text = "Р—РѕРјР±Рё: " + zombiesAlive;
     }
 
     public int GetCurrentWave() => currentWave;
     public int GetZombiesAlive() => zombiesAlive;
     public bool IsWaveInProgress() => waveInProgress;
 }
+

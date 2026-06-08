@@ -1,0 +1,637 @@
+fileFormatVersion: 2
+guid: 5de2dbf377b9b2c44933f356f27c2844
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 4721559751599328336
+    second: ChaHeavyAnim_0
+  - first:
+      213: 8286051486673854263
+    second: ChaHeavyAnim_1
+  - first:
+      213: 9035397023995605432
+    second: ChaHeavyAnim_2
+  - first:
+      213: 3647130270801578897
+    second: ChaHeavyAnim_3
+  - first:
+      213: -8312737177207983122
+    second: ChaHeavyAnim_4
+  - first:
+      213: 5437348268236697084
+    second: ChaHeavyAnim_5
+  - first:
+      213: 5666577847399970837
+    second: ChaHeavyAnim_6
+  - first:
+      213: -4933196112906525475
+    second: ChaHeavyAnim_7
+  - first:
+      213: -4779485762091261400
+    second: ChaHeavyAnim_8
+  - first:
+      213: -5316567360515786157
+    second: ChaHeavyAnim_9
+  - first:
+      213: -9142926362438282730
+    second: ChaHeavyAnim_10
+  - first:
+      213: -7112266133229306010
+    second: ChaHeavyAnim_11
+  - first:
+      213: 9031063949230498127
+    second: ChaHeavyAnim_12
+  - first:
+      213: 9043833519224296188
+    second: ChaHeavyAnim_13
+  - first:
+      213: -6924615236347568927
+    second: ChaHeavyAnim_14
+  - first:
+      213: 5938063636054462183
+    second: ChaHeavyAnim_15
+  - first:
+      213: -5161945260255559612
+    second: ChaHeavyAnim_16
+  - first:
+      213: 1668310607188462374
+    second: ChaHeavyAnim_17
+  - first:
+      213: 6529449194733901601
+    second: ChaHeavyAnim_18
+  - first:
+      213: 3414479248940081916
+    second: ChaHeavyAnim_19
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: ChaHeavyAnim_0
+      rect:
+        serializedVersion: 2
+        x: 22
+        y: 1817
+        width: 125
+        height: 188
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 05c0cd30499568140800000000000000
+      internalID: 4721559751599328336
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChaHeavyAnim_1
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 1569
+        width: 128
+        height: 193
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 73fdacdfce7fdf270800000000000000
+      internalID: 8286051486673854263
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChaHeavyAnim_2
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 1325
+        width: 84
+        height: 195
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8b131e3c8bd246d70800000000000000
+      internalID: 9035397023995605432
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChaHeavyAnim_3
+      rect:
+        serializedVersion: 2
+        x: 42
+        y: 1081
+        width: 82
+        height: 197
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 19bc3b078a53d9230800000000000000
+      internalID: 3647130270801578897
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChaHeavyAnim_4
+      rect:
+        serializedVersion: 2
+        x: 10
+        y: 820
+        width: 123
+        height: 191
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ee3b551849933ac80800000000000000
+      internalID: -8312737177207983122
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChaHeavyAnim_5
+      rect:
+        serializedVersion: 2
+        x: 138
+        y: 821
+        width: 110
+        height: 191
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cfd65501177557b40800000000000000
+      internalID: 5437348268236697084
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChaHeavyAnim_6
+      rect:
+        serializedVersion: 2
+        x: 253
+        y: 822
+        width: 117
+        height: 190
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5187f56878ab3ae40800000000000000
+      internalID: 5666577847399970837
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChaHeavyAnim_7
+      rect:
+        serializedVersion: 2
+        x: 378
+        y: 821
+        width: 115
+        height: 191
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd46ed2c544c98bb0800000000000000
+      internalID: -4933196112906525475
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChaHeavyAnim_8
+      rect:
+        serializedVersion: 2
+        x: 10
+        y: 574
+        width: 122
+        height: 191
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 822638da50bdbadb0800000000000000
+      internalID: -4779485762091261400
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChaHeavyAnim_9
+      rect:
+        serializedVersion: 2
+        x: 145
+        y: 578
+        width: 112
+        height: 193
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 35a350c6722c736b0800000000000000
+      internalID: -5316567360515786157
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChaHeavyAnim_10
+      rect:
+        serializedVersion: 2
+        x: 266
+        y: 579
+        width: 115
+        height: 193
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 612df472aeccd1180800000000000000
+      internalID: -9142926362438282730
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChaHeavyAnim_11
+      rect:
+        serializedVersion: 2
+        x: 391
+        y: 578
+        width: 115
+        height: 193
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66f73dc52a72c4d90800000000000000
+      internalID: -7112266133229306010
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChaHeavyAnim_12
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 339
+        width: 94
+        height: 183
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f4168bd20d8c45d70800000000000000
+      internalID: 9031063949230498127
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChaHeavyAnim_13
+      rect:
+        serializedVersion: 2
+        x: 149
+        y: 336
+        width: 91
+        height: 180
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf292216ba6228d70800000000000000
+      internalID: 9043833519224296188
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChaHeavyAnim_14
+      rect:
+        serializedVersion: 2
+        x: 285
+        y: 338
+        width: 96
+        height: 178
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1ecde377123d6ef90800000000000000
+      internalID: -6924615236347568927
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChaHeavyAnim_15
+      rect:
+        serializedVersion: 2
+        x: 423
+        y: 332
+        width: 82
+        height: 184
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7eec0b07a6d386250800000000000000
+      internalID: 5938063636054462183
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChaHeavyAnim_16
+      rect:
+        serializedVersion: 2
+        x: 29
+        y: 90
+        width: 90
+        height: 177
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 440c47c82261d58b0800000000000000
+      internalID: -5161945260255559612
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChaHeavyAnim_17
+      rect:
+        serializedVersion: 2
+        x: 152
+        y: 90
+        width: 95
+        height: 179
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 62b0c7c78a7072710800000000000000
+      internalID: 1668310607188462374
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChaHeavyAnim_18
+      rect:
+        serializedVersion: 2
+        x: 296
+        y: 87
+        width: 87
+        height: 184
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1271317b2734d9a50800000000000000
+      internalID: 6529449194733901601
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChaHeavyAnim_19
+      rect:
+        serializedVersion: 2
+        x: 420
+        y: 88
+        width: 95
+        height: 179
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf2240649caa26f20800000000000000
+      internalID: 3414479248940081916
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 100e17834fdcc074ab5df18c495e45cd
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      ChaHeavyAnim_0: 4721559751599328336
+      ChaHeavyAnim_1: 8286051486673854263
+      ChaHeavyAnim_10: -9142926362438282730
+      ChaHeavyAnim_11: -7112266133229306010
+      ChaHeavyAnim_12: 9031063949230498127
+      ChaHeavyAnim_13: 9043833519224296188
+      ChaHeavyAnim_14: -6924615236347568927
+      ChaHeavyAnim_15: 5938063636054462183
+      ChaHeavyAnim_16: -5161945260255559612
+      ChaHeavyAnim_17: 1668310607188462374
+      ChaHeavyAnim_18: 6529449194733901601
+      ChaHeavyAnim_19: 3414479248940081916
+      ChaHeavyAnim_2: 9035397023995605432
+      ChaHeavyAnim_3: 3647130270801578897
+      ChaHeavyAnim_4: -8312737177207983122
+      ChaHeavyAnim_5: 5437348268236697084
+      ChaHeavyAnim_6: 5666577847399970837
+      ChaHeavyAnim_7: -4933196112906525475
+      ChaHeavyAnim_8: -4779485762091261400
+      ChaHeavyAnim_9: -5316567360515786157
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
