@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class MainMenuController : MonoBehaviour
@@ -11,6 +11,11 @@ public class MainMenuController : MonoBehaviour
     [Header("Элементы настроек")]
     [SerializeField] private Slider volumeSlider;
     [SerializeField] private Toggle muteToggle;
+    [SerializeField] private Image muteToggleBackground;
+    [SerializeField] private Sprite soundOnSprite;
+    [SerializeField] private Sprite soundOffSprite;
+
+    private Sprite defaultMuteToggleSprite;
 
     // Кючевые слова (ключи), по которым Unity будет искать наши сохранения
     private const string VolumeKey = "MasterVolume";
@@ -26,6 +31,7 @@ public class MainMenuController : MonoBehaviour
         // По дефолту ставим 1 (звук включен при первом запуске)
         int savedSoundState = PlayerPrefs.GetInt(SoundKey, 1);
         bool isSoundOn = (savedSoundState == 1);
+        CacheDefaultMuteToggleSprite();
 
         // 3. ПРИМЕНЯЕМ ЗАГРУЖЕННЫЕ ДАННЫЕ К ИНТЕРФЕЙСУ
         if (volumeSlider != null)
@@ -37,6 +43,8 @@ public class MainMenuController : MonoBehaviour
         {
             muteToggle.isOn = isSoundOn;
         }
+
+        UpdateMuteToggleBackground(isSoundOn);
 
         // 4. ПРИМЕНЯЕМ ЗАГРУЖЕННЫЕ ДАННЫЕ К ДВИЖКУ UNITTY
         AudioListener.volume = savedVolume;
@@ -91,11 +99,50 @@ public class MainMenuController : MonoBehaviour
     public void ToggleSound(bool soundOn)
     {
         AudioListener.pause = !soundOn;
+        UpdateMuteToggleBackground(soundOn);
         
         // Если soundOn равен true — сохраняем 1, если false — сохраняем 0
         int stateToSave = soundOn ? 1 : 0;
         
         PlayerPrefs.SetInt(SoundKey, stateToSave);
         PlayerPrefs.Save(); // Принудительно сохраняем данные на диск
+    }
+
+    private void CacheDefaultMuteToggleSprite()
+    {
+        Image background = GetMuteToggleBackground();
+        if (background != null && defaultMuteToggleSprite == null)
+        {
+            defaultMuteToggleSprite = background.sprite;
+        }
+    }
+
+    private void UpdateMuteToggleBackground(bool soundOn)
+    {
+        Image background = GetMuteToggleBackground();
+        if (background == null)
+            return;
+
+        Sprite targetSprite = soundOn ? GetSoundOnSprite() : soundOffSprite;
+        if (targetSprite != null)
+        {
+            background.sprite = targetSprite;
+        }
+    }
+
+    private Sprite GetSoundOnSprite()
+    {
+        return soundOnSprite != null ? soundOnSprite : defaultMuteToggleSprite;
+    }
+
+    private Image GetMuteToggleBackground()
+    {
+        if (muteToggleBackground != null)
+            return muteToggleBackground;
+
+        if (muteToggle != null)
+            return muteToggle.targetGraphic as Image;
+
+        return null;
     }
 }
