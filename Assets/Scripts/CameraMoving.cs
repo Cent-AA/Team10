@@ -10,6 +10,11 @@ public class CameraMoving : MonoBehaviour
     void Awake()
     {
         ArenaCamera arenaCamera = GetComponent<ArenaCamera>();
+        if (arenaCamera == null)
+        {
+            arenaCamera = FindAnyObjectByType<ArenaCamera>();
+        }
+
         if (arenaCamera != null && arenaCamera.enabled)
         {
             enabled = false;
