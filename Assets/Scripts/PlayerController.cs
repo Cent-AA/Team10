@@ -28,6 +28,14 @@ public class PlayerController : MonoBehaviour
     [Header("═══ Комбо ═══")]
     public float comboWindow = 0.8f;
 
+    [Header("═══ Heavy Abilities ═══")]
+    public float lightAttackCooldown = 0.6f;
+    public float heavyAttackCooldown = 1.5f;
+    public float barrageHoldTime = 2f;
+    public float barrageDuration = 4f;
+    public float barrageCooldown = 8f;
+    public float barrageHitSoundInterval = 0.18f;
+
     [Header("═══ Hit Effects ═══")]
     public float hitStopDuration = 0.08f;
     public float knockbackForce = 5f;
@@ -67,11 +75,16 @@ public class PlayerController : MonoBehaviour
     private float comboTimer = 0f;
     private Color[] originalColors;
     private readonly Collider2D[] attackHitBuffer = new Collider2D[32];
+    private float lightAttackCooldownTimer = 0f;
+    private float heavyAttackCooldownTimer = 0f;
+    private float barrageCooldownTimer = 0f;
+    private float nextBarrageHitSoundTime = 0f;
 
     // Зарядка Heavy
     private bool isHoldingHeavy = false;
     private float heavyHoldTime = 0f;
     private bool chargeSoundPlayed = false;
+    private bool barrageChargeStarted = false;
 
     void OnEnable()
     {
@@ -98,6 +111,9 @@ public class PlayerController : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
 
+        EnsurePuppet();
+        IncludeMainRendererForHitFlash();
+
         if (spriteRenderers != null && spriteRenderers.Length > 0)
         {
             originalColors = new Color[spriteRenderers.Length];
@@ -108,9 +124,56 @@ public class PlayerController : MonoBehaviour
 
         if (puppet != null)
         {
+            ApplyHeavyAbilitySettings();
             puppet.OnHitFrame += DealAttackDamage;
             puppet.OnBarrageHit += DealBarrageDamage;
         }
+    }
+
+    bool EnsurePuppet()
+    {
+        if (puppet != null) return true;
+
+        puppet = GetComponent<PuppetAnimator>();
+        if (puppet == null)
+            puppet = GetComponentInChildren<PuppetAnimator>(true);
+
+        return puppet != null;
+    }
+
+    void IncludeMainRendererForHitFlash()
+    {
+        if (puppet == null) return;
+
+        SpriteRenderer mainRenderer = puppet.GetMainRenderer();
+        if (mainRenderer == null) return;
+
+        if (spriteRenderers == null)
+        {
+            spriteRenderers = new[] { mainRenderer };
+            return;
+        }
+
+        for (int i = 0; i < spriteRenderers.Length; i++)
+        {
+            if (spriteRenderers[i] == mainRenderer)
+                return;
+        }
+
+        SpriteRenderer[] expanded = new SpriteRenderer[spriteRenderers.Length + 1];
+        System.Array.Copy(spriteRenderers, expanded, spriteRenderers.Length);
+        expanded[expanded.Length - 1] = mainRenderer;
+        spriteRenderers = expanded;
+    }
+
+    void ApplyHeavyAbilitySettings()
+    {
+        if (puppet == null) return;
+
+        puppet.barrageChargeTime = Mathf.Max(0.01f, barrageHoldTime);
+        puppet.barrageDuration = Mathf.Max(0.01f, barrageDuration);
+        float maxCircleAppearTime = Mathf.Max(0f, puppet.barrageChargeTime - 0.01f);
+        puppet.barrageCircleAppearTime = Mathf.Clamp(puppet.barrageCircleAppearTime, 0f, maxCircleAppearTime);
     }
 
     public void SetHealth(float current, float max)
@@ -133,10 +196,12 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (puppet != null && puppet.IsDead()) return;
         if (isHitStopped) return;
+        if (!EnsurePuppet()) return;
+        if (puppet.IsDead()) return;
 
         if (dashCooldownTimer > 0) dashCooldownTimer -= Time.deltaTime;
+        TickAbilityCooldowns();
         if (comboTimer > 0) comboTimer -= Time.deltaTime; else comboStep = 0;
 
         moveInput = GetMovementInput();
@@ -154,55 +219,11 @@ public class PlayerController : MonoBehaviour
             puppet.SetTarget(null, moveInput.normalized);
         }
 
-        // Heavy зажатие → зарядка барража
-        bool heavyHeld = GetHeavyAttackHeld();
-        bool canCharge = !puppet.IsBusy() || puppet.CurrentState == PuppetAnimator.AnimState.BarrageCharging;
-
-        if (heavyHeld && canCharge)
-        {
-            if (!isHoldingHeavy)
-            {
-                isHoldingHeavy = true;
-                heavyHoldTime = 0f;
-                chargeSoundPlayed = false;
-            }
-            heavyHoldTime += Time.deltaTime;
-
-            // Через 2 секунды — начинаем зарядку
-            if (heavyHoldTime >= 2f && !chargeSoundPlayed)
-            {
-                chargeSoundPlayed = true;
-                puppet.StartBarrageCharge();
-                PlaySound(chargeSound);
-            }
-        }
-        else if (isHoldingHeavy)
-        {
-            isHoldingHeavy = false;
-
-            if (heavyHoldTime >= 7f)
-            {
-                // БАРРАЖ!
-                puppet.ReleaseBarrageCharge();
-                PlaySound(barrageSound);
-            }
-            else if (heavyHoldTime >= 2f)
-            {
-                // Не дозарядил — обычный heavy
-                puppet.ReleaseBarrageCharge();
-                PlaySound(heavyHitSound);
-            }
-            else if (!puppet.IsBusy())
-            {
-                // Быстрое нажатие — обычный heavy
-                puppet.HeavyAttack();
-                PlaySound(heavyHitSound);
-            }
-        }
+        HandleHeavyAttackInput();
 
         if (!puppet.IsBusy() && !isHoldingHeavy)
         {
-            if (GetLightAttackInput()) PerformComboAttack();
+            if (GetLightAttackInput() && lightAttackCooldownTimer <= 0f) PerformLightAttack();
             else if (GetDashInput() && dashCooldownTimer <= 0) StartCoroutine(DashRoutine());
             else if (GetRollInput()) puppet.Roll();
             else if (blocking) puppet.StartBlock();
@@ -224,6 +245,7 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         if (isDashing || isHitStopped) return;
+        EnsurePuppet();
         if (puppet != null && (puppet.IsDead() || (puppet.IsBusy() && !puppet.IsBarraging()))) return;
 
         if (rb != null)
@@ -235,21 +257,130 @@ public class PlayerController : MonoBehaviour
 
     void UpdateMovement()
     {
+        if (!EnsurePuppet()) return;
+
         bool moving = moveInput.magnitude > 0.1f;
         puppet.SetMoving(moving, moving && isRunning);
     }
 
-    void PerformComboAttack()
+    void TickAbilityCooldowns()
     {
+        if (lightAttackCooldownTimer > 0f) lightAttackCooldownTimer -= Time.deltaTime;
+        if (heavyAttackCooldownTimer > 0f) heavyAttackCooldownTimer -= Time.deltaTime;
+        if (barrageCooldownTimer > 0f) barrageCooldownTimer -= Time.deltaTime;
+    }
+
+    void HandleHeavyAttackInput()
+    {
+        if (!EnsurePuppet())
+        {
+            isHoldingHeavy = false;
+            barrageChargeStarted = false;
+            return;
+        }
+
+        bool heavyHeld = GetHeavyAttackHeld();
+        bool canReadHeavyInput = !puppet.IsBusy() || puppet.CurrentState == PuppetAnimator.AnimState.BarrageCharging;
+
+        if (heavyHeld && canReadHeavyInput)
+        {
+            if (!isHoldingHeavy && (heavyAttackCooldownTimer <= 0f || barrageCooldownTimer <= 0f))
+                BeginHeavyHold();
+
+            if (!isHoldingHeavy) return;
+
+            heavyHoldTime += Time.deltaTime;
+
+            if (!barrageChargeStarted && barrageCooldownTimer <= 0f && !puppet.IsBusy())
+                BeginBarrageCharge();
+
+            if (barrageChargeStarted && heavyHoldTime >= barrageHoldTime)
+                LaunchBarrage();
+        }
+        else if (isHoldingHeavy)
+        {
+            ReleaseHeavyHoldAsHeavy();
+        }
+    }
+
+    void BeginHeavyHold()
+    {
+        isHoldingHeavy = true;
+        heavyHoldTime = 0f;
+        chargeSoundPlayed = false;
+        barrageChargeStarted = false;
+
+        if (barrageCooldownTimer <= 0f)
+            BeginBarrageCharge();
+    }
+
+    void BeginBarrageCharge()
+    {
+        if (!EnsurePuppet()) return;
+
+        barrageChargeStarted = true;
+        puppet.StartBarrageCharge(heavyHoldTime);
+
+        if (!chargeSoundPlayed)
+        {
+            chargeSoundPlayed = true;
+            PlaySound(chargeSound);
+        }
+    }
+
+    void LaunchBarrage()
+    {
+        isHoldingHeavy = false;
+        barrageChargeStarted = false;
+        barrageCooldownTimer = Mathf.Max(0f, barrageCooldown);
+        heavyAttackCooldownTimer = Mathf.Max(0f, heavyAttackCooldown);
+        puppet.ReleaseBarrageCharge(true, false);
+        PlaySound(barrageSound);
+    }
+
+    void ReleaseHeavyHoldAsHeavy()
+    {
+        if (barrageChargeStarted && heavyHoldTime >= barrageHoldTime && barrageCooldownTimer <= 0f)
+        {
+            LaunchBarrage();
+            return;
+        }
+
+        isHoldingHeavy = false;
+
+        if (barrageChargeStarted)
+        {
+            bool heavyReady = heavyAttackCooldownTimer <= 0f;
+            puppet.ReleaseBarrageCharge(false, heavyReady);
+
+            if (heavyReady)
+            {
+                heavyAttackCooldownTimer = Mathf.Max(0f, heavyAttackCooldown);
+            }
+
+            barrageChargeStarted = false;
+            return;
+        }
+
+        if (heavyAttackCooldownTimer <= 0f && !puppet.IsBusy())
+        {
+            puppet.HeavyAttack();
+            heavyAttackCooldownTimer = Mathf.Max(0f, heavyAttackCooldown);
+        }
+    }
+
+    void PerformLightAttack()
+    {
+        if (!EnsurePuppet()) return;
+
         comboTimer = comboWindow;
-        comboStep = (comboStep % 3) + 1;
-        PlaySound(hitSound);
+        comboStep = (comboStep % 2) + 1;
+        lightAttackCooldownTimer = Mathf.Max(0f, lightAttackCooldown);
 
         switch (comboStep)
         {
             case 1: puppet.Jab(); break;
             case 2: puppet.Cross(); break;
-            case 3: puppet.Uppercut(); comboStep = 0; break;
         }
     }
 
@@ -258,7 +389,8 @@ public class PlayerController : MonoBehaviour
         isDashing = true;
         isInvulnerable = true;
         dashCooldownTimer = dashCooldown;
-        puppet.Dash();
+        if (EnsurePuppet())
+            puppet.Dash();
 
         Vector2 dashDir = moveInput.magnitude > 0.1f ? moveInput.normalized : lastMoveDir;
         float elapsed = 0f;
@@ -285,6 +417,7 @@ public class PlayerController : MonoBehaviour
 
         int hitCount = Physics2D.OverlapCircle(attackPoint.position, attackRange, attackFilter, attackHitBuffer);
         float damage = GetCurrentDamage();
+        bool hitSomething = false;
 
         for (int i = 0; i < hitCount; i++)
         {
@@ -299,7 +432,7 @@ public class PlayerController : MonoBehaviour
             if (zombie != null)
             {
                 zombie.TakeDamage(damage, knockDir, transform);
-                PlaySound(hitSound);
+                hitSomething = true;
                 StartCoroutine(HitStopRoutine());
             }
 
@@ -308,36 +441,61 @@ public class PlayerController : MonoBehaviour
             if (enemy != null && enemy != this)
             {
                 enemy.TakeDamage(damage, knockDir);
-                PlaySound(hitSound);
+                hitSomething = true;
                 StartCoroutine(HitStopRoutine());
             }
 
             attackHitBuffer[i] = null;
         }
+
+        if (hitSomething)
+            PlaySound(GetAttackHitSound());
+    }
+
+    AudioClip GetAttackHitSound()
+    {
+        if (puppet != null && puppet.CurrentState == PuppetAnimator.AnimState.Heavy && heavyHitSound != null)
+            return heavyHitSound;
+
+        return hitSound;
     }
 
     void DealBarrageDamage(Vector2 dir, float damage)
     {
+        if (!EnsurePuppet()) return;
         if (targeting == null || targeting.currentTarget == null) return;
 
         float dist = Vector2.Distance(transform.position, targeting.currentTarget.position);
         if (dist > puppet.barrageFlyDistance * 2f) return;
+        bool hitSomething = false;
 
         // Бьём таргет
         ZombieAI zombie = targeting.currentTarget.GetComponent<ZombieAI>();
-        if (zombie != null) zombie.TakeDamage(damage, dir, transform);
+        if (zombie != null)
+        {
+            zombie.TakeDamage(damage, dir, transform);
+            hitSomething = true;
+        }
 
         PlayerController enemy = targeting.currentTarget.GetComponent<PlayerController>();
         if (enemy != null && enemy != this)
         {
             enemy.TakeDamage(damage, dir * 0.1f);  // Маленький нокбэк — враг стоит на месте
+            hitSomething = true;
             // Враг не может двигаться во время барража
+        }
+
+        if (hitSomething && Time.time >= nextBarrageHitSoundTime)
+        {
+            nextBarrageHitSoundTime = Time.time + Mathf.Max(0.01f, barrageHitSoundInterval);
+            PlaySound(hitSound);
         }
     }
 
     float GetCurrentDamage()
     {
-        if (puppet == null) return jabDamage;
+        if (!EnsurePuppet()) return jabDamage;
+
         switch (puppet.CurrentState)
         {
             case PuppetAnimator.AnimState.Jab: return jabDamage;
@@ -351,8 +509,11 @@ public class PlayerController : MonoBehaviour
 
     public void TakeDamage(float damage, Vector2 knockbackDir)
     {
-        if (isInvulnerable || puppet.IsDead()) return;
-        if (puppet.IsBlocking()) { damage *= (1f - blockDamageReduction); knockbackDir *= 0.3f; }
+        EnsurePuppet();
+        if (isInvulnerable || (puppet != null && puppet.IsDead())) return;
+
+        bool isBlocking = puppet != null && puppet.IsBlocking();
+        if (isBlocking) { damage *= (1f - blockDamageReduction); knockbackDir *= 0.3f; }
 
         currentHealth = Mathf.Clamp(currentHealth - damage, 0f, maxHealth);
         NotifyHealthChanged();
@@ -362,7 +523,7 @@ public class PlayerController : MonoBehaviour
         ArenaCamera.Shake(damage * 0.04f, 0.12f);
 
         if (currentHealth <= 0) Die();
-        else if (!puppet.IsBlocking() && !puppet.IsBarraging())
+        else if (puppet != null && !puppet.IsBlocking() && !puppet.IsBarraging())
         {
             puppet.TakeHit();
             StartCoroutine(InvulnerabilityRoutine());
@@ -387,22 +548,34 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator HitFlashRoutine()
     {
-        if (spriteRenderers == null) yield break;
+        if (spriteRenderers == null || originalColors == null) yield break;
+
         foreach (var sr in spriteRenderers) if (sr != null) sr.color = Color.red;
         yield return new WaitForSeconds(0.1f);
-        for (int i = 0; i < spriteRenderers.Length; i++) if (spriteRenderers[i] != null) spriteRenderers[i].color = originalColors[i];
+
+        int restoreCount = Mathf.Min(spriteRenderers.Length, originalColors.Length);
+        for (int i = 0; i < restoreCount; i++) if (spriteRenderers[i] != null) spriteRenderers[i].color = originalColors[i];
     }
 
     IEnumerator InvulnerabilityRoutine()
     {
         isInvulnerable = true;
         float e = 0f;
-        while (e < invulnerabilityTime) { e += 0.1f; foreach (var sr in spriteRenderers) if (sr != null) sr.enabled = !sr.enabled; yield return new WaitForSeconds(0.1f); }
-        foreach (var sr in spriteRenderers) if (sr != null) sr.enabled = true;
+        while (e < invulnerabilityTime)
+        {
+            e += 0.1f;
+            if (spriteRenderers != null)
+                foreach (var sr in spriteRenderers) if (sr != null) sr.enabled = !sr.enabled;
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        if (spriteRenderers != null)
+            foreach (var sr in spriteRenderers) if (sr != null) sr.enabled = true;
+
         isInvulnerable = false;
     }
 
-    void Die() { puppet.Die(); OnDeath?.Invoke(); if (rb != null) rb.bodyType = RigidbodyType2D.Kinematic; }
+    void Die() { if (EnsurePuppet()) puppet.Die(); OnDeath?.Invoke(); if (rb != null) rb.bodyType = RigidbodyType2D.Kinematic; }
 
     void PlaySound(AudioClip clip)
     {

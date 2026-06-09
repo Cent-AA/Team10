@@ -1,19 +1,31 @@
 fileFormatVersion: 2
-guid: 3020ec2617595064986fdb66f5d1a310
+guid: 826ae59e4637ecc41a1a9d246bcbdc57
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1846560230850289612
-    second: PutisWalk_0
+      213: 7547597920333573595
+    second: heavy 1_0
   - first:
-      213: 984047512785298494
-    second: PutisWalk_1
+      213: -8148451390622407872
+    second: heavy 1_1
   - first:
-      213: -2336507481799819735
-    second: PutisWalk_2
+      213: 7175884484947188740
+    second: heavy 1_2
   - first:
-      213: 1428440920319903306
-    second: PutisWalk_3
+      213: 1562312416973722471
+    second: heavy 1_3
+  - first:
+      213: -7012112871260895131
+    second: heavy 1_4
+  - first:
+      213: -7427351408815320431
+    second: heavy 1_5
+  - first:
+      213: -3399703091012139905
+    second: heavy 1_6
+  - first:
+      213: 3228320233015914560
+    second: heavy 1_7
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +58,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -60,7 +72,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 24
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -84,7 +96,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -109,57 +121,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: PutisWalk_0
+      name: heavy 1_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 306
-        width: 157
-        height: 235
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 4302ec7e043bf56e0800000000000000
-      internalID: -1846560230850289612
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: PutisWalk_1
-      rect:
-        serializedVersion: 2
-        x: 159
-        y: 306
-        width: 158
-        height: 234
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: e34aca9cff908ad00800000000000000
-      internalID: 984047512785298494
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: PutisWalk_2
-      rect:
-        serializedVersion: 2
-        x: 0
+        x: 6
         y: 0
-        width: 156
-        height: 275
+        width: 54
+        height: 58
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -168,20 +136,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 92e774c13de039fd0800000000000000
-      internalID: -2336507481799819735
+      spriteID: bdda5f4d1547eb860800000000000000
+      internalID: 7547597920333573595
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: PutisWalk_3
+      name: heavy 1_1
       rect:
         serializedVersion: 2
-        x: 160
+        x: 70
         y: 0
-        width: 157
-        height: 275
+        width: 54
+        height: 58
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -190,8 +158,140 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a46cc46e277d2d310800000000000000
-      internalID: 1428440920319903306
+      spriteID: 043e960f1a2eaee80800000000000000
+      internalID: -8148451390622407872
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavy 1_2
+      rect:
+        serializedVersion: 2
+        x: 139
+        y: 0
+        width: 49
+        height: 58
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 40c938a6becd59360800000000000000
+      internalID: 7175884484947188740
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavy 1_3
+      rect:
+        serializedVersion: 2
+        x: 198
+        y: 2
+        width: 51
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 76396e1add27ea510800000000000000
+      internalID: 1562312416973722471
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavy 1_4
+      rect:
+        serializedVersion: 2
+        x: 258
+        y: 0
+        width: 59
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 568cc8fce78ffae90800000000000000
+      internalID: -7012112871260895131
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavy 1_5
+      rect:
+        serializedVersion: 2
+        x: 326
+        y: 0
+        width: 54
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 192d097de3fbce890800000000000000
+      internalID: -7427351408815320431
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavy 1_6
+      rect:
+        serializedVersion: 2
+        x: 390
+        y: 0
+        width: 54
+        height: 58
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f748c661d04d1d0d0800000000000000
+      internalID: -3399703091012139905
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavy 1_7
+      rect:
+        serializedVersion: 2
+        x: 454
+        y: 2
+        width: 54
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 040be16c52c4dcc20800000000000000
+      internalID: 3228320233015914560
       vertices: []
       indices: 
       edges: []
@@ -210,10 +310,14 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      PutisWalk_0: -1846560230850289612
-      PutisWalk_1: 984047512785298494
-      PutisWalk_2: -2336507481799819735
-      PutisWalk_3: 1428440920319903306
+      heavy 1_0: 7547597920333573595
+      heavy 1_1: -8148451390622407872
+      heavy 1_2: 7175884484947188740
+      heavy 1_3: 1562312416973722471
+      heavy 1_4: -7012112871260895131
+      heavy 1_5: -7427351408815320431
+      heavy 1_6: -3399703091012139905
+      heavy 1_7: 3228320233015914560
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

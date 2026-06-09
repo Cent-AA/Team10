@@ -1,10 +1,25 @@
 fileFormatVersion: 2
-guid: 9e4940edd13d7f14b81e49282d472bce
+guid: c34aa7ab5601992449c9afc9760944bf
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1855237982007901144
-    second: RightArm_0
+      213: -1111185301271670849
+    second: ghost hands_0
+  - first:
+      213: 4724269236533150981
+    second: ghost hands_1
+  - first:
+      213: 8402637530612368236
+    second: ghost hands_2
+  - first:
+      213: 3625158158315172727
+    second: ghost hands_3
+  - first:
+      213: -4859906843213347480
+    second: ghost hands_4
+  - first:
+      213: -281883526738620699
+    second: ghost hands_5
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -75,7 +90,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -100,23 +115,89 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: RightArm_0
+      name: ghost hands_1
       rect:
         serializedVersion: 2
-        x: 0
-        y: 8
-        width: 1024
-        height: 1503
-      alignment: 9
-      pivot: {x: 0.49120238, y: 0.74974495}
+        x: 390
+        y: 91
+        width: 88
+        height: 69
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8244b9482eed046e0800000000000000
-      internalID: -1855237982007901144
+      spriteID: 5054dd227d9ff8140800000000000000
+      internalID: 4724269236533150981
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ghost hands_2
+      rect:
+        serializedVersion: 2
+        x: 227
+        y: 4
+        width: 24
+        height: 59
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c630484a05a2c9470800000000000000
+      internalID: 8402637530612368236
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ghost hands_3
+      rect:
+        serializedVersion: 2
+        x: 328
+        y: 6
+        width: 24
+        height: 59
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7733cf853262f4230800000000000000
+      internalID: 3625158158315172727
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ghost hands_5
+      rect:
+        serializedVersion: 2
+        x: 495
+        y: 10
+        width: 70
+        height: 65
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5eec5b80d6c861cf0800000000000000
+      internalID: -281883526738620699
       vertices: []
       indices: 
       edges: []
@@ -125,7 +206,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 919086a4c6b750744ae888aa3b57332f
+    spriteID: edf204756521df24690d432fca5e008f
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +216,12 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      RightArm_0: -1855237982007901144
+      ghost hands_0: -1111185301271670849
+      ghost hands_1: 4724269236533150981
+      ghost hands_2: 8402637530612368236
+      ghost hands_3: 3625158158315172727
+      ghost hands_4: -4859906843213347480
+      ghost hands_5: -281883526738620699
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
