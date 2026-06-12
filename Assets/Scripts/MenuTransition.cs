@@ -11,11 +11,6 @@ public class MenuTransition : MonoBehaviour
     public RectTransform forestOverlay;
     public RectTransform bushOverlay;         // Кусты (поверх леса)
 
-    [Header("Звуковое сопровождение")]
-    public AudioSource audioSource;           // Источник звука (желательно на этом же объекте)
-    public AudioClip forestSound;             // Звук движения леса (например, гул, шелест деревьев)
-    public AudioClip bushSound;               // Звук шуршания кустов
-
     [Header("Настройки выхода (Play)")]
     public float logoSlideDuration = 1.2f;
     public float buttonsSlideDuration = 1.2f;
@@ -35,38 +30,124 @@ public class MenuTransition : MonoBehaviour
     [Header("Конечные позиции (= начало Сцены 2)")]
     public Vector2 moonCenterPos = new Vector2(0, 236);
     public Vector2 forestCoverPos = new Vector2(0, 160);
-    public Vector2 bushCoverPos = new Vector2(0, 0);
+    public Vector2 bushCoverPos = new Vector2(0, 160);
 
     private bool isTransitioning = false;
     private static bool playEntryAnimation = false;
+    private static bool playPauseEntry = false;
 
     public static void SetEntryAnimation() { playEntryAnimation = true; }
+    public static void SetPauseEntry() { playPauseEntry = true; }
+
+    [Header("Вход из паузы")]
+    public UnityEngine.UI.Image blackScreen;   // Чёрный Image на весь экран
+    public float blackFadeOutDuration = 1.5f;
+    public float pauseBushDuration = 1.5f;
 
     void Start()
     {
-        if (playEntryAnimation)
+        if (blackScreen != null) blackScreen.gameObject.SetActive(false);
+
+        if (playPauseEntry)
+        {
+            playPauseEntry = false;
+            StartCoroutine(PlayPauseEntryAnimation());
+        }
+        else if (playEntryAnimation)
         {
             playEntryAnimation = false;
             StartCoroutine(PlayEntryAnimation());
         }
     }
 
-    // Вспомогательный метод для безопасного воспроизведения звуков
-    private void PlaySound(AudioClip clip)
+    // === ВХОД ИЗ ПАУЗЫ (чёрный экран → осветление → кусты вниз) ===
+    IEnumerator PlayPauseEntryAnimation()
     {
-        if (audioSource != null && clip != null)
+        // Скрываем элементы
+        Vector2 logoTarget = logo.anchoredPosition;
+        Vector2[] btnTargets = new Vector2[buttons.Length];
+        logo.anchoredPosition = new Vector2(logoTarget.x - 2000f, logoTarget.y);
+        for (int i = 0; i < buttons.Length; i++)
         {
-            audioSource.PlayOneShot(clip);
+            btnTargets[i] = buttons[i].anchoredPosition;
+            buttons[i].anchoredPosition = new Vector2(btnTargets[i].x - 2000f, btnTargets[i].y);
+        }
+
+        // Чёрный экран + кусты закрывают
+        if (blackScreen != null)
+        {
+            blackScreen.gameObject.SetActive(true);
+            blackScreen.color = Color.black;
+        }
+        if (bushOverlay != null)
+        {
+            bushOverlay.anchoredPosition = new Vector2(0, 0);
+            bushOverlay.localScale = Vector3.one * 3f;
+        }
+
+        yield return new WaitForSeconds(0.3f);
+
+        // Фаза 1: Чёрный экран осветляется
+        float elapsed = 0f;
+        while (elapsed < blackFadeOutDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / blackFadeOutDuration;
+            if (blackScreen != null)
+                blackScreen.color = new Color(0, 0, 0, 1f - t);
+            yield return null;
+        }
+        if (blackScreen != null) blackScreen.gameObject.SetActive(false);
+
+        // Фаза 2: Кусты уходят вниз
+        if (bushOverlay != null)
+        {
+            Vector2 bushStart = bushOverlay.anchoredPosition;
+            Vector2 bushEnd = new Vector2(0, -1200f);
+            elapsed = 0f;
+            while (elapsed < pauseBushDuration)
+            {
+                elapsed += Time.deltaTime;
+                float t = EaseInOutSine(Mathf.Clamp01(elapsed / pauseBushDuration));
+                bushOverlay.anchoredPosition = Vector2.Lerp(bushStart, bushEnd, t);
+                bushOverlay.localScale = Vector3.one * Mathf.Lerp(3f, 1f, t);
+                yield return null;
+            }
+
+            // Телепортируем куст на оригинальную позицию (справа за экраном)
+            bushOverlay.anchoredPosition = new Vector2(1491f, -82f);
+            bushOverlay.localScale = Vector3.one;
+        }
+
+        // Фаза 3: Элементы заезжают
+        elapsed = 0f;
+        float totalDuration = entryElementsDuration + buttons.Length * entryElementsDelay + 0.5f;
+        while (elapsed < totalDuration)
+        {
+            elapsed += Time.deltaTime;
+
+            float logoT = EaseOutCubic(Mathf.Clamp01(elapsed / entryElementsDuration));
+            logo.anchoredPosition = Vector2.Lerp(
+                new Vector2(logoTarget.x - 2000f, logoTarget.y), logoTarget, logoT);
+
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                float delay = entryElementsDelay + i * entryElementsDelay;
+                float btnElapsed = elapsed - delay;
+                if (btnElapsed > 0)
+                {
+                    float btnT = EaseOutCubic(Mathf.Clamp01(btnElapsed / entryElementsDuration));
+                    buttons[i].anchoredPosition = Vector2.Lerp(
+                        new Vector2(btnTargets[i].x - 2000f, btnTargets[i].y), btnTargets[i], btnT);
+                }
+            }
+            yield return null;
         }
     }
 
     // === ВХОДНАЯ АНИМАЦИЯ ===
     IEnumerator PlayEntryAnimation()
     {
-        // Запускаем звуки при возврате на сцену
-        PlaySound(forestSound);
-        PlaySound(bushSound);
-
         Vector2 logoTarget = logo.anchoredPosition;
         Vector2[] btnTargets = new Vector2[buttons.Length];
 
@@ -83,7 +164,7 @@ public class MenuTransition : MonoBehaviour
         if (bushOverlay != null) bushOverlay.anchoredPosition = bushCoverPos;
 
         Vector2 forestOffscreen = new Vector2(2500f, forestCoverPos.y);
-        Vector2 bushOffscreen = new Vector2(1491f, bushCoverPos.y);
+        Vector2 bushOffscreen = new Vector2(2500f, bushCoverPos.y);
         float bushDuration = entryForestDuration / bushSpeedMultiplier;
 
         float elapsed = 0f;
@@ -141,10 +222,6 @@ public class MenuTransition : MonoBehaviour
 
     IEnumerator PlayExitTransition()
     {
-        // Запускаем звуки при переходе в другую сцену
-        PlaySound(forestSound);
-        PlaySound(bushSound);
-
         Vector2 logoStart = logo.anchoredPosition;
         Vector2 moonStart = moon.anchoredPosition;
         Vector2 forestStart = forestOverlay.anchoredPosition;
