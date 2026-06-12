@@ -69,6 +69,8 @@ public class ArenaCamera : MonoBehaviour
     private bool createdRightSplitCamera;
     private bool createdDividerCanvas;
     private Canvas dividerCanvas;
+    private int originalSharedCullingMask;
+    private CameraClearFlags originalSharedClearFlags;
 
     private static float shakeIntensity;
     private static float shakeDuration;
@@ -78,6 +80,12 @@ public class ArenaCamera : MonoBehaviour
     void Awake()
     {
         sharedCamera = GetComponent<Camera>();
+        if (sharedCamera != null)
+        {
+            originalSharedCullingMask = sharedCamera.cullingMask;
+            originalSharedClearFlags = sharedCamera.clearFlags;
+        }
+
         EnsureSplitCameras();
         EnsureDivider();
         ApplyCameraLayout();
@@ -293,10 +301,12 @@ public class ArenaCamera : MonoBehaviour
 
     void ApplyCameraLayout()
     {
+        bool showSplit = enableSplitScreen && splitProgress > 0.001f && target1 != null && target2 != null;
+
         sharedCamera.enabled = true;
         sharedCamera.rect = new Rect(0f, 0f, 1f, 1f);
-
-        bool showSplit = enableSplitScreen && splitProgress > 0.001f && target1 != null && target2 != null;
+        sharedCamera.cullingMask = showSplit ? 0 : originalSharedCullingMask;
+        sharedCamera.clearFlags = showSplit ? CameraClearFlags.Nothing : originalSharedClearFlags;
 
         if (leftSplitCamera != null)
         {
@@ -619,6 +629,8 @@ public class ArenaCamera : MonoBehaviour
         {
             sharedCamera.enabled = true;
             sharedCamera.rect = new Rect(0f, 0f, 1f, 1f);
+            sharedCamera.cullingMask = originalSharedCullingMask;
+            sharedCamera.clearFlags = originalSharedClearFlags;
         }
 
         if (leftSplitCamera != null)
