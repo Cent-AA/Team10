@@ -643,7 +643,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 131833312}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1758670790}
+        m_TargetAssemblyTypeName: PauseManager, Assembly-CSharp
+        m_MethodName: OnExitButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &131833312
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1537,7 +1549,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 645809799}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1758670790}
+        m_TargetAssemblyTypeName: PauseManager, Assembly-CSharp
+        m_MethodName: ResumeGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &645809799
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3869,14 +3893,14 @@ MonoBehaviour:
     ropeLength: 400
     extraDelay: 0
   dropDelay: 0.15
-  dropDuration: 0.8
+  dropDuration: 1
   swingDamping: 3
   swingFrequency: 4
-  initialSwingAngle: 25
+  initialSwingAngle: 2
   fadeInSpeed: 5
-  ropeWidth: 10
+  ropeWidth: 100
   ropeColor: {r: 0.6, g: 0.4, b: 0.2, a: 1}
-  ropeSegments: 10
+  ropeSegments: 100
   retractDuration: 0.5
   menuSceneName: MainMenu
 --- !u!4 &1758670791
@@ -4076,7 +4100,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1940484719}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1758670790}
+        m_TargetAssemblyTypeName: PauseManager, Assembly-CSharp
+        m_MethodName: OnMainMenuButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1940484719
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4664,7 +4700,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2134582514}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1758670790}
+        m_TargetAssemblyTypeName: PauseManager, Assembly-CSharp
+        m_MethodName: OnRestartButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2134582514
 MonoBehaviour:
   m_ObjectHideFlags: 0

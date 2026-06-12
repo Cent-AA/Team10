@@ -205,20 +205,22 @@ MonoBehaviour:
   maxHealth: 600
   moveSpeed: 2
   runSpeed: 4
-  patrolSpeed: 1.5
-  detectRange: 8
-  chaseRange: 12
-  attackRange: 1.5
+  campfireStopDistance: 0.8
+  campfireTarget: {fileID: 0}
+  detectRange: 25
+  chaseRange: 10
+  attackRange: 1.7
   loseTargetTime: 3
+  targetRefreshInterval: 0.2
+  attackerSwitchRange: 5
+  groupedPlayersDistance: 2.5
+  groupedLockDelay: 2
   attackCooldown: 1.5
   attackDamage: 15
   knockbackForce: 3
-  patrolRadius: 5
-  patrolWaitMin: 1
-  patrolWaitMax: 3
-  waypointThreshold: 0.3
   animator: {fileID: 7896596668870529915}
   rb: {fileID: 7526398530335100886}
   spriteRenderer: {fileID: 5226093720813814071}
   hitFlashColor: {r: 1, g: 0, b: 0, a: 1}
   hitFlashDuration: 0.1
+  deathDespawnDelay: 3
