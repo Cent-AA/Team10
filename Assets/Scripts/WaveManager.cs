@@ -120,7 +120,7 @@ public class WaveManager : MonoBehaviour
         if (waveText != null)
         {
             waveText.gameObject.SetActive(true);
-            waveText.text = "Р’РћР›РќРђ " + currentWave;
+            waveText.text = "Wave " + currentWave;
 
             float elapsed = 0f;
             while (elapsed < waveTextDisplayTime)
@@ -328,7 +328,7 @@ public class WaveManager : MonoBehaviour
 
         lastDisplayedZombiesAlive = zombiesAlive;
         if (zombieCountText != null)
-            zombieCountText.text = "Р—РѕРјР±Рё: " + zombiesAlive;
+            zombieCountText.text = "Enemies Remaining: " + zombiesAlive;
     }
 
     public int GetCurrentWave() => currentWave;
