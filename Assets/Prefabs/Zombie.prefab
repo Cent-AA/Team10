@@ -209,7 +209,7 @@ MonoBehaviour:
   campfireTarget: {fileID: 0}
   detectRange: 25
   chaseRange: 10
-  attackRange: 1.7
+  attackRange: 2.2
   loseTargetTime: 3
   targetRefreshInterval: 0.2
   attackerSwitchRange: 5

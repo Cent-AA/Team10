@@ -7465,15 +7465,12 @@ MonoBehaviour:
   moon: {fileID: 191897670}
   forestOverlay: {fileID: 639115852}
   bushOverlay: {fileID: 1489973018}
-  audioSource: {fileID: 1096651598}
-  forestSound: {fileID: 8300000, guid: 7d3786c2eda1ac442a329fb105f9dedd, type: 3}
-  bushSound: {fileID: 8300000, guid: 7d3786c2eda1ac442a329fb105f9dedd, type: 3}
   logoSlideDuration: 0.7
   buttonsSlideDuration: 0.7
   buttonsDelay: 0.5
   moonMoveDuration: 2
   forestSlideDuration: 2
-  bushSpeedMultiplier: 1
+  bushSpeedMultiplier: 0.8
   pauseBehindForest: 0.5
   nextSceneName: CharacterSelect
   entryForestDuration: 2
@@ -7483,6 +7480,9 @@ MonoBehaviour:
   moonCenterPos: {x: 0, y: 236}
   forestCoverPos: {x: 0, y: 160}
   bushCoverPos: {x: -2500, y: -82}
+  blackScreen: {fileID: 0}
+  blackFadeOutDuration: 1.5
+  pauseBushDuration: 1.5
 --- !u!4 &1096651595
 Transform:
   m_ObjectHideFlags: 0

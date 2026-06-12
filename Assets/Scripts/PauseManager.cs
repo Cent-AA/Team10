@@ -8,62 +8,61 @@ using System.Collections.Generic;
 public class PauseManager : MonoBehaviour
 {
     [Header("═══ UI ═══")]
-    public GameObject pausePanel;              // Панель паузы
-    public Image darkOverlay;                  // Затемнение экрана
+    public GameObject pausePanel;
+    public Image darkOverlay;
     public Color overlayColor = new Color(0, 0, 0, 0.6f);
 
     [Header("═══ Кнопки на верёвках ═══")]
     public RopeButton[] ropeButtons;
 
-    [Header("═══ Анимация ═══")]
-    public float dropDelay = 0.15f;            // Задержка между кнопками
-    public float dropDuration = 0.8f;          // Время падения
-    public float swingDamping = 3f;            // Затухание качания
-    public float swingFrequency = 4f;          // Частота качания
-    public float initialSwingAngle = 25f;      // Начальный угол качания
-    public float fadeInSpeed = 5f;             // Скорость затемнения
+    [Header("═══ Анимация кнопок ═══")]
+    public float dropDelay = 0.15f;
+    public float dropDuration = 0.8f;
+    public float swingDamping = 3f;
+    public float swingFrequency = 4f;
+    public float initialSwingAngle = 25f;
+    public float fadeInSpeed = 5f;
+    public float retractDuration = 0.5f;
 
-    [Header("═══ Верёвка ═══")]
-    public float ropeWidth = 3f;
-    public Color ropeColor = new Color(0.6f, 0.4f, 0.2f, 1f);
-    public int ropeSegments = 10;
-
-    [Header("═══ Выход ═══")]
-    public float retractDuration = 0.5f;       // Время сворачивания
+    [Header("═══ Переход в меню ═══")]
+    public RectTransform bushTransition;
+    public float bushDropDuration = 1.5f;
     public string menuSceneName = "MainMenu";
 
     private bool isPaused = false;
     private bool isAnimating = false;
-    private List<LineRenderer> ropeLines = new List<LineRenderer>();
     private List<RopeButtonState> buttonStates = new List<RopeButtonState>();
+    private Vector3 bushOriginalScale;
 
     [System.Serializable]
     public class RopeButton
     {
         public RectTransform button;
-        public float ropeLength = 300f;        // Длина верёвки в пикселях
-        public float extraDelay = 0f;          // Доп. задержка
+        public float ropeLength = 300f;
+        public float extraDelay = 0f;
     }
 
     private class RopeButtonState
     {
-        public Vector2 hiddenPos;              // За экраном сверху
-        public Vector2 hangPos;                // Конечная позиция (висит)
+        public Vector2 hiddenPos;
+        public Vector2 hangPos;
         public float dropTimer;
         public float swingAngle;
         public float swingVelocity;
         public bool dropped;
-        public RectTransform anchor;           // Точка крепления верёвки (верх)
     }
 
     void Start()
     {
-        if (pausePanel != null)
-            pausePanel.SetActive(false);
+        if (pausePanel != null) pausePanel.SetActive(false);
         if (darkOverlay != null)
         {
             darkOverlay.gameObject.SetActive(false);
             darkOverlay.color = new Color(overlayColor.r, overlayColor.g, overlayColor.b, 0);
+        }
+        if (bushTransition != null)
+        {
+            bushOriginalScale = bushTransition.localScale;
         }
 
         SetupButtons();
@@ -77,8 +76,7 @@ public class PauseManager : MonoBehaviour
             else PauseGame();
         }
 
-        if (isPaused)
-            UpdateSwinging();
+        if (isPaused) UpdateSwinging();
     }
 
     void SetupButtons()
@@ -91,25 +89,7 @@ public class PauseManager : MonoBehaviour
             RopeButtonState state = new RopeButtonState();
             state.hangPos = rb.button.anchoredPosition;
             state.hiddenPos = new Vector2(state.hangPos.x, state.hangPos.y + rb.ropeLength + 500f);
-            state.swingAngle = 0f;
-            state.swingVelocity = 0f;
-            state.dropped = false;
-
-            // Скрываем кнопку за экран
             rb.button.anchoredPosition = state.hiddenPos;
-
-            // Создаём LineRenderer для верёвки
-            GameObject ropeObj = new GameObject("Rope_" + i);
-            ropeObj.transform.SetParent(pausePanel.transform);
-            ropeObj.transform.localScale = Vector3.one;
-
-            // Для UI используем Image-based rope вместо LineRenderer
-            // Создаём anchor точку сверху
-            GameObject anchorObj = new GameObject("Anchor_" + i);
-            anchorObj.transform.SetParent(pausePanel.transform);
-            RectTransform anchorRT = anchorObj.AddComponent<RectTransform>();
-            anchorRT.anchoredPosition = new Vector2(state.hangPos.x, state.hangPos.y + rb.ropeLength);
-            state.anchor = anchorRT;
 
             buttonStates.Add(state);
         }
@@ -120,18 +100,15 @@ public class PauseManager : MonoBehaviour
     {
         isPaused = true;
         isAnimating = true;
+        Time.timeScale = 0f;
         pausePanel.SetActive(true);
-        darkOverlay.gameObject.SetActive(true);
+        if (darkOverlay != null) darkOverlay.gameObject.SetActive(true);
 
         StartCoroutine(PauseAnimation());
     }
 
     IEnumerator PauseAnimation()
     {
-        // Затемнение
-        float fadeTimer = 0f;
-
-        // Кнопки падают каскадно
         for (int i = 0; i < ropeButtons.Length; i++)
         {
             if (i < buttonStates.Count)
@@ -151,14 +128,12 @@ public class PauseManager : MonoBehaviour
         {
             elapsed += Time.unscaledDeltaTime;
 
-            // Затемнение плавное
             if (darkOverlay != null)
             {
                 float alpha = Mathf.Lerp(0, overlayColor.a, Mathf.Clamp01(elapsed * fadeInSpeed));
                 darkOverlay.color = new Color(overlayColor.r, overlayColor.g, overlayColor.b, alpha);
             }
 
-            // Кнопки падают
             for (int i = 0; i < ropeButtons.Length; i++)
             {
                 if (i >= buttonStates.Count) continue;
@@ -168,15 +143,10 @@ public class PauseManager : MonoBehaviour
                 {
                     buttonStates[i].dropTimer += Time.unscaledDeltaTime;
                     float t = Mathf.Clamp01(buttonStates[i].dropTimer / dropDuration);
-
-                    // Easing — bounce при падении
                     float eased = BounceEaseOut(t);
 
-                    // Позиция: от скрытой к конечной
                     ropeButtons[i].button.anchoredPosition = Vector2.Lerp(
-                        buttonStates[i].hiddenPos,
-                        buttonStates[i].hangPos,
-                        eased);
+                        buttonStates[i].hiddenPos, buttonStates[i].hangPos, eased);
 
                     if (t >= 1f)
                     {
@@ -190,7 +160,6 @@ public class PauseManager : MonoBehaviour
             yield return null;
         }
 
-        Time.timeScale = 0f;
         isAnimating = false;
     }
 
@@ -200,24 +169,20 @@ public class PauseManager : MonoBehaviour
         for (int i = 0; i < ropeButtons.Length; i++)
         {
             if (i >= buttonStates.Count || !buttonStates[i].dropped) continue;
+            if (ropeButtons[i].button == null) continue;
 
             RopeButtonState state = buttonStates[i];
 
-            // Физика маятника
             float gravity = 9.8f;
-            float length = ropeButtons[i].ropeLength / 100f;  // В метры
+            float length = ropeButtons[i].ropeLength / 100f;
             float acceleration = -(gravity / length) * Mathf.Sin(state.swingAngle * Mathf.Deg2Rad);
 
             state.swingVelocity += acceleration * Time.unscaledDeltaTime * swingFrequency;
-            state.swingVelocity *= (1f - swingDamping * Time.unscaledDeltaTime);  // Затухание
+            state.swingVelocity *= (1f - swingDamping * Time.unscaledDeltaTime);
             state.swingAngle += state.swingVelocity * Time.unscaledDeltaTime * 60f;
 
-            // Применяем качание к кнопке
             float offsetX = Mathf.Sin(state.swingAngle * Mathf.Deg2Rad) * ropeButtons[i].ropeLength * 0.3f;
-            Vector2 swungPos = new Vector2(state.hangPos.x + offsetX, state.hangPos.y);
-            ropeButtons[i].button.anchoredPosition = swungPos;
-
-            // Наклон кнопки
+            ropeButtons[i].button.anchoredPosition = new Vector2(state.hangPos.x + offsetX, state.hangPos.y);
             ropeButtons[i].button.localRotation = Quaternion.Euler(0, 0, -state.swingAngle * 0.5f);
         }
     }
@@ -234,24 +199,20 @@ public class PauseManager : MonoBehaviour
         Time.timeScale = 1f;
 
         float elapsed = 0f;
-
         while (elapsed < retractDuration)
         {
             elapsed += Time.unscaledDeltaTime;
             float t = elapsed / retractDuration;
-            float eased = t * t;
 
-            // Кнопки уходят вверх
             for (int i = 0; i < ropeButtons.Length; i++)
             {
-                if (i >= buttonStates.Count) continue;
-                Vector2 current = ropeButtons[i].button.anchoredPosition;
-                ropeButtons[i].button.anchoredPosition = Vector2.Lerp(current, buttonStates[i].hiddenPos, eased);
+                if (i >= buttonStates.Count || ropeButtons[i].button == null) continue;
+                ropeButtons[i].button.anchoredPosition = Vector2.Lerp(
+                    ropeButtons[i].button.anchoredPosition, buttonStates[i].hiddenPos, t * t);
                 ropeButtons[i].button.localRotation = Quaternion.Lerp(
-                    ropeButtons[i].button.localRotation, Quaternion.identity, eased);
+                    ropeButtons[i].button.localRotation, Quaternion.identity, t);
             }
 
-            // Затемнение уходит
             if (darkOverlay != null)
             {
                 float alpha = Mathf.Lerp(overlayColor.a, 0, t);
@@ -262,12 +223,77 @@ public class PauseManager : MonoBehaviour
         }
 
         pausePanel.SetActive(false);
-        darkOverlay.gameObject.SetActive(false);
+        if (darkOverlay != null) darkOverlay.gameObject.SetActive(false);
         isPaused = false;
         isAnimating = false;
     }
 
-    // ═══════════ КНОПКИ МЕНЮ ═══════════
+    // ═══════════ ВЫХОД В МЕНЮ — куст плавно спускается ═══════════
+    public void OnMainMenuButton()
+    {
+        StartCoroutine(MenuTransitionRoutine());
+    }
+
+    IEnumerator MenuTransitionRoutine()
+    {
+        isAnimating = true;
+
+        // Кнопки уходят вверх
+        float elapsed = 0f;
+        while (elapsed < retractDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = elapsed / retractDuration;
+
+            for (int i = 0; i < ropeButtons.Length; i++)
+            {
+                if (i >= buttonStates.Count || ropeButtons[i].button == null) continue;
+                ropeButtons[i].button.anchoredPosition = Vector2.Lerp(
+                    ropeButtons[i].button.anchoredPosition, buttonStates[i].hiddenPos, t * t);
+            }
+            yield return null;
+        }
+
+        // Куст плавно спускается сверху
+        if (bushTransition != null)
+        {
+            bushTransition.gameObject.SetActive(true);
+            bushTransition.localScale = bushOriginalScale;
+
+            // Запоминаем конечную позицию — центр экрана
+            Vector3 endPos = new Vector3(bushTransition.localPosition.x, 0, bushTransition.localPosition.z);
+            Vector3 startPos = endPos + Vector3.up * 2000f;
+            bushTransition.localPosition = startPos;
+
+            Debug.Log("Bush start: " + startPos + " end: " + endPos + " duration: " + bushDropDuration);
+
+            elapsed = 0f;
+            while (elapsed < bushDropDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = Mathf.Clamp01(elapsed / bushDropDuration);
+                float eased = EaseInOutSine(t);
+
+                bushTransition.localPosition = Vector3.Lerp(startPos, endPos, eased);
+                yield return null;
+            }
+
+            bushTransition.localPosition = endPos;
+            Debug.Log("Bush animation done");
+        }
+        else
+        {
+            Debug.LogWarning("Bush Transition не назначен!");
+        }
+
+        yield return new WaitForSecondsRealtime(0.5f);
+
+        Time.timeScale = 1f;
+        MenuTransition.SetPauseEntry();
+        SceneManager.LoadScene(menuSceneName);
+    }
+
+    // ═══════════ ДРУГИЕ КНОПКИ ═══════════
     public void OnResumeButton() { ResumeGame(); }
 
     public void OnRestartButton()
@@ -276,36 +302,19 @@ public class PauseManager : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
-    public void OnMainMenuButton()
-    {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(menuSceneName);
-    }
-
     public void OnExitButton()
     {
         Application.Quit();
     }
 
-    // ═══════════ BOUNCE EASING ═══════════
+    // ═══════════ EASING ═══════════
     float BounceEaseOut(float t)
     {
-        if (t < 1f / 2.75f)
-            return 7.5625f * t * t;
-        else if (t < 2f / 2.75f)
-        {
-            t -= 1.5f / 2.75f;
-            return 7.5625f * t * t + 0.75f;
-        }
-        else if (t < 2.5f / 2.75f)
-        {
-            t -= 2.25f / 2.75f;
-            return 7.5625f * t * t + 0.9375f;
-        }
-        else
-        {
-            t -= 2.625f / 2.75f;
-            return 7.5625f * t * t + 0.984375f;
-        }
+        if (t < 1f / 2.75f) return 7.5625f * t * t;
+        else if (t < 2f / 2.75f) { t -= 1.5f / 2.75f; return 7.5625f * t * t + 0.75f; }
+        else if (t < 2.5f / 2.75f) { t -= 2.25f / 2.75f; return 7.5625f * t * t + 0.9375f; }
+        else { t -= 2.625f / 2.75f; return 7.5625f * t * t + 0.984375f; }
     }
+
+    float EaseInOutSine(float t) { return -(Mathf.Cos(Mathf.PI * t) - 1f) / 2f; }
 }
