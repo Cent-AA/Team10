@@ -3269,6 +3269,14 @@ PrefabInstance:
       value: TrainingDummy_0
       objectReference: {fileID: 0}
     - target: {fileID: 5589754317565280051, guid: 94a74a6b3123ecf47aadab51fc6e2609, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5589754317565280051, guid: 94a74a6b3123ecf47aadab51fc6e2609, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5589754317565280051, guid: 94a74a6b3123ecf47aadab51fc6e2609, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.03
       objectReference: {fileID: 0}
