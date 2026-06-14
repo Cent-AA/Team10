@@ -26,7 +26,7 @@ Left Shift - Run
 
 <color=#FFB347><size=50><b>Player 2</b></size></color>
 
-↑ ↓ ← → - Move
+Arrow Keys - Move
 Right Shift - Run";
     }
 
