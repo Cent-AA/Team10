@@ -15,6 +15,7 @@ public class AutoWeapon : MonoBehaviour
     private float targetRefreshTimer;
     private Transform targetEnemy;
     private Transform owner;
+    public int playerNumber =1;
 
     void Awake()
     {
@@ -42,13 +43,18 @@ public class AutoWeapon : MonoBehaviour
         {
             RotateTowardsTarget();
         }
-
         // 2. РЎРўР Р•Р›Р¬Р‘Рђ РўРћР›Р¬РљРћ РџРћ РќРђР–РђРўРР® (РР›Р Р—РђР–РђРўРР®) РљР›РђР’РРЁР J
-        if (Input.GetKey(KeyCode.J) && shootTimer <= 0f)
+        if (GetHeldInput(PlayerControlAction.Shoot )&& shootTimer <= 0f)
+        {
+             Shoot();
+              shootTimer = fireRate; // РЎР±СЂР°СЃС‹РІР°РµРј С‚Р°Р№РјРµСЂ Р·Р°РґРµСЂР¶РєРё
+        }
+        //NIKITINO NAM NE NUZHNO
+       /* if (Input.GetKey(KeyCode.J) && shootTimer <= 0f)
         {
             Shoot();
             shootTimer = fireRate; // РЎР±СЂР°СЃС‹РІР°РµРј С‚Р°Р№РјРµСЂ Р·Р°РґРµСЂР¶РєРё
-        }
+        }*/
     }
 
     void FindClosestEnemy()
@@ -90,5 +96,26 @@ public class AutoWeapon : MonoBehaviour
             Bullet.Spawn(bulletPrefab, firePoint.position, firePoint.rotation, owner);
         }
     }
-}
+        bool GetHeldInput(PlayerControlAction action)
+    {
+        var type = GetInputType();
+        switch (type)
+        {
+            case InputJoinManager.InputType.KeyboardWASD:
+            case InputJoinManager.InputType.KeyboardArrows:
+                return PlayerInputBindings.GetKeyboardAction(playerNumber, action);
+            case InputJoinManager.InputType.Gamepad:
+                return PlayerInputBindings.GetGamepadAction(playerNumber, action, GetGamepadIndex());
+        }
 
+        return false;
+    }
+        InputJoinManager.InputType GetInputType()
+    {
+        return playerNumber == 1 ? InputJoinManager.player1Input : InputJoinManager.player2Input;
+    }
+        int GetGamepadIndex()
+    {
+        return playerNumber == 1 ? InputJoinManager.player1GamepadIndex : InputJoinManager.player2GamepadIndex;
+    }
+}

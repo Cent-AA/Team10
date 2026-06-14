@@ -366,7 +366,7 @@ public static class PlayerInputBindings
             case PlayerControlAction.Dash: return KeyCode.R;
             case PlayerControlAction.Roll: return KeyCode.F;
             case PlayerControlAction.Block: return KeyCode.C;
-            case PlayerControlAction.Shoot: return KeyCode.C;
+            case PlayerControlAction.Shoot: return KeyCode.J;
             case PlayerControlAction.Confirm: return KeyCode.W;
             case PlayerControlAction.SelectLeft: return KeyCode.A;
             case PlayerControlAction.SelectRight: return KeyCode.D;

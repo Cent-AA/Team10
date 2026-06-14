@@ -1,0 +1,1001 @@
+fileFormatVersion: 2
+guid: 23ff55eac4123b140908d5bb7a397192
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -6030504906699120940
+    second: heavyREP_0
+  - first:
+      213: -6747856854430331919
+    second: heavyREP_1
+  - first:
+      213: -2262557600824045578
+    second: heavyREP_2
+  - first:
+      213: 7783935577699363878
+    second: heavyREP_3
+  - first:
+      213: -3398379009846331574
+    second: heavyREP_4
+  - first:
+      213: -2723320850290777379
+    second: heavyREP_5
+  - first:
+      213: 2233098520420717233
+    second: heavyREP_6
+  - first:
+      213: 619897554920557562
+    second: heavyREP_7
+  - first:
+      213: -1224439092780096946
+    second: heavyREP_8
+  - first:
+      213: 7539836628961632499
+    second: heavyREP_9
+  - first:
+      213: 4661171922336043666
+    second: heavyREP_10
+  - first:
+      213: 5874890832201422217
+    second: heavyREP_11
+  - first:
+      213: -2940372844739271902
+    second: heavyREP_12
+  - first:
+      213: 358376925655934637
+    second: heavyREP_13
+  - first:
+      213: -322373787089142198
+    second: heavyREP_14
+  - first:
+      213: -2465219909447461935
+    second: heavyREP_15
+  - first:
+      213: -4429521199659292218
+    second: heavyREP_16
+  - first:
+      213: -5393222876814452565
+    second: heavyREP_17
+  - first:
+      213: -8295974035042908472
+    second: heavyREP_18
+  - first:
+      213: -6606875764155391512
+    second: heavyREP_19
+  - first:
+      213: 842507270281676361
+    second: heavyREP_20
+  - first:
+      213: -5593418495077227534
+    second: heavyREP_21
+  - first:
+      213: 205235489092222201
+    second: heavyREP_22
+  - first:
+      213: 4580127612785966242
+    second: heavyREP_23
+  - first:
+      213: 3679412920481234785
+    second: heavyREP_24
+  - first:
+      213: -6279572328567512214
+    second: heavyREP_25
+  - first:
+      213: 451012128569725899
+    second: heavyREP_26
+  - first:
+      213: -887066781901000062
+    second: heavyREP_27
+  - first:
+      213: 5187785824701743312
+    second: heavyREP_28
+  - first:
+      213: 6950879480497075628
+    second: heavyREP_29
+  - first:
+      213: -5246434300590820916
+    second: heavyREP_30
+  - first:
+      213: 5205432188206153332
+    second: heavyREP_31
+  - first:
+      213: 647069754418983657
+    second: heavyREP_32
+  - first:
+      213: -4062846195393017932
+    second: heavyREP_33
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 24
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: heavyREP_0
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 575
+        width: 54
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4ded2f30db75f4ca0800000000000000
+      internalID: -6030504906699120940
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_1
+      rect:
+        serializedVersion: 2
+        x: 86
+        y: 575
+        width: 54
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1fbce7c41fbca52a0800000000000000
+      internalID: -6747856854430331919
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_2
+      rect:
+        serializedVersion: 2
+        x: 171
+        y: 575
+        width: 49
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ffc50f79d7c990e0800000000000000
+      internalID: -2262557600824045578
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_3
+      rect:
+        serializedVersion: 2
+        x: 246
+        y: 578
+        width: 51
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 62cab47ba28160c60800000000000000
+      internalID: 7783935577699363878
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_4
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 575
+        width: 59
+        height: 65
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a4737f1cb4886d0d0800000000000000
+      internalID: -3398379009846331574
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_5
+      rect:
+        serializedVersion: 2
+        x: 406
+        y: 575
+        width: 54
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd2e00d8d12d43ad0800000000000000
+      internalID: -2723320850290777379
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_6
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 463
+        width: 54
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1b2902ad54f8dfe10800000000000000
+      internalID: 2233098520420717233
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_7
+      rect:
+        serializedVersion: 2
+        x: 86
+        y: 466
+        width: 54
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: afb4c26ba815a9800800000000000000
+      internalID: 619897554920557562
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_8
+      rect:
+        serializedVersion: 2
+        x: 177
+        y: 463
+        width: 32
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e42adb9e12be10fe0800000000000000
+      internalID: -1224439092780096946
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_9
+      rect:
+        serializedVersion: 2
+        x: 257
+        y: 463
+        width: 32
+        height: 58
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3f0acbd5771e2a860800000000000000
+      internalID: 7539836628961632499
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_10
+      rect:
+        serializedVersion: 2
+        x: 337
+        y: 463
+        width: 44
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2925ddbda2fcfa040800000000000000
+      internalID: 4661171922336043666
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_11
+      rect:
+        serializedVersion: 2
+        x: 417
+        y: 463
+        width: 46
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 985909bd51ec78150800000000000000
+      internalID: 5874890832201422217
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_12
+      rect:
+        serializedVersion: 2
+        x: 17
+        y: 352
+        width: 32
+        height: 72
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2236c1af972b137d0800000000000000
+      internalID: -2940372844739271902
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_13
+      rect:
+        serializedVersion: 2
+        x: 97
+        y: 351
+        width: 51
+        height: 55
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da62b654ae539f400800000000000000
+      internalID: 358376925655934637
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_14
+      rect:
+        serializedVersion: 2
+        x: 177
+        y: 351
+        width: 30
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a4e77a7afb2b68bf0800000000000000
+      internalID: -322373787089142198
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_15
+      rect:
+        serializedVersion: 2
+        x: 257
+        y: 351
+        width: 30
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d3d92cbd87c9cdd0800000000000000
+      internalID: -2465219909447461935
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_16
+      rect:
+        serializedVersion: 2
+        x: 337
+        y: 351
+        width: 30
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6c9ee3100fd2782c0800000000000000
+      internalID: -4429521199659292218
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_17
+      rect:
+        serializedVersion: 2
+        x: 406
+        y: 351
+        width: 53
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba8d6f83e5c6725b0800000000000000
+      internalID: -5393222876814452565
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_18
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 239
+        width: 53
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8c6476fa197cedc80800000000000000
+      internalID: -8295974035042908472
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_19
+      rect:
+        serializedVersion: 2
+        x: 86
+        y: 239
+        width: 46
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e1616a4f79af44a0800000000000000
+      internalID: -6606875764155391512
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_20
+      rect:
+        serializedVersion: 2
+        x: 174
+        y: 239
+        width: 46
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 946c2d506ef21bb00800000000000000
+      internalID: 842507270281676361
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_21
+      rect:
+        serializedVersion: 2
+        x: 242
+        y: 240
+        width: 59
+        height: 82
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f362d0938f2062b0800000000000000
+      internalID: -5593418495077227534
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_22
+      rect:
+        serializedVersion: 2
+        x: 329
+        y: 238
+        width: 46
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9fc35a6079429d200800000000000000
+      internalID: 205235489092222201
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_23
+      rect:
+        serializedVersion: 2
+        x: 406
+        y: 239
+        width: 53
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2acb01a1cc1ef8f30800000000000000
+      internalID: 4580127612785966242
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_24
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 127
+        width: 53
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 16f344b8e86ef0330800000000000000
+      internalID: 3679412920481234785
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_25
+      rect:
+        serializedVersion: 2
+        x: 127
+        y: 127
+        width: 32
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a636c5edc3a7ad8a0800000000000000
+      internalID: -6279572328567512214
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_26
+      rect:
+        serializedVersion: 2
+        x: 207
+        y: 127
+        width: 32
+        height: 58
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bc39ac03421524600800000000000000
+      internalID: 451012128569725899
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_27
+      rect:
+        serializedVersion: 2
+        x: 275
+        y: 127
+        width: 44
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 282fdb4367180b3f0800000000000000
+      internalID: -887066781901000062
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_28
+      rect:
+        serializedVersion: 2
+        x: 353
+        y: 127
+        width: 46
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0d08724b8b7bef740800000000000000
+      internalID: 5187785824701743312
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_29
+      rect:
+        serializedVersion: 2
+        x: 447
+        y: 128
+        width: 32
+        height: 72
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ca574976f0c767060800000000000000
+      internalID: 6950879480497075628
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_30
+      rect:
+        serializedVersion: 2
+        x: 28
+        y: 15
+        width: 51
+        height: 55
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cc1fbd7eccbe037b0800000000000000
+      internalID: -5246434300590820916
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_31
+      rect:
+        serializedVersion: 2
+        x: 129
+        y: 15
+        width: 30
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 47e7960eef86d3840800000000000000
+      internalID: 5205432188206153332
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_32
+      rect:
+        serializedVersion: 2
+        x: 209
+        y: 15
+        width: 30
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9e2fa09638adaf800800000000000000
+      internalID: 647069754418983657
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: heavyREP_33
+      rect:
+        serializedVersion: 2
+        x: 289
+        y: 15
+        width: 30
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4b74d8249eedd97c0800000000000000
+      internalID: -4062846195393017932
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      heavyREP_0: -6030504906699120940
+      heavyREP_1: -6747856854430331919
+      heavyREP_10: 4661171922336043666
+      heavyREP_11: 5874890832201422217
+      heavyREP_12: -2940372844739271902
+      heavyREP_13: 358376925655934637
+      heavyREP_14: -322373787089142198
+      heavyREP_15: -2465219909447461935
+      heavyREP_16: -4429521199659292218
+      heavyREP_17: -5393222876814452565
+      heavyREP_18: -8295974035042908472
+      heavyREP_19: -6606875764155391512
+      heavyREP_2: -2262557600824045578
+      heavyREP_20: 842507270281676361
+      heavyREP_21: -5593418495077227534
+      heavyREP_22: 205235489092222201
+      heavyREP_23: 4580127612785966242
+      heavyREP_24: 3679412920481234785
+      heavyREP_25: -6279572328567512214
+      heavyREP_26: 451012128569725899
+      heavyREP_27: -887066781901000062
+      heavyREP_28: 5187785824701743312
+      heavyREP_29: 6950879480497075628
+      heavyREP_3: 7783935577699363878
+      heavyREP_30: -5246434300590820916
+      heavyREP_31: 5205432188206153332
+      heavyREP_32: 647069754418983657
+      heavyREP_33: -4062846195393017932
+      heavyREP_4: -3398379009846331574
+      heavyREP_5: -2723320850290777379
+      heavyREP_6: 2233098520420717233
+      heavyREP_7: 619897554920557562
+      heavyREP_8: -1224439092780096946
+      heavyREP_9: 7539836628961632499
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
