@@ -168,6 +168,7 @@ GameObject:
   - component: {fileID: 1711964168810817188}
   - component: {fileID: 7494472449799386996}
   - component: {fileID: 5947543317797644433}
+  - component: {fileID: 2541173419289871545}
   m_Layer: 7
   m_Name: Player1 1
   m_TagString: Player
@@ -500,6 +501,48 @@ MonoBehaviour:
   maxX: 18
   minY: -15
   maxY: 15
+--- !u!114 &2541173419289871545
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5776117132991851733}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8111b01744bb820439925ee0b0a4fc10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DirectionalSprites
+  idle:
+    front: []
+    back: []
+    side: []
+  walk:
+    front: []
+    back: []
+    side: []
+  lightAttack1:
+    front: []
+    back: []
+    side: []
+  lightAttack2:
+    front: []
+    back: []
+    side: []
+  heavyAttack:
+    front: []
+    back: []
+    side: []
+  hit:
+    front: []
+    back: []
+    side: []
+  death:
+    front: []
+    back: []
+    side: []
+  puppet: {fileID: 0}
+  mainRenderer: {fileID: 0}
 --- !u!1 &8310704023448307592
 GameObject:
   m_ObjectHideFlags: 0
@@ -610,3 +653,4 @@ MonoBehaviour:
   fireRate: 0.1
   rotationSpeed: 10
   targetRefreshInterval: 0.15
+  playerNumber: 1
