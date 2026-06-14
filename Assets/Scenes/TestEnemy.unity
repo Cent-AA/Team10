@@ -656,6 +656,10 @@ PrefabInstance:
       propertyPath: m_BodyType
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8271502132223241517, guid: b045696430283a2478655e60700211e2, type: 3}
+      propertyPath: attackRange
+      value: 2.6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

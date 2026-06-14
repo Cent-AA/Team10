@@ -16,6 +16,7 @@ public enum PlayerControlAction
     Dash,
     Roll,
     Block,
+    Shoot,
     Confirm,
     SelectLeft,
     SelectRight
@@ -220,6 +221,7 @@ public static class PlayerInputBindings
             case PlayerControlAction.Dash: return "Рывок";
             case PlayerControlAction.Roll: return "Перекат";
             case PlayerControlAction.Block: return "Блок";
+            case PlayerControlAction.Shoot: return "Стрелять";
             case PlayerControlAction.Confirm: return "Подтвердить";
             case PlayerControlAction.SelectLeft: return "Выбор влево";
             case PlayerControlAction.SelectRight: return "Выбор вправо";
@@ -345,6 +347,7 @@ public static class PlayerInputBindings
                 case PlayerControlAction.Dash: return KeyCode.Keypad2;
                 case PlayerControlAction.Roll: return KeyCode.Keypad3;
                 case PlayerControlAction.Block: return KeyCode.Keypad4;
+                case PlayerControlAction.Shoot: return KeyCode.Keypad5;
                 case PlayerControlAction.Confirm: return KeyCode.UpArrow;
                 case PlayerControlAction.SelectLeft: return KeyCode.LeftArrow;
                 case PlayerControlAction.SelectRight: return KeyCode.RightArrow;
@@ -363,6 +366,7 @@ public static class PlayerInputBindings
             case PlayerControlAction.Dash: return KeyCode.R;
             case PlayerControlAction.Roll: return KeyCode.F;
             case PlayerControlAction.Block: return KeyCode.C;
+            case PlayerControlAction.Shoot: return KeyCode.C;
             case PlayerControlAction.Confirm: return KeyCode.W;
             case PlayerControlAction.SelectLeft: return KeyCode.A;
             case PlayerControlAction.SelectRight: return KeyCode.D;
@@ -384,6 +388,7 @@ public static class PlayerInputBindings
             case PlayerControlAction.Dash: return PlayerGamepadControl.ButtonEast;
             case PlayerControlAction.Roll: return PlayerGamepadControl.LeftShoulder;
             case PlayerControlAction.Block: return PlayerGamepadControl.LeftTrigger;
+            case PlayerControlAction.Shoot: return PlayerGamepadControl.RightTrigger;
             case PlayerControlAction.Confirm: return PlayerGamepadControl.ButtonNorth;
             case PlayerControlAction.SelectLeft: return PlayerGamepadControl.LeftStickLeft;
             case PlayerControlAction.SelectRight: return PlayerGamepadControl.LeftStickRight;
