@@ -89,6 +89,12 @@ public class CharacterSelector : MonoBehaviour
             player1Character = p1Selection;
             player2Character = p2Selection;
 
+            // ⬇️ ВОТ ЗДЕСЬ МЫ СОХРАНЯЕМ ВЫБОР ДЛЯ СЦЕНЫ АРЕНЫ ⬇️
+            PlayerPrefs.SetInt("P1_Character", p1Selection);
+            PlayerPrefs.SetInt("P2_Character", p2Selection);
+            PlayerPrefs.Save(); // Принудительно записываем в память
+            // ⬆️ ----------------------------------------------- ⬆️
+
             // Запускаем переход в арену
             if (transition != null)
                 transition.GoToArena();

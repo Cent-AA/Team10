@@ -65,6 +65,7 @@ public class CharacterSpawner : MonoBehaviour
         if (pc != null)
         {
             pc.playerNumber = playerNumber;
+            AutoWeapon au = player.GetComponentInChildren<AutoWeapon>();
             // Подключаем таргет
             TargetingSystem ts = player.GetComponent<TargetingSystem>();
             if (ts != null)
@@ -74,6 +75,10 @@ public class CharacterSpawner : MonoBehaviour
                     ? new Color(0.3f, 0.6f, 1f, 0.5f)
                     : new Color(1f, 0.7f, 0.2f, 0.5f);
                 if (pc.targeting == null) pc.targeting = ts;
+            }
+            if (au != null)
+            {
+                au.playerNumber = playerNumber;
             }
         }
 
