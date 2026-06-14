@@ -116,7 +116,7 @@ Transform:
   m_GameObject: {fileID: 2287801906114431002}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.128, y: 1.86, z: 0}
+  m_LocalPosition: {x: -0.5, y: 0.22, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -149,8 +149,8 @@ Transform:
   m_GameObject: {fileID: 3457466762503915278}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.716, y: -1.765, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 1}
+  m_LocalPosition: {x: 1.31, y: 1.24, z: -1}
+  m_LocalScale: {x: 8.477178, y: 6.1792526, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7413892614054330273}
@@ -239,7 +239,7 @@ Transform:
   m_GameObject: {fileID: 4386326973962859329}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.26, y: -0.16, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -257,6 +257,7 @@ GameObject:
   - component: {fileID: 6929543829160367192}
   - component: {fileID: 7091920171392269329}
   - component: {fileID: 767772595762483267}
+  - component: {fileID: 4164397194038707932}
   m_Layer: 0
   m_Name: Engineer
   m_TagString: Untagged
@@ -274,7 +275,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.7, y: 0.7, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 821668626597601188}
@@ -375,17 +376,26 @@ MonoBehaviour:
   hopSquashX: 1.1
   hopSquashY: 0.85
   squashSpeed: 12
-  hopTilt: 5
   maxHealth: 80
   currentHealth: 0
   wrenchPivot: {fileID: 7413892614054330273}
-  wrenchSwingAngle: 120
+  wrenchSprite: {fileID: 3616026704889980957}
+  wrenchOffset: 0.5
+  swingAnticipation: 0.15
   swingDuration: 0.3
-  swingRecovery: 0.2
+  swingRecovery: 0.15
+  swingAngle: 220
   attackDamage: 12
   attackRange: 1.5
   attackCooldown: 0.5
   knockbackForce: 6
+  chargeTime: 3
+  chargedDamage: 40
+  chargedKnockback: 6
+  chargedSwingAngle: 300
+  chargedWrenchScale: 2
+  parryFreezeDuration: 0.3
+  targeting: {fileID: 4164397194038707932}
   spriteRenderer: {fileID: 7915707048934801520}
   rb: {fileID: 7091920171392269329}
   attackPoint: {fileID: 6378533194177501928}
@@ -393,4 +403,28 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   wrenchHitSound: {fileID: 0}
-  hopSound: {fileID: 0}
+--- !u!114 &4164397194038707932
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5798416344623167415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4254e71e3f9425b4eb4d913605a9b637, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TargetingSystem
+  playerNumber: 1
+  detectRange: 10
+  autoTargetRange: 6
+  targetRefreshInterval: 0.12
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  targetColor: {r: 1, g: 0.47225624, b: 0.119793594, a: 0.5}
+  triangleSize: 0.3
+  triangleDistance: 1
+  rotationSpeed: 90
+  triangleCount: 4
+  currentTarget: {fileID: 0}
