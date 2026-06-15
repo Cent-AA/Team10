@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 public class WaveManager : MonoBehaviour
 {
-    [Header("в•ђв•ђв•ђ Р—РѕРјР±Рё в•ђв•ђв•ђ")]
+    [Header("Zombie Spawning")]
     public GameObject zombiePrefab;
     public Transform[] spawnPoints;
     public Transform campfireTarget;
@@ -18,7 +18,7 @@ public class WaveManager : MonoBehaviour
     public int initialZombiePoolSize = 0;
     public int maxZombiePoolSize = 64;
 
-    [Header("в•ђв•ђв•ђ Р’РѕР»РЅС‹ в•ђв•ђв•ђ")]
+    [Header("Wave Settings")]
     public int startZombies = 3;
     public int zombiesPerWave = 2;
     public float spawnInterval = 0.5f;
@@ -27,12 +27,12 @@ public class WaveManager : MonoBehaviour
     public float zombieSpeedIncrease = 0.3f;
     public float zombieDamageIncrease = 2f;
 
-    [Header("в•ђв•ђв•ђ UI в•ђв•ђв•ђ")]
+    [Header("UI")]
     public TextMeshProUGUI waveText;
     public TextMeshProUGUI zombieCountText;
     public float waveTextDisplayTime = 3f;
 
-    [Header("в•ђв•ђв•ђ РљР°РјРµСЂР° в•ђв•ђв•ђ")]
+    [Header("Camera")]
     public float waveShakeIntensity = 0.3f;
 
     private int currentWave = 0;
@@ -88,10 +88,7 @@ public class WaveManager : MonoBehaviour
             if (waveText != null)
             {
                 waveText.gameObject.SetActive(true);
-                if (currentWave == 0)
-                    waveText.text = "РџР РР“РћРўРћР’Р¬РЎРЇ!\n" + Mathf.CeilToInt(remaining);
-                else
-                    waveText.text = "Р’РћР›РќРђ " + currentWave + " РџР РћР™Р”Р•РќРђ!\nРЎР›Р•Р”РЈР®Р©РђРЇ Р§Р•Р Р•Р— " + Mathf.CeilToInt(remaining);
+                waveText.text = "Next wave in " + Mathf.CeilToInt(remaining);
             }
             remaining -= Time.deltaTime;
             yield return null;
@@ -327,8 +324,11 @@ public class WaveManager : MonoBehaviour
             return;
 
         lastDisplayedZombiesAlive = zombiesAlive;
+
         if (zombieCountText != null)
-            zombieCountText.text = "Enemies Remaining: " + zombiesAlive;
+        {
+            zombieCountText.text = "Zombies: " + zombiesAlive + "/" + totalZombiesThisWave;
+        }
     }
 
     public int GetCurrentWave() => currentWave;

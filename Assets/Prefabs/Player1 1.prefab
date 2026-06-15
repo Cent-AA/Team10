@@ -287,9 +287,7 @@ MonoBehaviour:
   mainRendererSortingOrder: 0
   defaultSprite: {fileID: 7547597920333573595, guid: 826ae59e4637ecc41a1a9d246bcbdc57, type: 3}
   idle:
-    frames:
-    - {fileID: 7547597920333573595, guid: 826ae59e4637ecc41a1a9d246bcbdc57, type: 3}
-    - {fileID: -8148451390622407872, guid: 826ae59e4637ecc41a1a9d246bcbdc57, type: 3}
+    frames: []
     duration: 1
     loop: 1
     hitFrame: 0.6
@@ -514,25 +512,52 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DirectionalSprites
   idle:
-    front: []
-    back: []
-    side: []
+    front:
+    - {fileID: -6030504906699120940, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
+    - {fileID: -6747856854430331919, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
+    back:
+    - {fileID: -5393222876814452565, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
+    - {fileID: -8295974035042908472, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
+    side:
+    - {fileID: -1224439092780096946, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
+    - {fileID: 7539836628961632499, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
   walk:
-    front: []
-    back: []
-    side: []
+    front:
+    - {fileID: 2233098520420717233, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
+    - {fileID: -6030504906699120940, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
+    - {fileID: 619897554920557562, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
+    back:
+    - {fileID: 4580127612785966242, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
+    - {fileID: -5393222876814452565, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
+    - {fileID: 3679412920481234785, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
+    side:
+    - {fileID: -322373787089142198, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
+    - {fileID: -2465219909447461935, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
+    - {fileID: -4429521199659292218, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
   lightAttack1:
-    front: []
-    back: []
-    side: []
+    front:
+    - {fileID: -2262557600824045578, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
+    back:
+    - {fileID: -6606875764155391512, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
+    side:
+    - {fileID: 4661171922336043666, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
   lightAttack2:
-    front: []
-    back: []
-    side: []
+    front:
+    - {fileID: 7783935577699363878, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
+    back:
+    - {fileID: 842507270281676361, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
+    side:
+    - {fileID: 5874890832201422217, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
   heavyAttack:
-    front: []
-    back: []
-    side: []
+    front:
+    - {fileID: -3398379009846331574, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
+    - {fileID: -2723320850290777379, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
+    back:
+    - {fileID: -5593418495077227534, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
+    - {fileID: 205235489092222201, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
+    side:
+    - {fileID: -2940372844739271902, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
+    - {fileID: 358376925655934637, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
   hit:
     front: []
     back: []
@@ -541,8 +566,8 @@ MonoBehaviour:
     front: []
     back: []
     side: []
-  puppet: {fileID: 0}
-  mainRenderer: {fileID: 0}
+  puppet: {fileID: 6947892943637507798}
+  mainRenderer: {fileID: 1598176532995336907}
 --- !u!1 &8310704023448307592
 GameObject:
   m_ObjectHideFlags: 0
