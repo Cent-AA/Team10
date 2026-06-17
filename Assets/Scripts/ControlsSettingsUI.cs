@@ -114,7 +114,6 @@ public class ControlsSettingsUI : MonoBehaviour
         SetVisible(true);
         RefreshAll();
         ResetScrollToTop();
-        SetStatus(string.Empty);
     }
 
     public void SetVisible(bool visible)
@@ -162,22 +161,17 @@ public class ControlsSettingsUI : MonoBehaviour
         waitingPlayerNumber = Mathf.Clamp(playerNumber, 1, 2);
         waitingDevice = device;
         waitingAction = action;
-
-        string deviceName = device == PlayerControlDevice.Keyboard ? "клавишу" : "кнопку геймпада";
-        SetStatus("Нажмите новую " + deviceName + " для P" + waitingPlayerNumber + ": " + PlayerInputBindings.GetActionName(action));
     }
 
     public void ApplyBindings()
     {
         RefreshAll();
-        SetStatus("Применено");
     }
 
     public void ResetAllBindings()
     {
         PlayerInputBindings.ResetAll();
         RefreshAll();
-        SetStatus("Все управление сброшено");
     }
 
     public void ResetCurrentBindings()
@@ -188,28 +182,24 @@ public class ControlsSettingsUI : MonoBehaviour
             PlayerInputBindings.ResetPlayerGamepad(selectedPlayerNumber);
 
         RefreshAll();
-        SetStatus("Текущие настройки сброшены");
     }
 
     public void ResetPlayerBindings(int playerNumber)
     {
         PlayerInputBindings.ResetPlayer(playerNumber);
         RefreshAll();
-        SetStatus("Управление P" + Mathf.Clamp(playerNumber, 1, 2) + " сброшено");
     }
 
     public void ResetPlayerKeyboardBindings(int playerNumber)
     {
         PlayerInputBindings.ResetPlayerKeyboard(playerNumber);
         RefreshAll();
-        SetStatus("Клавиатура P" + Mathf.Clamp(playerNumber, 1, 2) + " сброшена");
     }
 
     public void ResetPlayerGamepadBindings(int playerNumber)
     {
         PlayerInputBindings.ResetPlayerGamepad(playerNumber);
         RefreshAll();
-        SetStatus("Геймпад P" + Mathf.Clamp(playerNumber, 1, 2) + " сброшен");
     }
 
     public string GetBindingText(int playerNumber, PlayerControlDevice device, PlayerControlAction action)
@@ -591,7 +581,6 @@ public class ControlsSettingsUI : MonoBehaviour
         for (int i = 0; i < runtimeRows.Count; i++)
         {
             BindingRow row = runtimeRows[i];
-            SetLabel(row.actionText, row.actionTMP, PlayerInputBindings.GetActionName(row.action));
             SetLabel(row.bindingText, row.bindingTMP, PlayerInputBindings.GetBindingName(selectedPlayerNumber, selectedDevice, row.action));
         }
 
@@ -631,18 +620,11 @@ public class ControlsSettingsUI : MonoBehaviour
     {
         waitingForInput = false;
         RefreshAll();
-        SetStatus(string.Empty);
     }
 
     private void CancelRebind()
     {
         waitingForInput = false;
-        SetStatus(string.Empty);
-    }
-
-    private void SetStatus(string text)
-    {
-        SetLabel(statusText, statusTMP, text);
     }
 
     private void SetLabel(Text text, TMP_Text tmp, string value)

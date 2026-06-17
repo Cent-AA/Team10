@@ -58,7 +58,6 @@ public class CharacterSpawner : MonoBehaviour
         }
 
         GameObject player = Instantiate(prefab, spawnPoint.position, Quaternion.identity);
-        player.name = "Player" + playerNumber;
 
         // Назначаем номер игрока для PlayerController
         PlayerController pc = player.GetComponent<PlayerController>();

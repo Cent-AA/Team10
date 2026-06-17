@@ -207,28 +207,6 @@ public static class PlayerInputBindings
         return GetGamepadControlName(GetGamepadControl(playerNumber, action));
     }
 
-    public static string GetActionName(PlayerControlAction action)
-    {
-        switch (action)
-        {
-            case PlayerControlAction.MoveUp: return "Движение вверх";
-            case PlayerControlAction.MoveDown: return "Движение вниз";
-            case PlayerControlAction.MoveLeft: return "Движение влево";
-            case PlayerControlAction.MoveRight: return "Движение вправо";
-            case PlayerControlAction.Run: return "Бег";
-            case PlayerControlAction.LightAttack: return "Легкая атака";
-            case PlayerControlAction.HeavyAttack: return "Тяжелая атака";
-            case PlayerControlAction.Dash: return "Рывок";
-            case PlayerControlAction.Roll: return "Перекат";
-            case PlayerControlAction.Block: return "Блок";
-            case PlayerControlAction.Shoot: return "Стрелять";
-            case PlayerControlAction.Confirm: return "Подтвердить";
-            case PlayerControlAction.SelectLeft: return "Выбор влево";
-            case PlayerControlAction.SelectRight: return "Выбор вправо";
-            default: return action.ToString();
-        }
-    }
-
     public static bool TryCaptureKeyboardKey(out KeyCode key)
     {
         for (int i = 0; i < KeyboardCandidates.Length; i++)
