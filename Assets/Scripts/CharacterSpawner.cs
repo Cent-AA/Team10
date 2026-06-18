@@ -59,6 +59,15 @@ public class CharacterSpawner : MonoBehaviour
 
         GameObject player = Instantiate(prefab, spawnPoint.position, Quaternion.identity);
 
+        TargetingSystem ts = player.GetComponent<TargetingSystem>();
+        if (ts != null)
+        {
+            ts.playerNumber = playerNumber;
+            ts.targetColor = playerNumber == 1
+                ? new Color(0.3f, 0.6f, 1f, 0.5f)
+                : new Color(1f, 0.7f, 0.2f, 0.5f);
+        }
+
         // Назначаем номер игрока для PlayerController
         PlayerController pc = player.GetComponent<PlayerController>();
         if (pc != null)
@@ -66,13 +75,8 @@ public class CharacterSpawner : MonoBehaviour
             pc.playerNumber = playerNumber;
             AutoWeapon au = player.GetComponentInChildren<AutoWeapon>();
             // Подключаем таргет
-            TargetingSystem ts = player.GetComponent<TargetingSystem>();
             if (ts != null)
             {
-                ts.playerNumber = playerNumber;
-                ts.targetColor = playerNumber == 1
-                    ? new Color(0.3f, 0.6f, 1f, 0.5f)
-                    : new Color(1f, 0.7f, 0.2f, 0.5f);
                 if (pc.targeting == null) pc.targeting = ts;
             }
             if (au != null)
@@ -83,7 +87,16 @@ public class CharacterSpawner : MonoBehaviour
 
         // Назначаем номер для EngineerController
         EngineerController ec = player.GetComponent<EngineerController>();
-        if (ec != null) ec.playerNumber = playerNumber;
+        if (ec != null)
+        {
+            ec.playerNumber = playerNumber;
+            if (ec.targeting == null && ts != null)
+                ec.targeting = ts;
+
+            PlayerSharedInput sharedInput = player.GetComponent<PlayerSharedInput>();
+            if (sharedInput != null)
+                sharedInput.playerNumber = playerNumber;
+        }
 
         Debug.Log("Заспавнен Player" + playerNumber + ": персонаж " + characterIndex
             + " | Ввод: " + (playerNumber == 1 ? InputJoinManager.player1Input : InputJoinManager.player2Input));

@@ -216,6 +216,7 @@ public class MenuTransition : MonoBehaviour
     public void StartTransition()
     {
         if (isTransitioning) return;
+
         isTransitioning = true;
         StartCoroutine(PlayExitTransition());
     }

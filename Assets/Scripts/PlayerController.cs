@@ -75,6 +75,7 @@ public class PlayerController : MonoBehaviour
     private float comboTimer = 0f;
     private Color[] originalColors;
     private readonly Collider2D[] attackHitBuffer = new Collider2D[32];
+    private readonly Collider2D[] reviveHitBuffer = new Collider2D[16];
     private float lightAttackCooldownTimer = 0f;
     private float heavyAttackCooldownTimer = 0f;
     private float barrageCooldownTimer = 0f;
@@ -448,8 +449,37 @@ public class PlayerController : MonoBehaviour
             attackHitBuffer[i] = null;
         }
 
+        if (TryDealReviveDamage(damage))
+        {
+            hitSomething = true;
+            StartCoroutine(HitStopRoutine());
+        }
+
         if (hitSomething)
             PlaySound(GetAttackHitSound());
+    }
+
+    bool TryDealReviveDamage(float damage)
+    {
+        if (attackPoint == null) return false;
+
+        int hitCount = Physics2D.OverlapCircleNonAlloc(attackPoint.position, attackRange, reviveHitBuffer);
+        bool revivedProgress = false;
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            Collider2D hit = reviveHitBuffer[i];
+            if (hit == null || hit.transform == transform || hit.transform.IsChildOf(transform)) continue;
+
+            PrototypeReviveTarget reviveTarget = hit.GetComponent<PrototypeReviveTarget>();
+            if (reviveTarget == null)
+                reviveTarget = hit.GetComponentInParent<PrototypeReviveTarget>();
+
+            if (reviveTarget != null && reviveTarget.IsDowned)
+                revivedProgress |= reviveTarget.ReceiveReviveDamage(damage, transform);
+        }
+
+        return revivedProgress;
     }
 
     AudioClip GetAttackHitSound()

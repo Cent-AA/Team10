@@ -524,4 +524,17 @@ public class PuppetAnimator : MonoBehaviour
     public void StopBlock() { isBlocking = false; if (currentState == AnimState.Block) SetState(AnimState.Idle); }
     public void TakeHit() { if (!IsDead()) SetState(AnimState.Hit); }
     public void Die() { SetState(AnimState.Death); }
+    public void Revive()
+    {
+        isBlocking = false;
+        isCharging = false;
+        DestroyChargeCircle();
+        if (barrageRoutine != null)
+        {
+            StopCoroutine(barrageRoutine);
+            barrageRoutine = null;
+        }
+
+        SetState(AnimState.Idle);
+    }
 }

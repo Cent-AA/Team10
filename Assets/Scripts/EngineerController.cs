@@ -52,6 +52,9 @@ public class EngineerController : MonoBehaviour
     public Rigidbody2D rb;
     public Transform attackPoint;
     public LayerMask enemyLayer;
+    public PlayerSharedInput sharedInput;
+    public PlayerSharedHealth sharedHealth;
+    public PlayerMotor2D motor;
 
     [Header("═══ Звуки ═══")]
     public AudioClip wrenchHitSound;
@@ -74,15 +77,42 @@ public class EngineerController : MonoBehaviour
     private bool isHoldingAttack = false;
     private float holdTime = 0f;
     private Vector3 wrenchOriginalScale;
+    private Coroutine deathRoutine;
+    private bool sharedHealthSubscribed;
+    private readonly Collider2D[] attackHitBuffer = new Collider2D[32];
+    private readonly Collider2D[] reviveHitBuffer = new Collider2D[16];
 
     public System.Action<float, float> OnHealthChanged;
 
-    void OnEnable() { Registry.Register(transform); }
-    void OnDestroy() { Registry.Unregister(transform); }
+    void Awake()
+    {
+        EnsureSharedComponents();
+        SyncSharedSettings();
+    }
+
+    void OnEnable()
+    {
+        EnsureSharedComponents();
+        Registry.Register(transform);
+        SubscribeSharedHealth();
+    }
+
+    void OnDisable()
+    {
+        Registry.Unregister(transform);
+        UnsubscribeSharedHealth();
+    }
+
+    void OnDestroy()
+    {
+        Registry.Unregister(transform);
+        UnsubscribeSharedHealth();
+    }
 
     void Start()
     {
-        currentHealth = maxHealth;
+        EnsureSharedComponents();
+        SyncSharedSettings();
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
 
@@ -102,8 +132,16 @@ public class EngineerController : MonoBehaviour
         if (currentHealth <= 0) return;
 
         attackTimer -= Time.deltaTime;
-        moveInput = GetMovementInput();
-        isRunning = GetRunInput();
+        moveInput = sharedInput != null ? sharedInput.Movement : Vector2.zero;
+        isRunning = sharedInput != null && sharedInput.RunHeld;
+
+        if (motor != null)
+        {
+            motor.walkSpeed = moveSpeed;
+            motor.runSpeed = runSpeed;
+            motor.SetMovement(moveInput, isRunning);
+            motor.SetMovementLocked(isAttacking || currentHealth <= 0f);
+        }
 
         // Направление
         if (targeting != null && targeting.currentTarget != null)
@@ -156,12 +194,8 @@ public class EngineerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (isAttacking || currentHealth <= 0) return;
-        if (rb != null)
-        {
-            float speed = isRunning ? runSpeed : moveSpeed;
-            rb.MovePosition(rb.position + moveInput * speed * Time.fixedDeltaTime);
-        }
+        if (motor != null)
+            motor.SetMovementLocked(isAttacking || currentHealth <= 0f);
     }
 
     // ═══════════ КЛЮЧ — ПОКАЗАТЬ/СКРЫТЬ ═══════════
@@ -347,9 +381,11 @@ public class EngineerController : MonoBehaviour
         if (attackPoint == null) return false;
         bool hitSomething = false;
 
-        Collider2D[] hits = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayer);
-        foreach (var hit in hits)
+        int hitCount = Physics2D.OverlapCircleNonAlloc(attackPoint.position, attackRange, attackHitBuffer, enemyLayer);
+        for (int i = 0; i < hitCount; i++)
         {
+            Collider2D hit = attackHitBuffer[i];
+            if (hit == null) continue;
             if (hit.transform == transform) continue;
             Vector2 knockDir = (hit.transform.position - transform.position).normalized;
 
@@ -369,7 +405,37 @@ public class EngineerController : MonoBehaviour
                 hitSomething = true;
             }
         }
+
+        if (TryDealReviveDamage(damage))
+        {
+            PlaySound(wrenchHitSound);
+            hitSomething = true;
+        }
+
         return hitSomething;
+    }
+
+    bool TryDealReviveDamage(float damage)
+    {
+        if (attackPoint == null) return false;
+
+        int hitCount = Physics2D.OverlapCircleNonAlloc(attackPoint.position, attackRange, reviveHitBuffer);
+        bool revivedProgress = false;
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            Collider2D hit = reviveHitBuffer[i];
+            if (hit == null || hit.transform == transform || hit.transform.IsChildOf(transform)) continue;
+
+            PrototypeReviveTarget reviveTarget = hit.GetComponent<PrototypeReviveTarget>();
+            if (reviveTarget == null)
+                reviveTarget = hit.GetComponentInParent<PrototypeReviveTarget>();
+
+            if (reviveTarget != null && reviveTarget.IsDowned)
+                revivedProgress |= reviveTarget.ReceiveReviveDamage(damage, transform);
+        }
+
+        return revivedProgress;
     }
 
     // ═══════════ ПРЫЖКИ ═══════════
@@ -410,10 +476,23 @@ public class EngineerController : MonoBehaviour
 
     public void TakeDamage(float damage, Vector2 knockbackDir, Transform attacker)
     {
-        currentHealth -= damage;
-        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+        EnsureSharedComponents();
+        if (sharedHealth != null)
+        {
+            if (sharedHealth.isDowned)
+                return;
+
+            sharedHealth.TakeDamage(damage);
+        }
+        else
+        {
+            if (currentHealth <= 0f)
+                return;
+
+            SetHealth(currentHealth - damage, maxHealth);
+        }
+
         StartCoroutine(HitFlash());
-        if (currentHealth <= 0) Die();
     }
 
     IEnumerator HitFlash()
@@ -427,7 +506,7 @@ public class EngineerController : MonoBehaviour
 
     void Die()
     {
-        StartCoroutine(DeathAnim());
+        HandleDowned();
     }
 
     IEnumerator DeathAnim()
@@ -435,6 +514,150 @@ public class EngineerController : MonoBehaviour
         float e = 0f;
         while (e < 1f) { e += Time.deltaTime; transform.rotation = Quaternion.Euler(0, 0, e * 90f); yield return null; }
         if (rb != null) rb.bodyType = RigidbodyType2D.Kinematic;
+    }
+
+    public void SetHealth(float current, float max)
+    {
+        EnsureSharedComponents();
+        if (sharedHealth != null)
+        {
+            sharedHealth.SetHealth(current, max);
+            return;
+        }
+
+        maxHealth = Mathf.Max(1f, max);
+        currentHealth = Mathf.Clamp(current, 0f, maxHealth);
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+    }
+
+    public void MultiplyHealth(float multiplier)
+    {
+        EnsureSharedComponents();
+        if (sharedHealth != null)
+        {
+            sharedHealth.MultiplyHealth(multiplier);
+            return;
+        }
+
+        multiplier = Mathf.Max(0.01f, multiplier);
+        SetHealth(currentHealth * multiplier, maxHealth * multiplier);
+    }
+
+    public void Revive(float healthPercent)
+    {
+        EnsureSharedComponents();
+        if (sharedHealth != null)
+            sharedHealth.Revive(healthPercent);
+        else
+            SetHealth(maxHealth * healthPercent, maxHealth);
+    }
+
+    void HandleSharedHealthChanged(float current, float max)
+    {
+        currentHealth = current;
+        maxHealth = max;
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+    }
+
+    void HandleDowned()
+    {
+        currentHealth = 0f;
+        if (motor != null)
+            motor.SetMovementLocked(true);
+
+        HideWrench();
+
+        if (deathRoutine == null)
+            deathRoutine = StartCoroutine(DeathAnim());
+    }
+
+    void HandleRevived()
+    {
+        if (deathRoutine != null)
+        {
+            StopCoroutine(deathRoutine);
+            deathRoutine = null;
+        }
+
+        StopAllCoroutines();
+        transform.rotation = Quaternion.identity;
+
+        if (rb != null)
+            rb.bodyType = RigidbodyType2D.Dynamic;
+
+        if (motor != null)
+            motor.SetMovementLocked(false);
+
+        HideWrench();
+    }
+
+    void EnsureSharedComponents()
+    {
+        if (sharedInput == null)
+            sharedInput = GetComponent<PlayerSharedInput>();
+        if (sharedInput == null)
+            sharedInput = gameObject.AddComponent<PlayerSharedInput>();
+
+        if (sharedHealth == null)
+            sharedHealth = GetComponent<PlayerSharedHealth>();
+        if (sharedHealth == null)
+            sharedHealth = gameObject.AddComponent<PlayerSharedHealth>();
+
+        if (motor == null)
+            motor = GetComponent<PlayerMotor2D>();
+        if (motor == null)
+            motor = gameObject.AddComponent<PlayerMotor2D>();
+
+        if (rb == null)
+            rb = GetComponent<Rigidbody2D>();
+
+        if (motor != null)
+            motor.rb = rb;
+    }
+
+    void SyncSharedSettings()
+    {
+        if (sharedInput != null)
+            sharedInput.playerNumber = playerNumber;
+
+        if (sharedHealth != null)
+        {
+            sharedHealth.maxHealth = Mathf.Max(1f, maxHealth);
+            sharedHealth.currentHealth = currentHealth > 0f
+                ? Mathf.Clamp(currentHealth, 0f, sharedHealth.maxHealth)
+                : sharedHealth.maxHealth;
+            currentHealth = sharedHealth.currentHealth;
+            maxHealth = sharedHealth.maxHealth;
+            sharedHealth.NotifyHealthChanged();
+        }
+
+        if (motor != null)
+        {
+            motor.walkSpeed = moveSpeed;
+            motor.runSpeed = runSpeed;
+        }
+    }
+
+    void SubscribeSharedHealth()
+    {
+        if (sharedHealth == null || sharedHealthSubscribed)
+            return;
+
+        sharedHealth.OnHealthChanged += HandleSharedHealthChanged;
+        sharedHealth.OnDowned += HandleDowned;
+        sharedHealth.OnRevived += HandleRevived;
+        sharedHealthSubscribed = true;
+    }
+
+    void UnsubscribeSharedHealth()
+    {
+        if (sharedHealth == null || !sharedHealthSubscribed)
+            return;
+
+        sharedHealth.OnHealthChanged -= HandleSharedHealthChanged;
+        sharedHealth.OnDowned -= HandleDowned;
+        sharedHealth.OnRevived -= HandleRevived;
+        sharedHealthSubscribed = false;
     }
 
     void PlaySound(AudioClip clip)
@@ -445,42 +668,19 @@ public class EngineerController : MonoBehaviour
     // ═══════════ ВВОД ═══════════
     Vector2 GetMovementInput()
     {
-        var type = playerNumber == 1 ? InputJoinManager.player1Input : InputJoinManager.player2Input;
-        Vector2 input = Vector2.zero;
-        switch (type)
-        {
-            case InputJoinManager.InputType.KeyboardWASD:
-                if (Input.GetKey(KeyCode.W)) input.y += 1; if (Input.GetKey(KeyCode.S)) input.y -= 1;
-                if (Input.GetKey(KeyCode.A)) input.x -= 1; if (Input.GetKey(KeyCode.D)) input.x += 1; break;
-            case InputJoinManager.InputType.KeyboardArrows:
-                if (Input.GetKey(KeyCode.UpArrow)) input.y += 1; if (Input.GetKey(KeyCode.DownArrow)) input.y -= 1;
-                if (Input.GetKey(KeyCode.LeftArrow)) input.x -= 1; if (Input.GetKey(KeyCode.RightArrow)) input.x += 1; break;
-            case InputJoinManager.InputType.Gamepad:
-                input.x = Input.GetAxis("Horizontal"); input.y = Input.GetAxis("Vertical"); break;
-        }
-        return input.normalized;
+        return sharedInput != null ? sharedInput.Movement : Vector2.zero;
     }
 
     bool GetRunInput()
     {
-        var type = playerNumber == 1 ? InputJoinManager.player1Input : InputJoinManager.player2Input;
-        switch (type)
-        {
-            case InputJoinManager.InputType.KeyboardWASD: return Input.GetKey(KeyCode.LeftShift);
-            case InputJoinManager.InputType.KeyboardArrows: return Input.GetKey(KeyCode.RightShift);
-        }
-        return false;
+        return sharedInput != null && sharedInput.RunHeld;
     }
 
     bool GetAttackHeld()
     {
-        var type = playerNumber == 1 ? InputJoinManager.player1Input : InputJoinManager.player2Input;
-        switch (type)
-        {
-            case InputJoinManager.InputType.KeyboardWASD: return Input.GetKey(KeyCode.Space);
-            case InputJoinManager.InputType.KeyboardArrows: return Input.GetKey(KeyCode.Keypad1);
-        }
-        return false;
+        return sharedInput != null &&
+               (sharedInput.GetAction(PlayerControlAction.LightAttack) ||
+                sharedInput.GetAction(PlayerControlAction.HeavyAttack));
     }
 
     // ═══════════ EASING ═══════════

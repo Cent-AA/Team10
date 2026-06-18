@@ -28,6 +28,7 @@ public class BG3PortraitHealthBar : MonoBehaviour
     private float nextAutoFindTime;
     private Sprite generatedGraySprite;
     private PlayerController boundPlayer;
+    private PlayerSharedHealth boundSharedHealth;
 
     public int PlayerNumber => playerNumber;
 
@@ -56,7 +57,7 @@ public class BG3PortraitHealthBar : MonoBehaviour
 
     private void Update()
     {
-        if (boundPlayer == null && autoFindPlayer && Time.unscaledTime >= nextAutoFindTime)
+        if (boundPlayer == null && boundSharedHealth == null && autoFindPlayer && Time.unscaledTime >= nextAutoFindTime)
         {
             nextAutoFindTime = Time.unscaledTime + autoFindInterval;
             TryAutoBind();
@@ -104,6 +105,37 @@ public class BG3PortraitHealthBar : MonoBehaviour
         ApplyHealthInstant();
     }
 
+    public void Bind(PlayerSharedHealth sharedHealth)
+    {
+        if (sharedHealth != null)
+        {
+            SetPlayerNumber(GetSharedPlayerNumber(sharedHealth));
+        }
+
+        if (boundSharedHealth == sharedHealth)
+        {
+            if (boundSharedHealth != null)
+            {
+                SetHealth(boundSharedHealth.currentHealth, boundSharedHealth.maxHealth);
+                ApplyHealthInstant();
+            }
+
+            return;
+        }
+
+        Unbind();
+        boundSharedHealth = sharedHealth;
+
+        if (boundSharedHealth == null)
+        {
+            return;
+        }
+
+        boundSharedHealth.OnHealthChanged += SetHealth;
+        SetHealth(boundSharedHealth.currentHealth, boundSharedHealth.maxHealth);
+        ApplyHealthInstant();
+    }
+
     public void SetPlayerNumber(int number)
     {
         int newPlayerNumber = Mathf.Max(1, number);
@@ -118,6 +150,11 @@ public class BG3PortraitHealthBar : MonoBehaviour
         {
             Unbind();
         }
+
+        if (boundSharedHealth != null && GetSharedPlayerNumber(boundSharedHealth) != playerNumber)
+        {
+            Unbind();
+        }
     }
 
     public void Unbind()
@@ -126,6 +163,12 @@ public class BG3PortraitHealthBar : MonoBehaviour
         {
             boundPlayer.OnHealthChanged -= SetHealth;
             boundPlayer = null;
+        }
+
+        if (boundSharedHealth != null)
+        {
+            boundSharedHealth.OnHealthChanged -= SetHealth;
+            boundSharedHealth = null;
         }
     }
 
@@ -310,9 +353,9 @@ public class BG3PortraitHealthBar : MonoBehaviour
 
     private bool TryAutoBind()
     {
-        if (!autoFindPlayer || boundPlayer != null)
+        if (!autoFindPlayer || boundPlayer != null || boundSharedHealth != null)
         {
-            return boundPlayer != null;
+            return boundPlayer != null || boundSharedHealth != null;
         }
 
         InferPlayerNumberFromName();
@@ -331,6 +374,15 @@ public class BG3PortraitHealthBar : MonoBehaviour
                 Bind(player);
                 return true;
             }
+
+            PlayerSharedHealth sharedHealth = playerTransform.GetComponent<PlayerSharedHealth>();
+            if (sharedHealth == null) sharedHealth = playerTransform.GetComponentInChildren<PlayerSharedHealth>();
+
+            if (sharedHealth != null && GetSharedPlayerNumber(sharedHealth) == playerNumber)
+            {
+                Bind(sharedHealth);
+                return true;
+            }
         }
 
         PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsInactive.Exclude);
@@ -343,7 +395,45 @@ public class BG3PortraitHealthBar : MonoBehaviour
             }
         }
 
+        PlayerSharedHealth[] sharedHealths = FindObjectsByType<PlayerSharedHealth>(FindObjectsInactive.Exclude);
+        for (int i = 0; i < sharedHealths.Length; i++)
+        {
+            if (sharedHealths[i] != null && GetSharedPlayerNumber(sharedHealths[i]) == playerNumber)
+            {
+                Bind(sharedHealths[i]);
+                return true;
+            }
+        }
+
         return false;
+    }
+
+    private int GetSharedPlayerNumber(PlayerSharedHealth sharedHealth)
+    {
+        if (sharedHealth == null)
+        {
+            return playerNumber;
+        }
+
+        PlayerSharedInput input = sharedHealth.GetComponent<PlayerSharedInput>();
+        if (input != null)
+        {
+            return input.playerNumber;
+        }
+
+        EngineerController engineer = sharedHealth.GetComponent<EngineerController>();
+        if (engineer != null)
+        {
+            return engineer.playerNumber;
+        }
+
+        PlayerController player = sharedHealth.GetComponent<PlayerController>();
+        if (player != null)
+        {
+            return player.playerNumber;
+        }
+
+        return playerNumber;
     }
 
     private void InferPlayerNumberFromName()

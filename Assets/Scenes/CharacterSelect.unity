@@ -1188,7 +1188,7 @@ MonoBehaviour:
   exitForestDuration: 2
   pauseBehindForest: 0
   menuSceneName: MainMenu
-  arenaSceneName: TestArena
+  arenaSceneName: TestArena_PrototypeMVP
   forestStartPos: {x: 0, y: 160}
   forestEndPos: {x: -2700, y: 0}
   bushStartPos: {x: 1081, y: -82}

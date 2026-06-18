@@ -42,6 +42,7 @@ public class ZombieAI : MonoBehaviour
 
     private Transform target;
     private PlayerController targetPlayer;
+    private EngineerController targetEngineer;
     private Collider2D cachedCollider;
     private float attackTimer;
     private float loseTargetTimer;
@@ -147,6 +148,7 @@ public class ZombieAI : MonoBehaviour
         currentState = ZombieState.MoveToCampfire;
         target = null;
         targetPlayer = null;
+        targetEngineer = null;
         attackTimer = 0f;
         loseTargetTimer = loseTargetTime;
         targetRefreshTimer = 0f;
@@ -207,12 +209,11 @@ public class ZombieAI : MonoBehaviour
         float closestDistSqr = detectRange * detectRange;
         Transform closest = null;
 
-        for (int i = 0; i < Registry.PlayerControllers.Count; i++)
+        for (int i = 0; i < Registry.Players.Count; i++)
         {
-            PlayerController player = Registry.PlayerControllers[i];
-            if (!IsValidPlayerController(player)) continue;
+            Transform playerTransform = Registry.Players[i];
+            if (!IsValidPlayerTarget(playerTransform)) continue;
 
-            Transform playerTransform = player.transform;
             float distSqr = ((Vector2)playerTransform.position - (Vector2)transform.position).sqrMagnitude;
             if (distSqr < closestDistSqr)
             {
@@ -226,12 +227,38 @@ public class ZombieAI : MonoBehaviour
 
     bool IsValidPlayerTarget(Transform player)
     {
-        return IsValidPlayerController(Registry.GetPlayerController(player));
+        if (player == null)
+            return false;
+
+        PlayerController playerController = Registry.GetPlayerController(player);
+        if (IsValidPlayerController(playerController))
+            return true;
+
+        return IsValidEngineerController(GetEngineerController(player));
     }
 
     bool IsValidPlayerController(PlayerController controller)
     {
         return controller != null && controller.currentHealth > 0f;
+    }
+
+    bool IsValidEngineerController(EngineerController controller)
+    {
+        return controller != null && controller.currentHealth > 0f;
+    }
+
+    EngineerController GetEngineerController(Transform player)
+    {
+        if (player == null)
+            return null;
+
+        EngineerController engineer = player.GetComponent<EngineerController>();
+        if (engineer == null)
+            engineer = player.GetComponentInChildren<EngineerController>();
+        if (engineer == null)
+            engineer = player.GetComponentInParent<EngineerController>();
+
+        return engineer;
     }
 
     void SetTarget(Transform newTarget)
@@ -240,6 +267,7 @@ public class ZombieAI : MonoBehaviour
 
         target = newTarget;
         targetPlayer = Registry.GetPlayerController(newTarget);
+        targetEngineer = GetEngineerController(newTarget);
         loseTargetTimer = loseTargetTime;
         currentState = ZombieState.Chase;
     }
@@ -248,6 +276,7 @@ public class ZombieAI : MonoBehaviour
     {
         target = null;
         targetPlayer = null;
+        targetEngineer = null;
         committedToTarget = false;
         groupedPlayersTimer = 0f;
         loseTargetTimer = loseTargetTime;
@@ -264,12 +293,12 @@ public class ZombieAI : MonoBehaviour
         int playersNearTarget = 0;
         float groupDistSqr = groupedPlayersDistance * groupedPlayersDistance;
 
-        for (int i = 0; i < Registry.PlayerControllers.Count; i++)
+        for (int i = 0; i < Registry.Players.Count; i++)
         {
-            PlayerController player = Registry.PlayerControllers[i];
-            if (!IsValidPlayerController(player)) continue;
+            Transform player = Registry.Players[i];
+            if (!IsValidPlayerTarget(player)) continue;
 
-            float distSqr = ((Vector2)player.transform.position - (Vector2)target.position).sqrMagnitude;
+            float distSqr = ((Vector2)player.position - (Vector2)target.position).sqrMagnitude;
             if (distSqr <= groupDistSqr)
             {
                 playersNearTarget++;
@@ -373,6 +402,15 @@ public class ZombieAI : MonoBehaviour
                 Vector2 knockDir = delta.sqrMagnitude > 0.0001f ? delta.normalized : Vector2.right;
                 player.TakeDamage(attackDamage, knockDir);
                 ArenaCamera.Shake(0.3f, 0.1f);
+                return;
+            }
+
+            EngineerController engineer = targetEngineer != null ? targetEngineer : GetEngineerController(target);
+            if (engineer != null)
+            {
+                Vector2 knockDir = delta.sqrMagnitude > 0.0001f ? delta.normalized : Vector2.right;
+                engineer.TakeDamage(attackDamage, knockDir, transform);
+                ArenaCamera.Shake(0.3f, 0.1f);
             }
         }
     }
@@ -415,8 +453,7 @@ public class ZombieAI : MonoBehaviour
     {
         if (attacker == null || committedToTarget) return;
 
-        PlayerController attackerController = Registry.GetPlayerController(attacker);
-        if (!IsValidPlayerController(attackerController)) return;
+        if (!IsValidPlayerTarget(attacker)) return;
 
         float distSqr = ((Vector2)attacker.position - (Vector2)transform.position).sqrMagnitude;
         if (distSqr > attackerSwitchRange * attackerSwitchRange) return;

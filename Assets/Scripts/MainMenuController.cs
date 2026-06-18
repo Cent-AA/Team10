@@ -79,6 +79,7 @@ public class MainMenuController : MonoBehaviour
         PlayerPrefs.Save();
         audioPrefsDirty = false;
     }
+
     public void OpenOptions()
     {
         if (mainMenuPanel != null)
