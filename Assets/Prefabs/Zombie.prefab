@@ -206,7 +206,6 @@ MonoBehaviour:
   moveSpeed: 4
   runSpeed: 8
   campfireStopDistance: 0.8
-  campfireTarget: {fileID: 0}
   detectRange: 25
   chaseRange: 10
   attackRange: 2.5

@@ -39,11 +39,7 @@ public class PrototypeCampfireHealth : MonoBehaviour
     void Start()
     {
         if (campfire == null)
-        {
-            CampfireController controller = FindFirstObjectByType<CampfireController>();
-            if (controller != null)
-                campfire = controller.transform;
-        }
+            campfire = FindCampfireTransform();
 
         CreateHud();
         UpdateHud();
@@ -177,5 +173,14 @@ public class PrototypeCampfireHealth : MonoBehaviour
         Transform target = campfire != null ? campfire : transform;
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(target.position, damageRadius);
+    }
+
+    static Transform FindCampfireTransform()
+    {
+        GameObject campfireObject = GameObject.Find("CampFire");
+        if (campfireObject == null)
+            campfireObject = GameObject.Find("Campfire");
+
+        return campfireObject != null ? campfireObject.transform : null;
     }
 }

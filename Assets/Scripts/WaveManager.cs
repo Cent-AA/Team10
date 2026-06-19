@@ -56,10 +56,7 @@ public class WaveManager : MonoBehaviour
     void Start()
     {
         if (campfireTarget == null)
-        {
-            CampfireController campfire = FindAnyObjectByType<CampfireController>();
-            if (campfire != null) campfireTarget = campfire.transform;
-        }
+            campfireTarget = FindCampfireTransform();
 
         CacheZombieBaseStats();
         PrewarmZombiePool();
@@ -334,5 +331,14 @@ public class WaveManager : MonoBehaviour
     public int GetCurrentWave() => currentWave;
     public int GetZombiesAlive() => zombiesAlive;
     public bool IsWaveInProgress() => waveInProgress;
+
+    static Transform FindCampfireTransform()
+    {
+        GameObject campfireObject = GameObject.Find("CampFire");
+        if (campfireObject == null)
+            campfireObject = GameObject.Find("Campfire");
+
+        return campfireObject != null ? campfireObject.transform : null;
+    }
 }
 

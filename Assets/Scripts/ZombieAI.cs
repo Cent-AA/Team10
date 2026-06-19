@@ -12,6 +12,7 @@ public class ZombieAI : MonoBehaviour
     public float campfireStopDistance = 0.8f;
 
     [Header("Targeting")]
+    [System.NonSerialized]
     public Transform campfireTarget;
     public float detectRange = 8f;
     public float chaseRange = 12f;
@@ -61,14 +62,14 @@ public class ZombieAI : MonoBehaviour
 
     void Awake()
     {
-        if (rb == null) rb = GetComponent<Rigidbody2D>();
-        if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
-        cachedCollider = GetComponent<Collider2D>();
+        CacheComponents();
         originalColor = spriteRenderer != null ? spriteRenderer.color : Color.white;
     }
 
     void OnEnable()
     {
+        CacheComponents();
+        EnsureCampfireTarget();
         Registry.RegisterZombie(this);
     }
 
@@ -84,14 +85,10 @@ public class ZombieAI : MonoBehaviour
 
     void Start()
     {
+        CacheComponents();
         currentHealth = maxHealth;
         loseTargetTimer = loseTargetTime;
-
-        if (campfireTarget == null)
-        {
-            CampfireController campfire = FindAnyObjectByType<CampfireController>();
-            if (campfire != null) campfireTarget = campfire.transform;
-        }
+        EnsureCampfireTarget();
     }
 
     void Update()
@@ -142,7 +139,11 @@ public class ZombieAI : MonoBehaviour
         StopAllCoroutines();
         CancelInvoke();
 
-        campfireTarget = newCampfireTarget;
+        CacheComponents();
+        if (newCampfireTarget != null)
+            campfireTarget = newCampfireTarget;
+        EnsureCampfireTarget();
+
         currentHealth = maxHealth;
         isDead = false;
         currentState = ZombieState.MoveToCampfire;
@@ -321,8 +322,16 @@ public class ZombieAI : MonoBehaviour
 
     void MoveToCampfire()
     {
-        Vector2 destination = campfireTarget != null ? (Vector2)campfireTarget.position : Vector2.zero;
-        Vector2 delta = destination - rb.position;
+        EnsureCampfireTarget();
+        if (campfireTarget == null)
+        {
+            currentState = ZombieState.Idle;
+            return;
+        }
+
+        Vector2 currentPosition = GetMovementPosition();
+        Vector2 destination = campfireTarget.position;
+        Vector2 delta = destination - currentPosition;
 
         if (delta.sqrMagnitude <= campfireStopDistance * campfireStopDistance)
         {
@@ -331,7 +340,7 @@ public class ZombieAI : MonoBehaviour
         }
 
         currentState = ZombieState.MoveToCampfire;
-        rb.MovePosition(rb.position + delta.normalized * moveSpeed * Time.deltaTime);
+        MoveCharacter(currentPosition + delta.normalized * moveSpeed * Time.deltaTime);
     }
 
     void UpdateChase()
@@ -342,7 +351,8 @@ public class ZombieAI : MonoBehaviour
             return;
         }
 
-        Vector2 delta = (Vector2)target.position - rb.position;
+        Vector2 currentPosition = GetMovementPosition();
+        Vector2 delta = (Vector2)target.position - currentPosition;
         float distSqr = delta.sqrMagnitude;
         currentTargetDistanceSqr = distSqr;
 
@@ -372,7 +382,7 @@ public class ZombieAI : MonoBehaviour
 
         float runThresholdSqr = detectRange * detectRange * 0.25f;
         float speed = distSqr > runThresholdSqr ? runSpeed : moveSpeed;
-        rb.MovePosition(rb.position + delta.normalized * speed * Time.deltaTime);
+        MoveCharacter(currentPosition + delta.normalized * speed * Time.deltaTime);
     }
 
     void PerformAttack()
@@ -478,13 +488,12 @@ public class ZombieAI : MonoBehaviour
 
     System.Collections.IEnumerator Knockback(Vector2 dir)
     {
-        if (rb == null) yield break;
-
         float elapsed = 0f;
         while (elapsed < 0.15f)
         {
             elapsed += Time.fixedDeltaTime;
-            rb.MovePosition(rb.position + dir * knockbackForce * Time.fixedDeltaTime);
+            Vector2 currentPosition = GetMovementPosition();
+            MoveCharacter(currentPosition + dir * knockbackForce * Time.fixedDeltaTime);
             yield return new WaitForFixedUpdate();
         }
     }
@@ -533,7 +542,10 @@ public class ZombieAI : MonoBehaviour
             return;
         }
 
-        Vector2 destination = campfireTarget != null ? (Vector2)campfireTarget.position : Vector2.zero;
+        EnsureCampfireTarget();
+        if (campfireTarget == null) return;
+
+        Vector2 destination = campfireTarget.position;
         Vector2 dir = destination - (Vector2)transform.position;
         if (Mathf.Abs(dir.x) > 0.1f)
         {
@@ -552,5 +564,42 @@ public class ZombieAI : MonoBehaviour
         Gizmos.color = Color.green;
         Vector3 center = campfireTarget != null ? campfireTarget.position : Vector3.zero;
         Gizmos.DrawWireSphere(center, campfireStopDistance);
+    }
+
+    void CacheComponents()
+    {
+        if (rb == null) rb = GetComponent<Rigidbody2D>();
+        if (animator == null) animator = GetComponent<Animator>();
+        if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
+        if (cachedCollider == null) cachedCollider = GetComponent<Collider2D>();
+    }
+
+    void EnsureCampfireTarget()
+    {
+        if (campfireTarget != null)
+            return;
+
+        GameObject campfireObject = GameObject.Find("CampFire");
+        if (campfireObject == null)
+            campfireObject = GameObject.Find("Campfire");
+
+        if (campfireObject != null)
+            campfireTarget = campfireObject.transform;
+    }
+
+    Vector2 GetMovementPosition()
+    {
+        return rb != null ? rb.position : (Vector2)transform.position;
+    }
+
+    void MoveCharacter(Vector2 nextPosition)
+    {
+        if (rb != null)
+        {
+            rb.MovePosition(nextPosition);
+            return;
+        }
+
+        transform.position = new Vector3(nextPosition.x, nextPosition.y, transform.position.z);
     }
 }
