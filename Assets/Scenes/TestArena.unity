@@ -2137,7 +2137,7 @@ CircleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: -0.5}
   m_Radius: 4.5
 --- !u!212 &618099598
 SpriteRenderer:
