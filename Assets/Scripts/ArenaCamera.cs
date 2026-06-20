@@ -52,6 +52,11 @@ public class ArenaCamera : MonoBehaviour
     public float dividerMaxWidth = 3f;
 
     [Header("Shake")]
+    public bool cameraShakeEnabled = true;
+    public bool disableShakeDuringSplitScreen = true;
+    [Range(1f, 10f)] public float shakeIntensityLevel = 3f;
+    [Range(0f, 1f)] public float splitScreenShakeMultiplier = 0.25f;
+    public float maxShakeOffset = 0.45f;
     public float shakeDamping = 8f;
 
     [Header("Map Bounds")]
@@ -608,19 +613,44 @@ public class ArenaCamera : MonoBehaviour
 
     void UpdateShake()
     {
+        float shakeScale = GetShakeScale();
+        if (shakeScale <= 0f)
+        {
+            shakeOffset = Vector3.Lerp(shakeOffset, Vector3.zero, Time.deltaTime * shakeDamping);
+            shakeIntensity = 0f;
+            shakeDuration = 0f;
+            return;
+        }
+
         if (shakeDuration > 0f)
         {
             shakeDuration -= Time.deltaTime;
+            float effectiveIntensity = Mathf.Min(shakeIntensity * shakeScale, maxShakeOffset);
             shakeOffset = new Vector3(
                 (Random.value - 0.5f) * 2f,
                 (Random.value - 0.5f) * 2f,
-                0f) * shakeIntensity;
+                0f) * effectiveIntensity;
         }
         else
         {
             shakeOffset = Vector3.Lerp(shakeOffset, Vector3.zero, Time.deltaTime * shakeDamping);
             shakeIntensity = 0f;
         }
+    }
+
+    float GetShakeScale()
+    {
+        if (!cameraShakeEnabled)
+            return 0f;
+
+        if (IsSplitScreenActive && disableShakeDuringSplitScreen)
+            return 0f;
+
+        float levelScale = Mathf.Clamp(shakeIntensityLevel, 1f, 10f) / 10f;
+        if (IsSplitScreenActive)
+            levelScale *= Mathf.Clamp01(splitScreenShakeMultiplier);
+
+        return levelScale;
     }
 
     void OnDisable()
@@ -679,6 +709,10 @@ public class ArenaCamera : MonoBehaviour
         splitDeadZone.y = Mathf.Max(0f, splitDeadZone.y);
         dividerLineWidth = Mathf.Max(0f, dividerLineWidth);
         dividerMaxWidth = Mathf.Max(dividerLineWidth, dividerMaxWidth);
+        shakeIntensityLevel = Mathf.Clamp(shakeIntensityLevel, 1f, 10f);
+        splitScreenShakeMultiplier = Mathf.Clamp01(splitScreenShakeMultiplier);
+        maxShakeOffset = Mathf.Max(0f, maxShakeOffset);
+        shakeDamping = Mathf.Max(0f, shakeDamping);
 
         if (splitEase == null || splitEase.length == 0)
         {

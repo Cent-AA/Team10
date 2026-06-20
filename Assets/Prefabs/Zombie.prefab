@@ -203,8 +203,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZombieAI
   maxHealth: 600
-  moveSpeed: 4
-  runSpeed: 8
+  moveSpeed: 3
+  runSpeed: 5
   campfireStopDistance: 0.8
   detectRange: 25
   chaseRange: 10

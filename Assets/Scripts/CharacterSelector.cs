@@ -55,6 +55,7 @@ public class CharacterSelector : MonoBehaviour
     private float p2FloatAmount = 1f;
     private bool active = false;
     private bool bothConfirmed = false;
+    private bool missingTransitionLogged = false;
 
     public void Activate() 
     { 
@@ -71,6 +72,7 @@ public class CharacterSelector : MonoBehaviour
         }
 
         CacheCardImages();
+        ClampSelections();
     }
 
     void Update()
@@ -89,15 +91,16 @@ public class CharacterSelector : MonoBehaviour
             player1Character = p1Selection;
             player2Character = p2Selection;
 
-            // ⬇️ ВОТ ЗДЕСЬ МЫ СОХРАНЯЕМ ВЫБОР ДЛЯ СЦЕНЫ АРЕНЫ ⬇️
-            PlayerPrefs.SetInt("P1_Character", p1Selection);
-            PlayerPrefs.SetInt("P2_Character", p2Selection);
-            PlayerPrefs.Save(); // Принудительно записываем в память
-            // ⬆️ ----------------------------------------------- ⬆️
+            SaveSelection();
 
             // Запускаем переход в арену
             if (transition != null)
                 transition.GoToArena();
+            else if (!missingTransitionLogged)
+            {
+                missingTransitionLogged = true;
+                Debug.LogError("CharacterSelector: transition is not assigned, arena transition cannot start.", this);
+            }
         }
     }
 
@@ -115,6 +118,9 @@ public class CharacterSelector : MonoBehaviour
 
     void HandlePlayerInput(int playerNumber, InputJoinManager.InputType type, int gamepadIndex, ref int selection, ref bool confirmed)
     {
+        if (!HasCards()) return;
+
+        selection = ClampSelection(selection);
         bool left = GetActionDown(playerNumber, type, gamepadIndex, PlayerControlAction.SelectLeft);
         bool right = GetActionDown(playerNumber, type, gamepadIndex, PlayerControlAction.SelectRight);
         bool confirm = GetActionDown(playerNumber, type, gamepadIndex, PlayerControlAction.Confirm);
@@ -158,11 +164,25 @@ public class CharacterSelector : MonoBehaviour
 
     void MoveToCard(RectTransform element, int selection)
     {
-        if (element == null || selection >= characterCards.Length) return;
-        Vector2 cardPos = characterCards[selection].anchoredPosition;
-        float cardHeight = characterCards[selection].sizeDelta.y;
-        Vector2 target = new Vector2(cardPos.x, cardPos.y + cardHeight / 2f + arrowOffsetY);
+        RectTransform card = GetCard(selection);
+        if (element == null || card == null) return;
+
+        Vector2 target = GetElementLocalPositionAboveCard(element, card, arrowOffsetY);
         element.anchoredPosition = Vector2.Lerp(element.anchoredPosition, target, Time.deltaTime * arrowMoveSpeed);
+    }
+
+    Vector2 GetElementLocalPositionAboveCard(RectTransform element, RectTransform card, float offsetY)
+    {
+        float topFromPivot = card.rect.height * (1f - card.pivot.y);
+        Vector3 cardLocalTarget = new Vector3(0f, topFromPivot + offsetY, 0f);
+        Vector3 worldTarget = card.TransformPoint(cardLocalTarget);
+
+        Transform elementParent = element.parent;
+        if (elementParent == null)
+            return element.anchoredPosition;
+
+        Vector3 localTarget = elementParent.InverseTransformPoint(worldTarget);
+        return new Vector2(localTarget.x, localTarget.y);
     }
 
     void UpdateFloating()
@@ -201,14 +221,19 @@ public class CharacterSelector : MonoBehaviour
 
     void UpdateCardVisuals()
     {
+        if (!HasCards()) return;
+
         for (int i = 0; i < characterCards.Length; i++)
         {
+            RectTransform card = characterCards[i];
+            if (card == null) continue;
+
             bool isP1 = (i == p1Selection);
             bool isP2 = (i == p2Selection);
             float targetScale = (isP1 || isP2) ? selectedScale : 1f;
-            float current = characterCards[i].localScale.x;
+            float current = card.localScale.x;
             float newScale = Mathf.Lerp(current, targetScale, Time.deltaTime * scaleSpeed);
-            characterCards[i].localScale = new Vector3(newScale, newScale, 1f);
+            card.localScale = new Vector3(newScale, newScale, 1f);
 
             Image img = characterCardImages != null && i < characterCardImages.Length ? characterCardImages[i] : null;
             if (img != null)
@@ -221,6 +246,37 @@ public class CharacterSelector : MonoBehaviour
                 img.color = Color.Lerp(img.color, target, Time.deltaTime * scaleSpeed);
             }
         }
+    }
+
+    bool HasCards()
+    {
+        return characterCards != null && characterCards.Length > 0;
+    }
+
+    RectTransform GetCard(int selection)
+    {
+        if (!HasCards()) return null;
+        selection = ClampSelection(selection);
+        return characterCards[selection];
+    }
+
+    void ClampSelections()
+    {
+        p1Selection = ClampSelection(p1Selection);
+        p2Selection = ClampSelection(p2Selection);
+    }
+
+    int ClampSelection(int selection)
+    {
+        if (!HasCards()) return 0;
+        return Mathf.Clamp(selection, 0, characterCards.Length - 1);
+    }
+
+    void SaveSelection()
+    {
+        PlayerPrefs.SetInt("P1_Character", p1Selection);
+        PlayerPrefs.SetInt("P2_Character", p2Selection);
+        PlayerPrefs.Save();
     }
 
     void PlaySound(AudioClip clip)

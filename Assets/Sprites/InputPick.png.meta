@@ -1,19 +1,76 @@
 fileFormatVersion: 2
-guid: 765ae8e3a21952344b70f84d10dc015d
+guid: 926214040cd2f9144968987c10d2f012
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -2823838568841336431
-    second: Keyboard_0
+      213: 4091699357427080358
+    second: InputPick_0
   - first:
-      213: 6085385420470213244
-    second: Keyboard_1
+      213: 7789900865200957191
+    second: InputPick_1
   - first:
-      213: -577686727893085468
-    second: Keyboard_2
+      213: 8940046964600892139
+    second: InputPick_2
   - first:
-      213: 9153071815677446063
-    second: Keyboard_3
+      213: 7755755954679691201
+    second: InputPick_3
+  - first:
+      213: -8061065748333976613
+    second: InputPick_4
+  - first:
+      213: -763557765087857899
+    second: InputPick_5
+  - first:
+      213: -7833570619184750783
+    second: InputPick_6
+  - first:
+      213: 3671264276509193728
+    second: InputPick_7
+  - first:
+      213: 7693012483804887327
+    second: InputPick_8
+  - first:
+      213: 1669371066426661412
+    second: InputPick_9
+  - first:
+      213: 7514373671509092830
+    second: InputPick_10
+  - first:
+      213: -1453693651908656532
+    second: InputPick_11
+  - first:
+      213: -5264812717366984375
+    second: InputPick_12
+  - first:
+      213: 8491184619069639302
+    second: InputPick_13
+  - first:
+      213: -1828016872780643025
+    second: InputPick_14
+  - first:
+      213: -240963647249381253
+    second: InputPick_15
+  - first:
+      213: -4533912461232405348
+    second: InputPick_16
+  - first:
+      213: -2558719931451944969
+    second: InputPick_17
+  - first:
+      213: 1705008755471798058
+    second: InputPick_18
+  - first:
+      213: 8777481971370138693
+    second: InputPick_19
+  - first:
+      213: 5652495678234750535
+    second: InputPick_20
+  - first:
+      213: -1591572475728595209
+    second: InputPick_21
+  - first:
+      213: -8442586854284139225
+    second: InputPick_22
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +103,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -55,12 +112,12 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 32
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -84,7 +141,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -109,89 +166,45 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Keyboard_0
-      rect:
-        serializedVersion: 2
-        x: 71
-        y: 71
-        width: 66
-        height: 65
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 1992a2178c5bfc8d0800000000000000
-      internalID: -2823838568841336431
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Keyboard_1
+      name: InputPick_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 65
-        height: 65
+        width: 235
+        height: 32
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c7ad7745cc1a37450800000000000000
-      internalID: 6085385420470213244
+      spriteID: 6ac922703e2a8c830800000000000000
+      internalID: 4091699357427080358
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Keyboard_2
+      name: InputPick_1
       rect:
         serializedVersion: 2
-        x: 71
+        x: 235
         y: 0
-        width: 66
-        height: 65
+        width: 235
+        height: 32
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 4e299705bf4abf7f0800000000000000
-      internalID: -577686727893085468
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Keyboard_3
-      rect:
-        serializedVersion: 2
-        x: 143
-        y: 0
-        width: 65
-        height: 65
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: fa70811425e360f70800000000000000
-      internalID: 9153071815677446063
+      spriteID: 707afc170994b1c60800000000000000
+      internalID: 7789900865200957191
       vertices: []
       indices: 
       edges: []
@@ -200,7 +213,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: e84dbd8a9d7d2e448a2456e9511adf15
     internalID: 0
     vertices: []
     indices: 
@@ -208,12 +221,12 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":235.0,"y":32.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      Keyboard_0: -2823838568841336431
-      Keyboard_1: 6085385420470213244
-      Keyboard_2: -577686727893085468
-      Keyboard_3: 9153071815677446063
+      InputPick_0: 4091699357427080358
+      InputPick_1: 7789900865200957191
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
