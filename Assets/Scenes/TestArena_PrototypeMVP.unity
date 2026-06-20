@@ -1908,6 +1908,7 @@ GameObject:
   m_Component:
   - component: {fileID: 561587939}
   - component: {fileID: 561587938}
+  - component: {fileID: 561587940}
   m_Layer: 0
   m_Name: CharacterSpawner
   m_TagString: Untagged
@@ -1951,6 +1952,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &561587940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 561587937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3eb1a367db2754730a8acbb6ae70115c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PortraitLoader
+  p1HealthBar: {fileID: 62201644}
+  p2HealthBar: {fileID: 1289509751}
+  characterSprites:
+  - {fileID: -3039921426061767202, guid: c6d227cf86ede2040a959782329ae283, type: 3}
+  - {fileID: -479786652, guid: c6d227cf86ede2040a959782329ae283, type: 3}
+  - {fileID: -1762469616, guid: c6d227cf86ede2040a959782329ae283, type: 3}
+  - {fileID: -1114435946, guid: c6d227cf86ede2040a959782329ae283, type: 3}
 --- !u!1 &592600059
 GameObject:
   m_ObjectHideFlags: 0

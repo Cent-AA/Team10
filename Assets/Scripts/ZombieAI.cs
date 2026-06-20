@@ -38,6 +38,11 @@ public class ZombieAI : MonoBehaviour
     public float hitFlashDuration = 0.1f;
     public float deathDespawnDelay = 3f;
 
+    [Header("Ammo Drops")]
+    [Range(0f, 1f)] public float ammoDropChance = 0.08f;
+    public Vector2Int ammoDropAmountRange = new Vector2Int(3, 8);
+    public float ammoDropScatter = 0.35f;
+
     public enum ZombieState { Idle, MoveToCampfire, Chase, Attack, Hit, Dead }
     private ZombieState currentState = ZombieState.MoveToCampfire;
 
@@ -511,12 +516,25 @@ public class ZombieAI : MonoBehaviour
 
         if (rb != null) rb.bodyType = RigidbodyType2D.Kinematic;
 
+        TryDropAmmo();
         OnDied?.Invoke(this);
 
         if (!poolManaged)
         {
             Destroy(gameObject, deathDespawnDelay);
         }
+    }
+
+    void TryDropAmmo()
+    {
+        if (ammoDropChance <= 0f || Random.value > ammoDropChance)
+            return;
+
+        int min = Mathf.Max(1, ammoDropAmountRange.x);
+        int max = Mathf.Max(min, ammoDropAmountRange.y);
+        int amount = Random.Range(min, max + 1);
+        Vector2 scatter = Random.insideUnitCircle * Mathf.Max(0f, ammoDropScatter);
+        AmmoPickup.Spawn(transform.position + (Vector3)scatter, amount);
     }
 
     void UpdateAnimator()

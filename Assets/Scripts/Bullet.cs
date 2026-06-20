@@ -96,16 +96,33 @@ public class Bullet : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player")) return;
+        if (collision == null || IsOwnerCollision(collision))
+            return;
 
-        ZombieAI zombie = collision.GetComponent<ZombieAI>();
-        if (zombie != null)
+        ZombieAI zombie = collision.GetComponentInParent<ZombieAI>();
+        if (zombie != null && zombie.IsAlive)
         {
             Vector2 knockbackDir = transform.right;
             zombie.TakeDamage(damage, knockbackDir, owner);
+            ReturnToPool();
+            return;
         }
 
-        ReturnToPool();
+        PrototypeReviveTarget reviveTarget = collision.GetComponentInParent<PrototypeReviveTarget>();
+        if (reviveTarget != null && reviveTarget.IsDowned)
+        {
+            reviveTarget.ReceiveReviveDamage(damage, owner);
+            ReturnToPool();
+        }
+    }
+
+    bool IsOwnerCollision(Collider2D collision)
+    {
+        if (owner == null)
+            return false;
+
+        Transform hit = collision.transform;
+        return hit == owner || hit.IsChildOf(owner);
     }
 
     void ReturnToPool()

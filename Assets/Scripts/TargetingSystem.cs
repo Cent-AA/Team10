@@ -55,6 +55,13 @@ public class TargetingSystem : MonoBehaviour
 
     void FindTarget()
     {
+        Transform downedAlly = FindClosestDownedAlly();
+        if (downedAlly != null)
+        {
+            currentTarget = downedAlly;
+            return;
+        }
+
         int hitCount = Physics2D.OverlapCircle(transform.position, detectRange, targetFilter, targetHitBuffer);
         float closestDistSqr = autoTargetRange * autoTargetRange;
         Transform closest = null;
@@ -73,20 +80,13 @@ public class TargetingSystem : MonoBehaviour
                 continue;
             }
 
-            if (hit.TryGetComponent(out ZombieAI zombie))
+            ZombieAI zombie = hit.GetComponentInParent<ZombieAI>();
+            if (zombie != null)
             {
                 if (zombie.IsAlive)
                 {
                     closestDistSqr = distSqr;
-                    closest = hit.transform;
-                }
-            }
-            else if (hit.TryGetComponent(out PlayerController player))
-            {
-                if (player.currentHealth > 0 && player.playerNumber != playerNumber)
-                {
-                    closestDistSqr = distSqr;
-                    closest = hit.transform;
+                    closest = zombie.transform;
                 }
             }
 
@@ -94,6 +94,40 @@ public class TargetingSystem : MonoBehaviour
         }
 
         currentTarget = closest;
+    }
+
+    Transform FindClosestDownedAlly()
+    {
+        float closestDistSqr = detectRange * detectRange;
+        Transform closest = null;
+        Vector2 selfPosition = transform.position;
+
+        Registry.CleanupPlayers();
+        for (int i = 0; i < Registry.Players.Count; i++)
+        {
+            Transform player = Registry.Players[i];
+            if (player == null || IsSelf(player)) continue;
+
+            PrototypeReviveTarget reviveTarget = player.GetComponent<PrototypeReviveTarget>();
+            if (reviveTarget == null)
+                reviveTarget = player.GetComponentInChildren<PrototypeReviveTarget>();
+
+            if (reviveTarget == null || !reviveTarget.IsDowned) continue;
+
+            float distSqr = ((Vector2)reviveTarget.transform.position - selfPosition).sqrMagnitude;
+            if (distSqr < closestDistSqr)
+            {
+                closestDistSqr = distSqr;
+                closest = reviveTarget.transform;
+            }
+        }
+
+        return closest;
+    }
+
+    bool IsSelf(Transform candidate)
+    {
+        return candidate == transform || candidate.IsChildOf(transform) || transform.IsChildOf(candidate);
     }
 
     void CreateTargetIndicator()

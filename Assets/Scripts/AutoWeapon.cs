@@ -1,68 +1,106 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class AutoWeapon : MonoBehaviour
 {
-    [Header("РќР°СЃС‚СЂРѕР№РєРё СЃС‚СЂРµР»СЊР±С‹")]
-    [SerializeField] private GameObject bulletPrefab; // РџСЂРµС„Р°Р± РїСѓР»Рё
-    [SerializeField] private Transform firePoint;     // РћС‚РєСѓРґР° РІС‹Р»РµС‚Р°РµС‚ РїСѓР»СЏ
-    [SerializeField] private float fireRate = 0.2f;    // РЎРєРѕСЂРѕСЃС‚СЊ СЃС‚СЂРµР»СЊР±С‹ (Р·Р°РґРµСЂР¶РєР° РјРµР¶РґСѓ РІС‹СЃС‚СЂРµР»Р°РјРё)
+    [Header("Shooting")]
+    [SerializeField] private GameObject bulletPrefab;
+    [SerializeField] private Transform firePoint;
+    [SerializeField] private float fireRate = 0.2f;
+    [SerializeField] private bool requireAmmo = true;
+    [SerializeField] private bool canShootWithoutTarget = true;
 
-    [Header("РќР°СЃС‚СЂРѕР№РєРё РІСЂР°С‰РµРЅРёСЏ")]
-    [SerializeField] private float rotationSpeed = 15f; // РЎРєРѕСЂРѕСЃС‚СЊ РїРѕРІРѕСЂРѕС‚Р° РѕСЂСѓР¶РёСЏ
+    [Header("Targeting")]
+    [SerializeField] private float rotationSpeed = 15f;
     [SerializeField] private float targetRefreshInterval = 0.15f;
+    [SerializeField] private float zombieTargetRange = 14f;
+    [SerializeField] private float downedAllyTargetRange = 18f;
 
     private float shootTimer;
     private float targetRefreshTimer;
-    private Transform targetEnemy;
+    private Transform target;
     private Transform owner;
-    public int playerNumber =1;
+    private WeaponAmmo ammo;
+
+    public int playerNumber = 1;
 
     void Awake()
     {
         PlayerController player = GetComponentInParent<PlayerController>();
-        owner = player != null ? player.transform : transform.root;
+        EngineerController engineer = GetComponentInParent<EngineerController>();
+        owner = player != null ? player.transform : engineer != null ? engineer.transform : transform.root;
+        ammo = owner != null ? owner.GetComponent<WeaponAmmo>() : null;
+
+        if (requireAmmo && ammo == null && owner != null)
+            ammo = owner.gameObject.AddComponent<WeaponAmmo>();
     }
 
     void Update()
     {
-        // РЈРјРµРЅСЊС€Р°РµРј С‚Р°Р№РјРµСЂ Р·Р°РґРµСЂР¶РєРё РєР°Р¶РґС‹Р№ РєР°РґСЂ
-        if (shootTimer > 0)
-        {
+        if (shootTimer > 0f)
             shootTimer -= Time.deltaTime;
-        }
 
-        // 1. РћСЂСѓР¶РёРµ Р’РЎР•Р“Р”Рђ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё С†РµР»РёС‚СЃСЏ (РєСЂСѓС‚РёС‚СЃСЏ) Р·Р° Р±Р»РёР¶Р°Р№С€РёРј Р·РѕРјР±Рё
         targetRefreshTimer -= Time.deltaTime;
         if (targetRefreshTimer <= 0f)
         {
             targetRefreshTimer = targetRefreshInterval;
-            FindClosestEnemy();
+            FindBestTarget();
         }
 
-        if (targetEnemy != null)
-        {
+        if (target != null)
             RotateTowardsTarget();
-        }
-        // 2. РЎРўР Р•Р›Р¬Р‘Рђ РўРћР›Р¬РљРћ РџРћ РќРђР–РђРўРР® (РР›Р Р—РђР–РђРўРР®) РљР›РђР’РРЁР J
-        if (GetHeldInput(PlayerControlAction.Shoot )&& shootTimer <= 0f)
+
+        if (GetHeldInput(PlayerControlAction.Shoot) && shootTimer <= 0f)
         {
-             Shoot();
-              shootTimer = fireRate; // РЎР±СЂР°СЃС‹РІР°РµРј С‚Р°Р№РјРµСЂ Р·Р°РґРµСЂР¶РєРё
+            if (Shoot())
+                shootTimer = fireRate;
         }
-        //NIKITINO NAM NE NUZHNO
-       /* if (Input.GetKey(KeyCode.J) && shootTimer <= 0f)
-        {
-            Shoot();
-            shootTimer = fireRate; // РЎР±СЂР°СЃС‹РІР°РµРј С‚Р°Р№РјРµСЂ Р·Р°РґРµСЂР¶РєРё
-        }*/
     }
 
-    void FindClosestEnemy()
+    void FindBestTarget()
     {
-        float closestDistSqr = float.PositiveInfinity;
+        target = FindClosestDownedAlly();
+        if (target != null)
+            return;
+
+        target = FindClosestZombie();
+    }
+
+    Transform FindClosestDownedAlly()
+    {
+        float closestDistSqr = downedAllyTargetRange * downedAllyTargetRange;
         Transform closest = null;
         Vector2 selfPosition = transform.position;
 
+        Registry.CleanupPlayers();
+        for (int i = 0; i < Registry.Players.Count; i++)
+        {
+            Transform player = Registry.Players[i];
+            if (player == null || IsOwner(player)) continue;
+
+            PrototypeReviveTarget reviveTarget = player.GetComponent<PrototypeReviveTarget>();
+            if (reviveTarget == null)
+                reviveTarget = player.GetComponentInChildren<PrototypeReviveTarget>();
+
+            if (reviveTarget == null || !reviveTarget.IsDowned) continue;
+
+            float distSqr = ((Vector2)reviveTarget.transform.position - selfPosition).sqrMagnitude;
+            if (distSqr < closestDistSqr)
+            {
+                closestDistSqr = distSqr;
+                closest = reviveTarget.transform;
+            }
+        }
+
+        return closest;
+    }
+
+    Transform FindClosestZombie()
+    {
+        float closestDistSqr = zombieTargetRange * zombieTargetRange;
+        Transform closest = null;
+        Vector2 selfPosition = transform.position;
+
+        Registry.CleanupZombies();
         for (int i = 0; i < Registry.Zombies.Count; i++)
         {
             ZombieAI enemy = Registry.Zombies[i];
@@ -76,29 +114,38 @@ public class AutoWeapon : MonoBehaviour
             }
         }
 
-        targetEnemy = closest;
+        return closest;
     }
 
     void RotateTowardsTarget()
     {
-        Vector2 direction = (targetEnemy.position - transform.position).normalized;
+        Vector2 direction = (target.position - transform.position).normalized;
+        if (direction.sqrMagnitude <= 0.0001f) return;
+
         float targetAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        
         Quaternion targetRotation = Quaternion.Euler(0f, 0f, targetAngle);
         transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
     }
 
-    void Shoot()
+    bool Shoot()
     {
-        if (bulletPrefab != null && firePoint != null)
-        {
-            // РЎРїР°РІРЅРёРј РїСѓР»СЋ СЃ С‚РѕС‡РЅС‹Рј РїРѕРІРѕСЂРѕС‚РѕРј СЃС‚РІРѕР»Р°
-            Bullet.Spawn(bulletPrefab, firePoint.position, firePoint.rotation, owner);
-        }
+        if (bulletPrefab == null || firePoint == null) return false;
+        if (target == null && !canShootWithoutTarget) return false;
+        if (requireAmmo && ammo != null && !ammo.TryConsume(1)) return false;
+
+        Bullet.Spawn(bulletPrefab, firePoint.position, firePoint.rotation, owner);
+        return true;
     }
-        bool GetHeldInput(PlayerControlAction action)
+
+    bool IsOwner(Transform candidate)
     {
-        var type = GetInputType();
+        if (candidate == null || owner == null) return false;
+        return candidate == owner || candidate.IsChildOf(owner) || owner.IsChildOf(candidate);
+    }
+
+    bool GetHeldInput(PlayerControlAction action)
+    {
+        InputJoinManager.InputType type = GetInputType();
         switch (type)
         {
             case InputJoinManager.InputType.KeyboardWASD:
@@ -110,11 +157,13 @@ public class AutoWeapon : MonoBehaviour
 
         return false;
     }
-        InputJoinManager.InputType GetInputType()
+
+    InputJoinManager.InputType GetInputType()
     {
         return playerNumber == 1 ? InputJoinManager.player1Input : InputJoinManager.player2Input;
     }
-        int GetGamepadIndex()
+
+    int GetGamepadIndex()
     {
         return playerNumber == 1 ? InputJoinManager.player1GamepadIndex : InputJoinManager.player2GamepadIndex;
     }
