@@ -43,6 +43,7 @@ public class CharacterSelectTransition : MonoBehaviour
     public float pauseBehindForest = 0.5f;
     public string menuSceneName = "MainMenu";
     public string arenaSceneName = "TestArena";
+    private static string nextArenaSceneName;
 
     [Header("Позиции")]
     public Vector2 forestStartPos = new Vector2(0, 160);
@@ -59,6 +60,22 @@ public class CharacterSelectTransition : MonoBehaviour
     private bool isTransitioning = false;
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip bushTrans;
+
+    public static void SetNextArenaScene(string sceneName)
+    {
+        if (!string.IsNullOrEmpty(sceneName))
+            nextArenaSceneName = sceneName;
+    }
+
+    public static void ClearNextArenaScene()
+    {
+        nextArenaSceneName = null;
+    }
+
+    private string GetNextArenaScene()
+    {
+        return string.IsNullOrEmpty(nextArenaSceneName) ? arenaSceneName : nextArenaSceneName;
+    }
 
     void Start()
     {
@@ -269,6 +286,7 @@ public class CharacterSelectTransition : MonoBehaviour
 
         yield return new WaitForSeconds(pauseBehindForest);
         MenuTransition.SetEntryAnimation();
+        ClearNextArenaScene();
         SceneManager.LoadScene(menuSceneName);
     }
 
@@ -371,7 +389,9 @@ public class CharacterSelectTransition : MonoBehaviour
         }
 
         yield return new WaitForSeconds(pauseBehindForest);
-        SceneManager.LoadScene(arenaSceneName);
+        string sceneName = GetNextArenaScene();
+        ClearNextArenaScene();
+        SceneManager.LoadScene(sceneName);
     }
 
     Vector2 GetPos(RectTransform rt) { return rt != null ? rt.anchoredPosition : Vector2.zero; }

@@ -20,7 +20,6 @@ public class ControlsSettingsUI : MonoBehaviour
 
     [Header("Auto find manual hierarchy")]
     [SerializeField] private bool autoFindManualHierarchy = true;
-    [SerializeField] private bool configureScrollAutomatically = true;
 
     [Header("Manual references")]
     [SerializeField] private RectTransform contentRoot;
@@ -37,11 +36,8 @@ public class ControlsSettingsUI : MonoBehaviour
     [SerializeField] private TMP_Text statusTMP;
     [SerializeField] private BindingRow[] manualRows;
 
-    [Header("Visual state")]
-    [SerializeField] private Color inactiveRadioColor = new Color(0.18f, 0.18f, 0.2f, 1f);
-    [SerializeField] private Color activeRadioColor = new Color(0.55f, 0.37f, 0.16f, 1f);
-
     private readonly List<BindingRow> runtimeRows = new List<BindingRow>();
+    private readonly Dictionary<Image, Sprite> radioDefaultSprites = new Dictionary<Image, Sprite>();
     private bool wired;
     private bool waitingForInput;
     private int selectedPlayerNumber = 1;
@@ -108,12 +104,17 @@ public class ControlsSettingsUI : MonoBehaviour
         }
     }
 
+    private void LateUpdate()
+    {
+        SyncSelectionRadioButtons();
+    }
+
     public void Open()
     {
         Setup();
         SetVisible(true);
+        SyncSelectionRadioButtons();
         RefreshAll();
-        ResetScrollToTop();
     }
 
     public void SetVisible(bool visible)
@@ -124,24 +125,28 @@ public class ControlsSettingsUI : MonoBehaviour
     public void ShowPlayer1()
     {
         selectedPlayerNumber = 1;
+        SyncSelectionRadioButtons();
         RefreshAll();
     }
 
     public void ShowPlayer2()
     {
         selectedPlayerNumber = 2;
+        SyncSelectionRadioButtons();
         RefreshAll();
     }
 
     public void ShowKeyboard()
     {
         selectedDevice = PlayerControlDevice.Keyboard;
+        SyncSelectionRadioButtons();
         RefreshAll();
     }
 
     public void ShowGamepad()
     {
         selectedDevice = PlayerControlDevice.Gamepad;
+        SyncSelectionRadioButtons();
         RefreshAll();
     }
 
@@ -215,10 +220,9 @@ public class ControlsSettingsUI : MonoBehaviour
         if (autoFindManualHierarchy)
             AutoFindReferences();
 
-        ConfigureScrollRect();
         BuildRuntimeRows();
         WireControls();
-        RefreshScrollLayout();
+
         wired = true;
     }
 
@@ -291,133 +295,6 @@ public class ControlsSettingsUI : MonoBehaviour
                 statusTMP = status.GetComponent<TMP_Text>();
             }
         }
-    }
-
-    private void ConfigureScrollRect()
-    {
-        if (!configureScrollAutomatically)
-            return;
-
-        if (viewport == null && contentRoot != null && contentRoot.parent != null)
-            viewport = contentRoot.parent as RectTransform;
-
-        if (viewport != null && contentRoot != null && contentRoot.parent != viewport)
-            contentRoot.SetParent(viewport, false);
-
-        if (viewport != null)
-        {
-            Image viewportImage = viewport.GetComponent<Image>();
-            if (viewportImage == null)
-            {
-                viewportImage = viewport.gameObject.AddComponent<Image>();
-                viewportImage.color = new Color(0f, 0f, 0f, 0f);
-            }
-
-            viewportImage.raycastTarget = true;
-
-            if (viewport.GetComponent<RectMask2D>() == null)
-                viewport.gameObject.AddComponent<RectMask2D>();
-        }
-
-        if (contentRoot != null)
-        {
-            contentRoot.anchorMin = new Vector2(0f, 1f);
-            contentRoot.anchorMax = new Vector2(1f, 1f);
-            contentRoot.pivot = new Vector2(0.5f, 1f);
-            contentRoot.offsetMin = new Vector2(0f, contentRoot.offsetMin.y);
-            contentRoot.offsetMax = new Vector2(0f, contentRoot.offsetMax.y);
-            contentRoot.anchoredPosition = new Vector2(0f, 0f);
-
-            VerticalLayoutGroup layout = contentRoot.GetComponent<VerticalLayoutGroup>();
-            if (layout == null)
-                layout = contentRoot.gameObject.AddComponent<VerticalLayoutGroup>();
-
-            layout.childAlignment = TextAnchor.UpperCenter;
-            layout.childControlWidth = true;
-            layout.childControlHeight = true;
-            layout.childForceExpandWidth = true;
-            layout.childForceExpandHeight = false;
-
-            ContentSizeFitter fitter = contentRoot.GetComponent<ContentSizeFitter>();
-            if (fitter == null)
-                fitter = contentRoot.gameObject.AddComponent<ContentSizeFitter>();
-
-            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
-            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        }
-
-        if (scrollRect == null)
-            return;
-
-        if (contentRoot != null)
-            scrollRect.content = contentRoot;
-
-        if (viewport != null)
-            scrollRect.viewport = viewport;
-
-        scrollRect.horizontal = false;
-        scrollRect.vertical = true;
-        scrollRect.movementType = ScrollRect.MovementType.Clamped;
-        scrollRect.inertia = true;
-        if (scrollRect.scrollSensitivity <= 1f)
-            scrollRect.scrollSensitivity = 25f;
-    }
-
-    private void RefreshScrollLayout()
-    {
-        if (contentRoot == null)
-            return;
-
-        Canvas.ForceUpdateCanvases();
-        LayoutRebuilder.ForceRebuildLayoutImmediate(contentRoot);
-
-        float preferredHeight = CalculatePreferredContentHeight();
-        if (preferredHeight > 0f)
-            contentRoot.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, preferredHeight);
-
-        LayoutRebuilder.ForceRebuildLayoutImmediate(contentRoot);
-    }
-
-    private void ResetScrollToTop()
-    {
-        RefreshScrollLayout();
-
-        if (scrollRect != null)
-            scrollRect.verticalNormalizedPosition = 1f;
-    }
-
-    private float CalculatePreferredContentHeight()
-    {
-        if (contentRoot == null)
-            return 0f;
-
-        VerticalLayoutGroup layout = contentRoot.GetComponent<VerticalLayoutGroup>();
-        float height = 0f;
-        int visibleChildren = 0;
-
-        if (layout != null)
-            height += layout.padding.top + layout.padding.bottom;
-
-        for (int i = 0; i < contentRoot.childCount; i++)
-        {
-            RectTransform child = contentRoot.GetChild(i) as RectTransform;
-            if (child == null || !child.gameObject.activeSelf)
-                continue;
-
-            float childHeight = LayoutUtility.GetPreferredHeight(child);
-            if (childHeight <= 0f)
-                childHeight = child.rect.height;
-            if (childHeight <= 0f)
-                childHeight = 28f;
-
-            if (visibleChildren > 0 && layout != null)
-                height += layout.spacing;
-
-            height += childHeight;
-            visibleChildren++;
-        }
-
-        return height;
     }
 
     private void BuildRuntimeRows()
@@ -557,7 +434,7 @@ public class ControlsSettingsUI : MonoBehaviour
                 if (isOn)
                     action.Invoke();
                 else
-                    EnforceSelection();
+                    SyncSelectionRadioButtons();
             });
             return;
         }
@@ -567,13 +444,36 @@ public class ControlsSettingsUI : MonoBehaviour
             button.onClick.AddListener(action);
     }
 
-    private void EnforceSelection()
+    private void SyncSelectionRadioButtons()
     {
-        if (!IsSelectableOn(player1RadioButton) && !IsSelectableOn(player2RadioButton))
-            SetSelectableState(selectedPlayerNumber == 1 ? player1RadioButton : player2RadioButton, true);
+        SetToggleState(player1RadioButton, selectedPlayerNumber == 1);
+        SetToggleState(player2RadioButton, selectedPlayerNumber == 2);
+        SetToggleState(keyboardRadioButton, selectedDevice == PlayerControlDevice.Keyboard);
+        SetToggleState(gamepadRadioButton, selectedDevice == PlayerControlDevice.Gamepad);
+    }
 
-        if (!IsSelectableOn(keyboardRadioButton) && !IsSelectableOn(gamepadRadioButton))
-            SetSelectableState(selectedDevice == PlayerControlDevice.Keyboard ? keyboardRadioButton : gamepadRadioButton, true);
+    private void SetToggleState(Selectable selectable, bool isOn)
+    {
+        Toggle toggle = selectable as Toggle;
+        if (toggle == null)
+            return;
+
+        toggle.SetIsOnWithoutNotify(isOn);
+        ApplyToggleSpriteState(toggle, isOn);
+    }
+
+    private void ApplyToggleSpriteState(Toggle toggle, bool isOn)
+    {
+        Image targetImage = toggle.targetGraphic as Image;
+        Sprite selectedSprite = toggle.spriteState.selectedSprite;
+
+        if (targetImage == null || selectedSprite == null)
+            return;
+
+        if (!radioDefaultSprites.ContainsKey(targetImage))
+            radioDefaultSprites[targetImage] = targetImage.sprite;
+
+        targetImage.overrideSprite = isOn ? selectedSprite : radioDefaultSprites[targetImage];
     }
 
     public void RefreshAll()
@@ -583,37 +483,6 @@ public class ControlsSettingsUI : MonoBehaviour
             BindingRow row = runtimeRows[i];
             SetLabel(row.bindingText, row.bindingTMP, PlayerInputBindings.GetBindingName(selectedPlayerNumber, selectedDevice, row.action));
         }
-
-        SetSelectableState(player1RadioButton, selectedPlayerNumber == 1);
-        SetSelectableState(player2RadioButton, selectedPlayerNumber == 2);
-        SetSelectableState(keyboardRadioButton, selectedDevice == PlayerControlDevice.Keyboard);
-        SetSelectableState(gamepadRadioButton, selectedDevice == PlayerControlDevice.Gamepad);
-    }
-
-    private bool IsSelectableOn(Selectable selectable)
-    {
-        Toggle toggle = selectable as Toggle;
-        if (toggle != null)
-            return toggle.isOn;
-
-        return false;
-    }
-
-    private void SetSelectableState(Selectable selectable, bool active)
-    {
-        if (selectable == null)
-            return;
-
-        Toggle toggle = selectable as Toggle;
-        if (toggle != null)
-            toggle.SetIsOnWithoutNotify(active);
-
-        Graphic graphic = selectable.targetGraphic;
-        if (graphic == null)
-            graphic = selectable.GetComponent<Graphic>();
-
-        if (graphic != null)
-            graphic.color = active ? activeRadioColor : inactiveRadioColor;
     }
 
     private void FinishRebind()

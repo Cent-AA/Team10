@@ -202,9 +202,9 @@ public static class PlayerInputBindings
     public static string GetBindingName(int playerNumber, PlayerControlDevice device, PlayerControlAction action)
     {
         if (device == PlayerControlDevice.Keyboard)
-            return GetKeyboardKey(playerNumber, action).ToString();
+            return FormatBindingName(GetKeyboardKey(playerNumber, action).ToString());
 
-        return GetGamepadControlName(GetGamepadControl(playerNumber, action));
+        return FormatBindingName(GetGamepadControlName(GetGamepadControl(playerNumber, action)));
     }
 
     public static bool TryCaptureKeyboardKey(out KeyCode key)
@@ -494,6 +494,11 @@ public static class PlayerInputBindings
             case PlayerGamepadControl.RightStickButton: return "Right Stick Button";
             default: return control.ToString();
         }
+    }
+
+    private static string FormatBindingName(string value)
+    {
+        return string.IsNullOrEmpty(value) ? string.Empty : value.ToUpperInvariant();
     }
 
     private static string GetKeyboardKeyName(int playerNumber, PlayerControlAction action)

@@ -18,6 +18,9 @@ EditorBuildSettings:
     path: Assets/Scenes/TestArena_PrototypeMVP.unity
     guid: 0465f1ac244b459d938220cbe77b4e74
   - enabled: 1
+    path: Assets/Scenes/TrainingScene.unity
+    guid: 2a46adedcd8a58f4b9616cf8996fdd76
+  - enabled: 1
     path: Assets/Scenes/SampleScene.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
   m_configObjects:
