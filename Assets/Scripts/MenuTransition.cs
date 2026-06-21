@@ -20,6 +20,8 @@ public class MenuTransition : MonoBehaviour
     public float bushSpeedMultiplier = 1.3f;  // Кусты быстрее леса
     public float pauseBehindForest = 0.5f;
     public string nextSceneName = "CharacterSelect";
+    public string playArenaSceneName = "TestArena_PrototypeMVP";
+    public string trainingSceneName = "TrainingScene";
 
     [Header("Настройки входа (возврат)")]
     public float entryForestDuration = 2f;
@@ -215,8 +217,19 @@ public class MenuTransition : MonoBehaviour
     // === ВЫХОДНАЯ АНИМАЦИЯ (Play) ===
     public void StartTransition()
     {
+        StartTransitionToCharacterSelect(playArenaSceneName);
+    }
+
+    public void StartTrainingTransition()
+    {
+        StartTransitionToCharacterSelect(trainingSceneName);
+    }
+
+    private void StartTransitionToCharacterSelect(string targetArenaSceneName)
+    {
         if (isTransitioning) return;
 
+        CharacterSelectTransition.SetNextArenaScene(targetArenaSceneName);
         isTransitioning = true;
         StartCoroutine(PlayExitTransition());
     }
