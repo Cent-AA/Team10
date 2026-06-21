@@ -405,8 +405,8 @@ public class PlayerController : MonoBehaviour
         isDashing = false;
         if (rb != null)
         {
-    rb.linearVelocity = Vector2.zero;
-    rb.angularVelocity = 0f;
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
         }
         yield return new WaitForSeconds(0.1f);
         isInvulnerable = false;
@@ -616,7 +616,18 @@ public class PlayerController : MonoBehaviour
         isInvulnerable = false;
     }
 
-    void Die() { if (EnsurePuppet()) puppet.Die(); OnDeath?.Invoke(); if (rb != null) rb.bodyType = RigidbodyType2D.Kinematic; }
+    void Die()
+    {
+    if (EnsurePuppet()) puppet.Die();
+    OnDeath?.Invoke();
+    if (rb != null)
+    {
+        rb.bodyType = RigidbodyType2D.Kinematic;
+        rb.linearVelocity = Vector2.zero;
+    }
+    gameObject.layer = LayerMask.NameToLayer("DeadPlayer");
+    // adds player to layer that doesnt collide with enemy. need to make it so it add layer back on revives
+    }
 
     void PlaySound(AudioClip clip)
     {
