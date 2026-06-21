@@ -403,6 +403,11 @@ public class PlayerController : MonoBehaviour
         }
 
         isDashing = false;
+        if (rb != null)
+        {
+    rb.linearVelocity = Vector2.zero;
+    rb.angularVelocity = 0f;
+        }
         yield return new WaitForSeconds(0.1f);
         isInvulnerable = false;
     }
@@ -568,12 +573,18 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator HitStopRoutine()
     {
-        if (isHitStopped) yield break;  // Не стакать
-        isHitStopped = true;
-        Time.timeScale = 0.05f;
-        yield return new WaitForSecondsRealtime(hitStopDuration);
-        Time.timeScale = 1f;  // Всегда возвращаем в 1
-        isHitStopped = false;
+    if (isHitStopped) yield break;
+
+    isHitStopped = true;
+
+    float originalFixedDelta = Time.fixedDeltaTime;
+    Time.timeScale = 1f;
+    Time.fixedDeltaTime = 0.02f * 0.2f; // small slowdown instead of global freeze
+
+    yield return new WaitForSeconds(hitStopDuration);
+
+    Time.fixedDeltaTime = originalFixedDelta;
+    isHitStopped = false;
     }
 
     IEnumerator HitFlashRoutine()
@@ -704,25 +715,4 @@ public class PlayerController : MonoBehaviour
         if (attackPoint != null) { Gizmos.color = Color.red; Gizmos.DrawWireSphere(attackPoint.position, attackRange); }
     }
 
-    void Shoot()
-    {
-        if (bulletPrefab != null && firePoint != null)
-        {
-            // 1. Переводим позицию курсора с экрана в координаты игрового мира
-            Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            mousePosition.z = 0f; // Зануляем Z, так как игра в 2D
-
-            // 2. Считаем вектор направления от дула пушки (firePoint) до мышки
-            Vector2 shootDirection = (mousePosition - firePoint.position).normalized;
-
-            // 3. Высчитываем угол поворота в градусах с помощью тригонометрии
-            float angle = Mathf.Atan2(shootDirection.y, shootDirection.x) * Mathf.Rad2Deg;
-
-            // 4. Создаем вращение на основе этого угла по оси Z
-            Quaternion bulletRotation = Quaternion.Euler(0f, 0f, angle);
-
-            // 5. Спавним пулю, сразу развернутую в сторону курсора
-            Bullet.Spawn(bulletPrefab, firePoint.position, bulletRotation, transform);
-        }
-    }
 }

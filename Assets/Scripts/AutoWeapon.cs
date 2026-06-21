@@ -129,6 +129,10 @@ public class AutoWeapon : MonoBehaviour
 
     bool Shoot()
     {
+        PlayerController pc = owner.GetComponent<PlayerController>();
+        if (pc != null && pc.currentHealth <= 0f) return true;
+        EngineerController ec = owner.GetComponent<EngineerController>();
+        // need to clean this up later but idk if this script will even be used for sniper or medic
         if (bulletPrefab == null || firePoint == null) return false;
         if (target == null && !canShootWithoutTarget) return false;
         if (requireAmmo && ammo != null && !ammo.TryConsume(1)) return false;

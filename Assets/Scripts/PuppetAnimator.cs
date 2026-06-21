@@ -131,8 +131,17 @@ public class PuppetAnimator : MonoBehaviour
                 UpdateCharge();
                 break;
             case AnimState.Dash:
-                if (stateTimer >= dashDuration) EndAttack();
-                break;
+            {
+                if (!hitFrameTriggered &&
+                stateTimer >= dashDuration * 0.3f)
+                {
+        hitFrameTriggered = true;
+        OnHitFrame?.Invoke();
+        }
+        if (stateTimer >= dashDuration)
+        EndAttack();
+        break;
+            }
             case AnimState.Roll:
                 if (stateTimer >= rollDuration) EndAttack();
                 break;

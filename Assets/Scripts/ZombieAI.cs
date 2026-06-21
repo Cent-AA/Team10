@@ -22,7 +22,7 @@ public class ZombieAI : MonoBehaviour
     public float attackerSwitchRange = 5f;
     public float groupedPlayersDistance = 2.5f;
     public float groupedLockDelay = 2f;
-
+    private Coroutine knockbackRoutine;
     [Header("Attack")]
     public float attackCooldown = 1.5f;
     public float attackDamage = 15f;
@@ -449,6 +449,11 @@ public class ZombieAI : MonoBehaviour
         currentHealth -= damage;
 
         StartCoroutine(HitFlash());
+        if (knockbackRoutine != null)
+        {
+            StopCoroutine(knockbackRoutine);
+        }
+        StopCoroutine(nameof(Knockback));
         StartCoroutine(Knockback(knockbackDir));
         ArenaCamera.Shake(damage * 0.03f, 0.1f);
 
