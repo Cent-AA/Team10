@@ -453,6 +453,7 @@ public class ZombieAI : MonoBehaviour
         {
             StopCoroutine(knockbackRoutine);
         }
+        StopCoroutine(nameof(Knockback));
         StartCoroutine(Knockback(knockbackDir));
         ArenaCamera.Shake(damage * 0.03f, 0.1f);
 
