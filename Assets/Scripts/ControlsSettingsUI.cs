@@ -37,6 +37,7 @@ public class ControlsSettingsUI : MonoBehaviour
     [SerializeField] private BindingRow[] manualRows;
 
     private readonly List<BindingRow> runtimeRows = new List<BindingRow>();
+    private readonly Dictionary<Image, Sprite> radioDefaultSprites = new Dictionary<Image, Sprite>();
     private bool wired;
     private bool waitingForInput;
     private int selectedPlayerNumber = 1;
@@ -103,10 +104,16 @@ public class ControlsSettingsUI : MonoBehaviour
         }
     }
 
+    private void LateUpdate()
+    {
+        SyncSelectionRadioButtons();
+    }
+
     public void Open()
     {
         Setup();
         SetVisible(true);
+        SyncSelectionRadioButtons();
         RefreshAll();
     }
 
@@ -118,24 +125,28 @@ public class ControlsSettingsUI : MonoBehaviour
     public void ShowPlayer1()
     {
         selectedPlayerNumber = 1;
+        SyncSelectionRadioButtons();
         RefreshAll();
     }
 
     public void ShowPlayer2()
     {
         selectedPlayerNumber = 2;
+        SyncSelectionRadioButtons();
         RefreshAll();
     }
 
     public void ShowKeyboard()
     {
         selectedDevice = PlayerControlDevice.Keyboard;
+        SyncSelectionRadioButtons();
         RefreshAll();
     }
 
     public void ShowGamepad()
     {
         selectedDevice = PlayerControlDevice.Gamepad;
+        SyncSelectionRadioButtons();
         RefreshAll();
     }
 
@@ -422,6 +433,8 @@ public class ControlsSettingsUI : MonoBehaviour
             {
                 if (isOn)
                     action.Invoke();
+                else
+                    SyncSelectionRadioButtons();
             });
             return;
         }
@@ -429,6 +442,38 @@ public class ControlsSettingsUI : MonoBehaviour
         Button button = selectable as Button;
         if (button != null)
             button.onClick.AddListener(action);
+    }
+
+    private void SyncSelectionRadioButtons()
+    {
+        SetToggleState(player1RadioButton, selectedPlayerNumber == 1);
+        SetToggleState(player2RadioButton, selectedPlayerNumber == 2);
+        SetToggleState(keyboardRadioButton, selectedDevice == PlayerControlDevice.Keyboard);
+        SetToggleState(gamepadRadioButton, selectedDevice == PlayerControlDevice.Gamepad);
+    }
+
+    private void SetToggleState(Selectable selectable, bool isOn)
+    {
+        Toggle toggle = selectable as Toggle;
+        if (toggle == null)
+            return;
+
+        toggle.SetIsOnWithoutNotify(isOn);
+        ApplyToggleSpriteState(toggle, isOn);
+    }
+
+    private void ApplyToggleSpriteState(Toggle toggle, bool isOn)
+    {
+        Image targetImage = toggle.targetGraphic as Image;
+        Sprite selectedSprite = toggle.spriteState.selectedSprite;
+
+        if (targetImage == null || selectedSprite == null)
+            return;
+
+        if (!radioDefaultSprites.ContainsKey(targetImage))
+            radioDefaultSprites[targetImage] = targetImage.sprite;
+
+        targetImage.overrideSprite = isOn ? selectedSprite : radioDefaultSprites[targetImage];
     }
 
     public void RefreshAll()

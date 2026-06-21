@@ -18,6 +18,9 @@ public class MainMenuController : MonoBehaviour
     [Header("Элементы настроек")]
     [SerializeField] private Slider volumeSlider;
     [SerializeField] private Toggle muteToggle;
+    [SerializeField] private Image muteToggleBackground;
+    [SerializeField] private Sprite soundOnSprite;
+    [SerializeField] private Sprite soundOffSprite;
 
     [Header("Страницы настроек")]
     [SerializeField] private GameObject soundSettingsPage;
@@ -31,6 +34,8 @@ public class MainMenuController : MonoBehaviour
     private OptionsPage currentOptionsPage = OptionsPage.Sound;
     private bool optionButtonsWired;
     private bool audioPrefsDirty;
+    private bool soundOn = true;
+    private readonly Dictionary<Image, Sprite> optionRadioDefaultSprites = new Dictionary<Image, Sprite>();
 
     private const string VolumeKey = "MasterVolume";
     private const string SoundKey = "SoundOn"; // 1 = Звук есть, 0 = Мьют
@@ -39,16 +44,18 @@ public class MainMenuController : MonoBehaviour
     {
         float savedVolume = PlayerPrefs.GetFloat(VolumeKey, 1.0f);
         int savedSoundState = PlayerPrefs.GetInt(SoundKey, 1);
-        bool isSoundOn = savedSoundState == 1;
+        soundOn = savedSoundState == 1;
 
         if (volumeSlider != null)
             volumeSlider.value = savedVolume;
 
-        if (muteToggle != null)
-            muteToggle.isOn = isSoundOn;
-
         AudioListener.volume = savedVolume;
-        AudioListener.pause = !isSoundOn;
+        ApplySoundState(soundOn, false);
+
+        EnsureOptionsReferences();
+        WireOptionButtons();
+        SyncOptionRadioButtons();
+        SyncMuteToggleVisual();
     }
 
     private void OnDisable()
@@ -59,6 +66,15 @@ public class MainMenuController : MonoBehaviour
     private void OnApplicationQuit()
     {
         SaveAudioPrefsIfDirty();
+    }
+
+    private void LateUpdate()
+    {
+        if (optionsMenuPanel != null && optionsMenuPanel.activeInHierarchy)
+        {
+            SyncOptionRadioButtons();
+            SyncMuteToggleVisual();
+        }
     }
 
     private void SaveAudioPrefsIfDirty()
@@ -129,23 +145,54 @@ public class MainMenuController : MonoBehaviour
 
     public void ToggleSound(bool soundOn)
     {
+        ApplySoundState(soundOn, true);
+    }
+
+    private void ApplySoundState(bool enabled, bool save)
+    {
+        soundOn = enabled;
         AudioListener.pause = !soundOn;
+
+        if (muteToggle != null)
+            muteToggle.SetIsOnWithoutNotify(soundOn);
+
+        SyncMuteToggleVisual();
+
+        if (!save)
+            return;
 
         PlayerPrefs.SetInt(SoundKey, soundOn ? 1 : 0);
         audioPrefsDirty = true;
         SaveAudioPrefsIfDirty();
     }
 
+    private void SyncMuteToggleVisual()
+    {
+        if (muteToggleBackground == null && muteToggle != null)
+            muteToggleBackground = muteToggle.targetGraphic as Image;
+
+        if (muteToggleBackground == null)
+            return;
+
+        Sprite targetSprite = soundOn ? soundOnSprite : soundOffSprite;
+        if (targetSprite != null)
+            muteToggleBackground.overrideSprite = targetSprite;
+    }
+
     public void ShowSoundSettings(bool isOn)
     {
         if (isOn)
             ShowSoundSettings();
+        else
+            SyncOptionRadioButtons();
     }
 
     public void ShowControlsSettings(bool isOn)
     {
         if (isOn)
             ShowControlsSettings();
+        else
+            SyncOptionRadioButtons();
     }
 
     public void ShowSoundSettings()
@@ -161,6 +208,8 @@ public class MainMenuController : MonoBehaviour
 
         if (controlsSettingsUI != null)
             controlsSettingsUI.SetVisible(false);
+
+        SyncOptionRadioButtons();
     }
 
     public void ShowControlsSettings()
@@ -176,6 +225,8 @@ public class MainMenuController : MonoBehaviour
 
         if (controlsSettingsUI != null)
             controlsSettingsUI.Open();
+
+        SyncOptionRadioButtons();
     }
 
     public void OpenControlsSettings()
@@ -291,6 +342,8 @@ public class MainMenuController : MonoBehaviour
             {
                 if (isOn)
                     action.Invoke();
+                else
+                    SyncOptionRadioButtons();
             });
             return;
         }
@@ -298,6 +351,36 @@ public class MainMenuController : MonoBehaviour
         Button button = selectable as Button;
         if (button != null)
             button.onClick.AddListener(action);
+    }
+
+    private void SyncOptionRadioButtons()
+    {
+        SetToggleState(soundSettingsRadioButton, currentOptionsPage == OptionsPage.Sound);
+        SetToggleState(controlsSettingsRadioButton, currentOptionsPage == OptionsPage.Controls);
+    }
+
+    private void SetToggleState(Selectable selectable, bool isOn)
+    {
+        Toggle toggle = selectable as Toggle;
+        if (toggle == null)
+            return;
+
+        toggle.SetIsOnWithoutNotify(isOn);
+        ApplyToggleSpriteState(toggle, isOn);
+    }
+
+    private void ApplyToggleSpriteState(Toggle toggle, bool isOn)
+    {
+        Image targetImage = toggle.targetGraphic as Image;
+        Sprite selectedSprite = toggle.spriteState.selectedSprite;
+
+        if (targetImage == null || selectedSprite == null)
+            return;
+
+        if (!optionRadioDefaultSprites.ContainsKey(targetImage))
+            optionRadioDefaultSprites[targetImage] = targetImage.sprite;
+
+        targetImage.overrideSprite = isOn ? selectedSprite : optionRadioDefaultSprites[targetImage];
     }
 
 }

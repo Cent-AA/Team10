@@ -1754,7 +1754,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_IsOn: 1
+  m_IsOn: 0
 --- !u!1 &413197049
 GameObject:
   m_ObjectHideFlags: 0
@@ -2796,7 +2796,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_IsOn: 1
+  m_IsOn: 0
 --- !u!1 &595643528
 GameObject:
   m_ObjectHideFlags: 0
@@ -7262,6 +7262,9 @@ MonoBehaviour:
   exitConfirmationPanel: {fileID: 901206443}
   volumeSlider: {fileID: 592887289}
   muteToggle: {fileID: 1628427498}
+  muteToggleBackground: {fileID: 878958980}
+  soundOnSprite: {fileID: 6994526540242742011, guid: 199a5ac8248a1864881c2a6272fe04a0, type: 3}
+  soundOffSprite: {fileID: -7656262186137238201, guid: 199a5ac8248a1864881c2a6272fe04a0, type: 3}
   soundSettingsPage: {fileID: 1217206216}
   controlsSettingsPage: {fileID: 1352562514}
   controlsSettingsUI: {fileID: 1352562518}
@@ -8384,7 +8387,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1217206217
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9036,7 +9039,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1352562515
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9507,7 +9510,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_IsOn: 1
+  m_IsOn: 0
 --- !u!1 &1451584717
 GameObject:
   m_ObjectHideFlags: 0
