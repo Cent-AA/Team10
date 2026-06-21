@@ -137,7 +137,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &84484226
 RectTransform:
   m_ObjectHideFlags: 0
@@ -155,7 +155,6 @@ RectTransform:
   - {fileID: 1482382529}
   - {fileID: 1193379929}
   - {fileID: 189973740}
-  - {fileID: 885079854}
   m_Father: {fileID: 648973672}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1199,6 +1198,7 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 885079854}
   - {fileID: 491902546}
   - {fileID: 2104864290}
   - {fileID: 84484226}
@@ -1400,7 +1400,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2032384670}
-  m_Father: {fileID: 84484226}
+  m_Father: {fileID: 648973672}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -3112,6 +3112,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1670996162}
   - component: {fileID: 1670996161}
+  - component: {fileID: 1670996163}
   m_Layer: 0
   m_Name: PauseManager
   m_TagString: Untagged
@@ -3172,6 +3173,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1670996163
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1670996160}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92c260830cd007945ae5c6902ee28fbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TutorialPanelManager
+  infoText: {fileID: 0}
+  tutorialPanel: {fileID: 0}
+  tutorialButton: {fileID: 0}
 --- !u!1 &1735829985
 GameObject:
   m_ObjectHideFlags: 0
@@ -3485,6 +3501,11 @@ MonoBehaviour:
   animateDividerWidth: 0
   dividerLineWidth: 3
   dividerMaxWidth: 48
+  cameraShakeEnabled: 1
+  disableShakeDuringSplitScreen: 1
+  shakeIntensityLevel: 3
+  splitScreenShakeMultiplier: 0.25
+  maxShakeOffset: 0.45
   shakeDamping: 2
   mapSprite: {fileID: 1950857245}
 --- !u!114 &1900277404

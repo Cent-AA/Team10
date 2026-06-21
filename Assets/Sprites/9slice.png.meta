@@ -5,6 +5,24 @@ TextureImporter:
   - first:
       213: -2833839617242625060
     second: 9slice_0
+  - first:
+      213: -8115008753574499425
+    second: 9slice_1
+  - first:
+      213: 3671867250434837201
+    second: 9slice_2
+  - first:
+      213: -4110422767465649893
+    second: 9slice_3
+  - first:
+      213: -9202831868683529519
+    second: 9slice_4
+  - first:
+      213: -2330405814339594418
+    second: 9slice_5
+  - first:
+      213: 6115676808816482405
+    second: 9slice_6
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -104,12 +122,12 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
-        width: 45
-        height: 45
+        y: 45
+        width: 40
+        height: 40
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 9, y: 8, z: 9, w: 8}
+      border: {x: 5, y: 3, z: 5, w: 3}
       customData: 
       outline: []
       physicsShape: []
@@ -125,20 +143,130 @@ TextureImporter:
       name: 9slice_1
       rect:
         serializedVersion: 2
-        x: 45
-        y: 0
-        width: 45
-        height: 45
+        x: 41
+        y: 45
+        width: 40
+        height: 40
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 9, y: 8, z: 9, w: 8}
       customData: 
       outline: []
       physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f9ba106a882b16f80800000000000000
+      internalID: -8115008753574499425
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 9slice_2
+      rect:
+        serializedVersion: 2
+        x: 122
+        y: 45
+        width: 40
+        height: 40
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 9, y: 8, z: 9, w: 8}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1da0f845fc715f230800000000000000
+      internalID: 3671867250434837201
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 9slice_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 80
+        height: 40
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 30, y: 3, z: 5, w: 3}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d259739c29f84080800000000000000
+      internalID: -9202831868683529519
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 9slice_5
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 0
+        width: 80
+        height: 40
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 25, y: 3, z: 5, w: 3}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e4798c5424cb8afd0800000000000000
+      internalID: -2330405814339594418
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 9slice_6
+      rect:
+        serializedVersion: 2
+        x: 162
+        y: 0
+        width: 80
+        height: 40
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 25, y: 3, z: 5, w: 3}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 568d996c7af3fd450800000000000000
+      internalID: 6115676808816482405
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 9slice_7
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 45
+        width: 40
+        height: 40
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 5, y: 3, z: 5, w: 3}
+      customData: 
+      outline: []
+      physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 15c51d21edf299640bb926e38ad9aabf
-      internalID: 655704387
+      spriteID: 758705a8744878b4f834537f17341ece
+      internalID: -1161158298
       vertices: []
       indices: 
       edges: []
@@ -147,7 +275,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 41c8d5616e95e8c48a71faa93a51c42d
+    spriteID: 851ed8c777091774b82c5d628c019aa9
     internalID: 0
     vertices: []
     indices: 
@@ -155,12 +283,17 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":45.0,"y":45.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
       9slice_0: -2833839617242625060
-      9slice_1: 655704387
+      9slice_1: -8115008753574499425
+      9slice_2: 3671867250434837201
+      9slice_3: -4110422767465649893
+      9slice_4: -9202831868683529519
+      9slice_5: -2330405814339594418
+      9slice_6: 6115676808816482405
+      9slice_7: -1161158298
+      9slice_8: -1393073433
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

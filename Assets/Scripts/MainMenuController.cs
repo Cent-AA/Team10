@@ -18,9 +18,6 @@ public class MainMenuController : MonoBehaviour
     [Header("Элементы настроек")]
     [SerializeField] private Slider volumeSlider;
     [SerializeField] private Toggle muteToggle;
-    [SerializeField] private Image muteToggleBackground;
-    [SerializeField] private Sprite soundOnSprite;
-    [SerializeField] private Sprite soundOffSprite;
 
     [Header("Страницы настроек")]
     [SerializeField] private GameObject soundSettingsPage;
@@ -30,10 +27,7 @@ public class MainMenuController : MonoBehaviour
     [Header("Radio / кнопки страниц")]
     [SerializeField] private Selectable soundSettingsRadioButton;
     [SerializeField] private Selectable controlsSettingsRadioButton;
-    [SerializeField] private Color inactiveRadioColor = new Color(0.18f, 0.18f, 0.2f, 1f);
-    [SerializeField] private Color activeRadioColor = new Color(0.55f, 0.37f, 0.16f, 1f);
 
-    private Sprite defaultMuteToggleSprite;
     private OptionsPage currentOptionsPage = OptionsPage.Sound;
     private bool optionButtonsWired;
     private bool audioPrefsDirty;
@@ -47,15 +41,11 @@ public class MainMenuController : MonoBehaviour
         int savedSoundState = PlayerPrefs.GetInt(SoundKey, 1);
         bool isSoundOn = savedSoundState == 1;
 
-        CacheDefaultMuteToggleSprite();
-
         if (volumeSlider != null)
             volumeSlider.value = savedVolume;
 
         if (muteToggle != null)
             muteToggle.isOn = isSoundOn;
-
-        UpdateMuteToggleBackground(isSoundOn);
 
         AudioListener.volume = savedVolume;
         AudioListener.pause = !isSoundOn;
@@ -140,7 +130,6 @@ public class MainMenuController : MonoBehaviour
     public void ToggleSound(bool soundOn)
     {
         AudioListener.pause = !soundOn;
-        UpdateMuteToggleBackground(soundOn);
 
         PlayerPrefs.SetInt(SoundKey, soundOn ? 1 : 0);
         audioPrefsDirty = true;
@@ -172,8 +161,6 @@ public class MainMenuController : MonoBehaviour
 
         if (controlsSettingsUI != null)
             controlsSettingsUI.SetVisible(false);
-
-        RefreshOptionButtonVisuals();
     }
 
     public void ShowControlsSettings()
@@ -189,8 +176,6 @@ public class MainMenuController : MonoBehaviour
 
         if (controlsSettingsUI != null)
             controlsSettingsUI.Open();
-
-        RefreshOptionButtonVisuals();
     }
 
     public void OpenControlsSettings()
@@ -306,8 +291,6 @@ public class MainMenuController : MonoBehaviour
             {
                 if (isOn)
                     action.Invoke();
-                else
-                    EnforceOneOptionSelected();
             });
             return;
         }
@@ -317,80 +300,6 @@ public class MainMenuController : MonoBehaviour
             button.onClick.AddListener(action);
     }
 
-    private void EnforceOneOptionSelected()
-    {
-        Toggle soundToggle = soundSettingsRadioButton as Toggle;
-        Toggle controlsToggle = controlsSettingsRadioButton as Toggle;
-        if (soundToggle == null || controlsToggle == null)
-            return;
-
-        if (!soundToggle.isOn && !controlsToggle.isOn)
-        {
-            if (currentOptionsPage == OptionsPage.Controls)
-                controlsToggle.SetIsOnWithoutNotify(true);
-            else
-                soundToggle.SetIsOnWithoutNotify(true);
-        }
-
-        RefreshOptionButtonVisuals();
-    }
-
-    private void RefreshOptionButtonVisuals()
-    {
-        SetSelectableState(soundSettingsRadioButton, currentOptionsPage == OptionsPage.Sound);
-        SetSelectableState(controlsSettingsRadioButton, currentOptionsPage == OptionsPage.Controls);
-    }
-
-    private void SetSelectableState(Selectable selectable, bool active)
-    {
-        if (selectable == null)
-            return;
-
-        Toggle toggle = selectable as Toggle;
-        if (toggle != null)
-            toggle.SetIsOnWithoutNotify(active);
-
-        Graphic graphic = selectable.targetGraphic;
-        if (graphic == null)
-            graphic = selectable.GetComponent<Graphic>();
-
-        if (graphic != null)
-            graphic.color = active ? activeRadioColor : inactiveRadioColor;
-    }
-
-    private void CacheDefaultMuteToggleSprite()
-    {
-        Image background = GetMuteToggleBackground();
-        if (background != null && defaultMuteToggleSprite == null)
-            defaultMuteToggleSprite = background.sprite;
-    }
-
-    private void UpdateMuteToggleBackground(bool soundOn)
-    {
-        Image background = GetMuteToggleBackground();
-        if (background == null)
-            return;
-
-        Sprite targetSprite = soundOn ? GetSoundOnSprite() : soundOffSprite;
-        if (targetSprite != null)
-            background.sprite = targetSprite;
-    }
-
-    private Sprite GetSoundOnSprite()
-    {
-        return soundOnSprite != null ? soundOnSprite : defaultMuteToggleSprite;
-    }
-
-    private Image GetMuteToggleBackground()
-    {
-        if (muteToggleBackground != null)
-            return muteToggleBackground;
-
-        if (muteToggle != null)
-            return muteToggle.targetGraphic as Image;
-
-        return null;
-    }
 }
 
 
