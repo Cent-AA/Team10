@@ -535,6 +535,7 @@ public class PuppetAnimator : MonoBehaviour
     public void Die() { SetState(AnimState.Death); }
     public void Revive()
     {
+        gameObject.layer = LayerMask.NameToLayer("Player");
         isBlocking = false;
         isCharging = false;
         DestroyChargeCircle();

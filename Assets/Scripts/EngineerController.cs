@@ -545,6 +545,7 @@ public class EngineerController : MonoBehaviour
 
     public void Revive(float healthPercent)
     {
+        gameObject.layer = LayerMask.NameToLayer("Player");
         EnsureSharedComponents();
         if (sharedHealth != null)
             sharedHealth.Revive(healthPercent);
@@ -566,7 +567,16 @@ public class EngineerController : MonoBehaviour
             motor.SetMovementLocked(true);
 
         HideWrench();
+            HideWrench();
 
+    if (rb != null)
+    {
+        rb.linearVelocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+        rb.gravityScale = 0f;
+        rb.bodyType = RigidbodyType2D.Kinematic;
+        gameObject.layer = LayerMask.NameToLayer("DeadPlayer");
+    }
         if (deathRoutine == null)
             deathRoutine = StartCoroutine(DeathAnim());
     }
@@ -584,6 +594,9 @@ public class EngineerController : MonoBehaviour
 
         if (rb != null)
             rb.bodyType = RigidbodyType2D.Dynamic;
+            rb.gravityScale = 1f;
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
 
         if (motor != null)
             motor.SetMovementLocked(false);
