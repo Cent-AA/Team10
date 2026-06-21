@@ -10,6 +10,8 @@ public class PlayerSharedHealth : MonoBehaviour
     public System.Action OnDowned;
     public System.Action OnRevived;
 
+    public System.Action OnHit;
+
     void Awake()
     {
         maxHealth = Mathf.Max(1f, maxHealth);
@@ -58,6 +60,8 @@ public class PlayerSharedHealth : MonoBehaviour
         currentHealth = Mathf.Clamp(currentHealth - Mathf.Abs(damage), 0f, maxHealth);
         isDowned = currentHealth <= 0f;
         NotifyHealthChanged();
+
+        OnHit?.Invoke(); // подписка идёт из EngineerController
 
         if (isDowned)
             OnDowned?.Invoke();

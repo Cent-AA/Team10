@@ -646,8 +646,14 @@ public class EngineerController : MonoBehaviour
         sharedHealth.OnHealthChanged += HandleSharedHealthChanged;
         sharedHealth.OnDowned += HandleDowned;
         sharedHealth.OnRevived += HandleRevived;
+        sharedHealth.OnHit += OnHitDialogue;
+        sharedHealth.OnDowned += OnDeathDialogue;
+
         sharedHealthSubscribed = true;
     }
+
+    void OnHitDialogue() => GetComponent<DialogueTrigger>()?.OnDamaged();
+    void OnDeathDialogue() => GetComponent<DialogueTrigger>()?.OnDeath();
 
     void UnsubscribeSharedHealth()
     {
@@ -657,6 +663,9 @@ public class EngineerController : MonoBehaviour
         sharedHealth.OnHealthChanged -= HandleSharedHealthChanged;
         sharedHealth.OnDowned -= HandleDowned;
         sharedHealth.OnRevived -= HandleRevived;
+        sharedHealth.OnHit -= OnHitDialogue;
+        sharedHealth.OnDowned -= OnDeathDialogue;
+
         sharedHealthSubscribed = false;
     }
 
