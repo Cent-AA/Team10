@@ -264,7 +264,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &62128972
 RectTransform:
   m_ObjectHideFlags: 0
@@ -632,7 +632,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &126838085
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4179,13 +4179,13 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 62128972}
   - {fileID: 479050545}
   - {fileID: 1189789995}
   - {fileID: 62201643}
   - {fileID: 1289509750}
   - {fileID: 1470670275}
   - {fileID: 1671017702}
+  - {fileID: 62128972}
   - {fileID: 126838085}
   - {fileID: 157191016}
   m_Father: {fileID: 0}
@@ -5284,9 +5284,9 @@ MonoBehaviour:
   swingFrequency: 4
   initialSwingAngle: 2
   fadeInSpeed: 5
-  retractDuration: 0.5
+  retractDuration: 0.7
   bushTransition: {fileID: 126838085}
-  bushDropDuration: 1.7
+  bushDropDuration: 1.5
   menuSceneName: MainMenu
 --- !u!4 &1758670791
 Transform:
