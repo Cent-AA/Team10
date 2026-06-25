@@ -10,6 +10,7 @@ public class BossIntroSequence : MonoBehaviour
 
     [Header("Panel")]
     public Sprite heavyShockSprite;
+    public RectTransform heavyShockPanel;
     [SerializeField] float panelWidth = 1.2f;
     [SerializeField] float panelHeight = 0.45f;
     [SerializeField] float panelVerticalOffset = 0f;
@@ -42,17 +43,20 @@ public class BossIntroSequence : MonoBehaviour
 
         // --- Панель HeavyShock ---
         GameObject panelObj = CreatePanel();
-        RectTransform rect = panelObj.GetComponent<RectTransform>();
+        RectTransform rect = panelObj != null ? panelObj.GetComponent<RectTransform>() : null;
 
         float screenW = Screen.width;
         float screenH = Screen.height;
 
-        rect.sizeDelta = new Vector2(screenW * panelWidth, screenH * panelHeight);
+        if (rect != null)
+            rect.sizeDelta = new Vector2(screenW * panelWidth, screenH * panelHeight);
 
         Vector2 offscreenLeft = new Vector2(-screenW * 1.6f, panelVerticalOffset);
         Vector2 center = new Vector2(0f, panelVerticalOffset);
         Vector2 offscreenRight = new Vector2(screenW * 1.6f, panelVerticalOffset);
 
+        if (rect != null)
+        {
         rect.anchoredPosition = offscreenLeft;
 
         // Влетает резко
@@ -71,7 +75,8 @@ public class BossIntroSequence : MonoBehaviour
 
         // Вылетает резко
         yield return SlidePanel(rect, center, offscreenRight, slideOutDuration, easeOut: false);
-        Destroy(panelObj);
+        panelObj.SetActive(false);
+        }
 
         yield return new WaitForSeconds(delayBeforeCamera);
 
@@ -100,19 +105,33 @@ public class BossIntroSequence : MonoBehaviour
 
     GameObject CreatePanel()
     {
-        GameObject obj = new GameObject("HeavyShockPanel");
-        obj.transform.SetParent(uiCanvas.transform, false);
+        if (heavyShockPanel == null && uiCanvas != null)
+            heavyShockPanel = uiCanvas.transform.Find("HeavyShockPanel") as RectTransform;
 
-        RectTransform rect = obj.AddComponent<RectTransform>();
+        if (heavyShockPanel == null)
+        {
+            Debug.LogWarning($"{nameof(BossIntroSequence)} has no HeavyShockPanel assigned.", this);
+            return null;
+        }
+
+        GameObject obj = heavyShockPanel.gameObject;
+        if (uiCanvas != null && obj.transform.parent != uiCanvas.transform)
+            obj.transform.SetParent(uiCanvas.transform, false);
+
+        RectTransform rect = heavyShockPanel;
         rect.anchorMin = new Vector2(0.5f, 0.5f);
         rect.anchorMax = new Vector2(0.5f, 0.5f);
         rect.pivot = new Vector2(0.5f, 0.5f);
 
-        Image img = obj.AddComponent<Image>();
+        Image img = obj.GetComponent<Image>();
+        if (img == null)
+            img = obj.AddComponent<Image>();
+
         img.sprite = heavyShockSprite;
         img.preserveAspect = true;
         img.raycastTarget = false;
 
+        obj.SetActive(true);
         obj.transform.SetAsLastSibling();
         return obj;
     }

@@ -10,6 +10,10 @@ public class PrototypeEngineerBuilder : MonoBehaviour
     public int maxTurrets = 1;
     public int maxDispensers = 1;
 
+    [Header("Editable Prefabs")]
+    public GameObject turretPrefab;
+    public GameObject dispenserPrefab;
+
     private EngineerController engineer;
     private PlayerSharedInput sharedInput;
     private PrototypeTurret activeTurret;
@@ -57,9 +61,20 @@ public class PrototypeEngineerBuilder : MonoBehaviour
             Destroy(activeTurret.gameObject);
 
         Vector3 position = GetBuildPosition();
-        GameObject turretObject = new GameObject("Prototype Turret P" + engineer.playerNumber);
+        if (turretPrefab == null)
+        {
+            Debug.LogWarning($"{nameof(PrototypeEngineerBuilder)} on {name} has no turret prefab assigned.", this);
+            return;
+        }
+
+        GameObject turretObject = Instantiate(turretPrefab, position, Quaternion.identity);
+
+        turretObject.name = "Prototype Turret P" + engineer.playerNumber;
         turretObject.transform.position = position;
-        activeTurret = turretObject.AddComponent<PrototypeTurret>();
+        activeTurret = turretObject.GetComponent<PrototypeTurret>();
+        if (activeTurret == null)
+            activeTurret = turretObject.AddComponent<PrototypeTurret>();
+
         activeTurret.owner = transform;
         turretTimer = turretCooldown;
         ArenaCamera.Shake(0.2f, 0.12f);
@@ -74,9 +89,20 @@ public class PrototypeEngineerBuilder : MonoBehaviour
             Destroy(activeDispenser.gameObject);
 
         Vector3 position = GetBuildPosition();
-        GameObject dispenserObject = new GameObject("Prototype Dispenser P" + engineer.playerNumber);
+        if (dispenserPrefab == null)
+        {
+            Debug.LogWarning($"{nameof(PrototypeEngineerBuilder)} on {name} has no dispenser prefab assigned.", this);
+            return;
+        }
+
+        GameObject dispenserObject = Instantiate(dispenserPrefab, position, Quaternion.identity);
+
+        dispenserObject.name = "Prototype Dispenser P" + engineer.playerNumber;
         dispenserObject.transform.position = position;
-        activeDispenser = dispenserObject.AddComponent<PrototypeDispenser>();
+        activeDispenser = dispenserObject.GetComponent<PrototypeDispenser>();
+        if (activeDispenser == null)
+            activeDispenser = dispenserObject.AddComponent<PrototypeDispenser>();
+
         activeDispenser.owner = transform;
         dispenserTimer = dispenserCooldown;
         ArenaCamera.Shake(0.15f, 0.1f);
@@ -157,7 +183,7 @@ public class PrototypeEngineerBuilder : MonoBehaviour
         Canvas canvas = PrototypeArenaUi.GetOrCreateCanvas("PrototypeArenaHUD", 5500);
         hintText = PrototypeArenaUi.CreateText(
             canvas.transform,
-            "EngineerBuildHintP" + (engineer != null ? engineer.playerNumber : 0),
+            "EngineerBuildHint",
             "",
             18,
             TextAlignmentOptions.BottomLeft,

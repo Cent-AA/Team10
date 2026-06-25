@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 7526398530335100886}
   - component: {fileID: 7614154473800514338}
   - component: {fileID: 8271502132223241517}
+  - component: {fileID: 614731933210300001}
   m_Layer: 8
   m_Name: Zombie
   m_TagString: Untagged
@@ -226,3 +227,15 @@ MonoBehaviour:
   ammoDropChance: 0.08
   ammoDropAmountRange: {x: 3, y: 8}
   ammoDropScatter: 0.35
+--- !u!114 &614731933210300001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4324192285725456188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7735b88fd3a24652b4ac8e75ca279e10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PrototypeEnemyVariant

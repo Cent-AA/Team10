@@ -14,6 +14,7 @@ public class PrototypeTurret : MonoBehaviour
     private static Sprite squareSprite;
 
     private Transform barrel;
+    private LineRenderer tracerLine;
     private ZombieAI cachedTarget;
     private float targetRefreshTimer;
     private float fireTimer;
@@ -100,8 +101,11 @@ public class PrototypeTurret : MonoBehaviour
 
     IEnumerator TracerRoutine(Vector3 targetPosition)
     {
-        GameObject tracerObject = new GameObject("TurretTracer");
-        LineRenderer line = tracerObject.AddComponent<LineRenderer>();
+        LineRenderer line = GetTracerLine();
+        if (line == null)
+            yield break;
+
+        line.gameObject.SetActive(true);
         line.positionCount = 2;
         line.startWidth = 0.055f;
         line.endWidth = 0.015f;
@@ -112,28 +116,62 @@ public class PrototypeTurret : MonoBehaviour
         line.SetPosition(1, targetPosition);
 
         yield return new WaitForSeconds(0.05f);
-        Destroy(tracerObject);
+        if (line != null)
+            line.gameObject.SetActive(false);
     }
 
     void BuildVisuals()
     {
+        Transform existingBase = transform.Find("Base");
+        Transform existingBarrel = transform.Find("Barrel");
+        if (existingBase == null || existingBarrel == null)
+        {
+            Debug.LogWarning($"{nameof(PrototypeTurret)} on {name} is missing Base or Barrel child.", this);
+            return;
+        }
+
         Sprite square = GetSquareSprite();
 
-        GameObject baseObject = new GameObject("Base");
+        GameObject baseObject = existingBase.gameObject;
         baseObject.transform.SetParent(transform, false);
-        SpriteRenderer baseRenderer = baseObject.AddComponent<SpriteRenderer>();
+        SpriteRenderer baseRenderer = baseObject.GetComponent<SpriteRenderer>();
+        if (baseRenderer == null)
+            baseRenderer = baseObject.AddComponent<SpriteRenderer>();
+
         baseRenderer.sprite = square;
         baseRenderer.color = new Color(0.22f, 0.32f, 0.36f, 1f);
         baseObject.transform.localScale = new Vector3(0.7f, 0.5f, 1f);
 
-        GameObject barrelObject = new GameObject("Barrel");
+        GameObject barrelObject = existingBarrel.gameObject;
         barrelObject.transform.SetParent(transform, false);
         barrel = barrelObject.transform;
-        SpriteRenderer barrelRenderer = barrelObject.AddComponent<SpriteRenderer>();
+        SpriteRenderer barrelRenderer = barrelObject.GetComponent<SpriteRenderer>();
+        if (barrelRenderer == null)
+            barrelRenderer = barrelObject.AddComponent<SpriteRenderer>();
+
         barrelRenderer.sprite = square;
         barrelRenderer.color = new Color(0.55f, 0.9f, 1f, 1f);
         barrelObject.transform.localPosition = new Vector3(0.25f, 0.12f, 0f);
         barrelObject.transform.localScale = new Vector3(0.8f, 0.18f, 1f);
+
+        GetTracerLine();
+    }
+
+    LineRenderer GetTracerLine()
+    {
+        if (tracerLine != null)
+            return tracerLine;
+
+        Transform tracer = transform.Find("TurretTracer");
+        if (tracer == null)
+            return null;
+
+        tracerLine = tracer.GetComponent<LineRenderer>();
+        if (tracerLine == null)
+            tracerLine = tracer.gameObject.AddComponent<LineRenderer>();
+
+        tracerLine.gameObject.SetActive(false);
+        return tracerLine;
     }
 
     Material GetTracerMaterial()

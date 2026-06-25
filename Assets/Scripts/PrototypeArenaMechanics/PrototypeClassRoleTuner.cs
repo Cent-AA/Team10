@@ -121,7 +121,7 @@ public class PrototypeClassRoleTuner : MonoBehaviour
         string p2Role = hasEngineer ? "P2 Engineer: charge attacks, faster repairs through cards" : "P2 Scout: fast attacks, fast dash";
         rolesText = PrototypeArenaUi.CreateText(
             canvas.transform,
-            "RoleHint",
+            "RolesText",
             "P1 Heavy: tank, block, heavy barrage\n" + p2Role,
             20,
             TextAlignmentOptions.TopLeft,

@@ -6,6 +6,7 @@ public class PrototypeReviveTarget : MonoBehaviour
     public float baseRequiredDamage = 45f;
     public float requiredDamageIncrease = 25f;
     public float reviveHealthPercent = 0.3f;
+    public Transform reviveProgressTemplate;
 
     private PlayerController player;
     private EngineerController engineer;
@@ -23,6 +24,7 @@ public class PrototypeReviveTarget : MonoBehaviour
         player = GetComponent<PlayerController>();
         engineer = GetComponent<EngineerController>();
         rb = GetComponent<Rigidbody2D>();
+        PrepareLabelTemplate();
 
         if (player != null)
             player.OnDeath += HandleDeath;
@@ -39,7 +41,7 @@ public class PrototypeReviveTarget : MonoBehaviour
         if (!downed && IsHealthEmpty())
             HandleDeath();
 
-        if (label != null)
+        if (label != null && label.gameObject.activeSelf)
             label.transform.rotation = Quaternion.identity;
     }
 
@@ -80,7 +82,7 @@ public class PrototypeReviveTarget : MonoBehaviour
         reviveProgress = 0f;
 
         if (label != null)
-            Destroy(label.gameObject);
+            label.gameObject.SetActive(false);
 
         if (rb != null)
             rb.bodyType = RigidbodyType2D.Dynamic;
@@ -113,18 +115,48 @@ public class PrototypeReviveTarget : MonoBehaviour
 
     void CreateLabel()
     {
+        if (label == null)
+            PrepareLabelTemplate();
+
         if (label != null)
+        {
+            ConfigureLabel(label);
+            label.gameObject.SetActive(true);
+            return;
+        }
+
+        Debug.LogWarning($"{nameof(PrototypeReviveTarget)} on {name} has no ReviveProgressTemplate child.", this);
+    }
+
+    void PrepareLabelTemplate()
+    {
+        Transform template = reviveProgressTemplate;
+        if (template == null)
+            template = transform.Find("ReviveProgressTemplate");
+
+        if (template == null)
             return;
 
-        GameObject labelObject = new GameObject("ReviveProgress");
-        labelObject.transform.SetParent(transform, false);
-        labelObject.transform.localPosition = new Vector3(0f, 1.65f, 0f);
-        label = labelObject.AddComponent<TextMeshPro>();
-        label.fontSize = 3.2f;
-        label.alignment = TextAlignmentOptions.Center;
-        label.color = new Color(0.5f, 0.95f, 1f, 1f);
+        reviveProgressTemplate = template;
+        label = template.GetComponent<TextMeshPro>();
+        if (label == null)
+            label = template.gameObject.AddComponent<TextMeshPro>();
 
-        MeshRenderer meshRenderer = labelObject.GetComponent<MeshRenderer>();
+        ConfigureLabel(label);
+        label.gameObject.SetActive(false);
+    }
+
+    void ConfigureLabel(TextMeshPro targetLabel)
+    {
+        if (targetLabel == null)
+            return;
+
+        targetLabel.transform.localPosition = new Vector3(0f, 1.65f, 0f);
+        targetLabel.fontSize = 3.2f;
+        targetLabel.alignment = TextAlignmentOptions.Center;
+        targetLabel.color = new Color(0.5f, 0.95f, 1f, 1f);
+
+        MeshRenderer meshRenderer = targetLabel.GetComponent<MeshRenderer>();
         if (meshRenderer != null)
             meshRenderer.sortingOrder = 200;
     }

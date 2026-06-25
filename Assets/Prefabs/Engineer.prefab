@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &614731933210420001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 614731933210420002}
+  m_Layer: 0
+  m_Name: ReviveProgressTemplate
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &614731933210420002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 614731933210420001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.65, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4365360188365318660}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1772393333878917806
 GameObject:
   m_ObjectHideFlags: 0
@@ -258,6 +289,8 @@ GameObject:
   - component: {fileID: 7091920171392269329}
   - component: {fileID: 767772595762483267}
   - component: {fileID: 4164397194038707932}
+  - component: {fileID: 614731933210200001}
+  - component: {fileID: 614731933210420003}
   m_Layer: 0
   m_Name: Engineer
   m_TagString: Untagged
@@ -281,6 +314,7 @@ Transform:
   - {fileID: 821668626597601188}
   - {fileID: 7413892614054330273}
   - {fileID: 6378533194177501928}
+  - {fileID: 614731933210420002}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &6929543829160367192
@@ -402,6 +436,9 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 256
+  sharedInput: {fileID: 0}
+  sharedHealth: {fileID: 0}
+  motor: {fileID: 0}
   wrenchHitSound: {fileID: 0}
 --- !u!114 &4164397194038707932
 MonoBehaviour:
@@ -428,3 +465,38 @@ MonoBehaviour:
   rotationSpeed: 90
   triangleCount: 4
   currentTarget: {fileID: 0}
+--- !u!114 &614731933210200001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5798416344623167415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afa763c444c74b8d9cf912dfa5f7131e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PrototypeEngineerBuilder
+  buildDistance: 1.35
+  turretCooldown: 8
+  dispenserCooldown: 12
+  maxTurrets: 1
+  maxDispensers: 1
+  turretPrefab: {fileID: 100000, guid: 2c3f62d6c97f4e8d99815efc2a89d901, type: 3}
+  dispenserPrefab: {fileID: 100000, guid: 67a45d1d1e2a4ef2a35772f756e3e0f6, type: 3}
+--- !u!114 &614731933210420003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5798416344623167415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c085b59135e847c79c32ef592171baeb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PrototypeReviveTarget
+  baseRequiredDamage: 45
+  requiredDamageIncrease: 25
+  reviveHealthPercent: 0.3
+  reviveProgressTemplate: {fileID: 614731933210420002}

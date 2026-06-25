@@ -101,7 +101,7 @@ public class PrototypeCardRewardManager : MonoBehaviour
         Canvas canvas = PrototypeArenaUi.GetOrCreateCanvas("PrototypeArenaHUD", 5500);
         rewardPanel = PrototypeArenaUi.CreatePanel(
             canvas.transform,
-            "WaveReward",
+            "RewardPanel",
             new Color(0.025f, 0.03f, 0.035f, 0.94f),
             new Vector2(0.5f, 0.5f),
             new Vector2(0.5f, 0.5f),
@@ -112,7 +112,7 @@ public class PrototypeCardRewardManager : MonoBehaviour
             rewardPanel.transform,
             "Title",
             $"Wave {wave} cleared\nPick one upgrade",
-            34,
+            24,
             TextAlignmentOptions.Center,
             new Vector2(0.5f, 1f),
             new Vector2(0.5f, 1f),
@@ -128,7 +128,7 @@ public class PrototypeCardRewardManager : MonoBehaviour
             string label = $"{i + 1}. {card.Title}\n\n{card.Body}";
             PrototypeArenaUi.CreateButton(
                 rewardPanel.transform,
-                "Card" + i,
+                "CardButton" + (i + 1),
                 label,
                 new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f),
@@ -136,6 +136,9 @@ public class PrototypeCardRewardManager : MonoBehaviour
                 new Vector2(260f, 270f),
                 () => SelectCard(choiceIndex));
         }
+
+        for (int i = activeChoices.Length; i < 3; i++)
+            PrototypeArenaUi.SetChildActive(rewardPanel.transform, "CardButton" + (i + 1), false);
     }
 
     Card[] RollChoices()
@@ -173,7 +176,7 @@ public class PrototypeCardRewardManager : MonoBehaviour
             PrototypeRunStats.Instance.RegisterCard(card.Title);
 
         if (rewardPanel != null)
-            Destroy(rewardPanel);
+            rewardPanel.SetActive(false);
 
         rewardOpen = false;
         activeChoices = null;

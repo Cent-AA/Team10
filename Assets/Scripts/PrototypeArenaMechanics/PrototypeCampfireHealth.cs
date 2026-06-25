@@ -151,7 +151,7 @@ public class PrototypeCampfireHealth : MonoBehaviour
             frame.transform,
             "Label",
             "",
-            24,
+            16,
             TextAlignmentOptions.Center,
             Vector2.zero,
             Vector2.one,

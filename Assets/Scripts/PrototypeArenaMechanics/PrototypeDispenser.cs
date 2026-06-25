@@ -76,19 +76,33 @@ public class PrototypeDispenser : MonoBehaviour
 
     void BuildVisuals()
     {
+        Transform existingAura = transform.Find("HealAura");
+        Transform existingCore = transform.Find("Core");
+        if (existingAura == null || existingCore == null)
+        {
+            Debug.LogWarning($"{nameof(PrototypeDispenser)} on {name} is missing HealAura or Core child.", this);
+            return;
+        }
+
         Sprite circle = GetCircleSprite();
         Sprite square = GetSquareSprite();
 
-        GameObject auraObject = new GameObject("HealAura");
+        GameObject auraObject = existingAura.gameObject;
         auraObject.transform.SetParent(transform, false);
-        SpriteRenderer aura = auraObject.AddComponent<SpriteRenderer>();
+        SpriteRenderer aura = auraObject.GetComponent<SpriteRenderer>();
+        if (aura == null)
+            aura = auraObject.AddComponent<SpriteRenderer>();
+
         aura.sprite = circle;
         aura.color = new Color(0.1f, 0.85f, 0.45f, 0.18f);
         auraObject.transform.localScale = Vector3.one * healRadius * 2f;
 
-        GameObject coreObject = new GameObject("Core");
+        GameObject coreObject = existingCore.gameObject;
         coreObject.transform.SetParent(transform, false);
-        SpriteRenderer core = coreObject.AddComponent<SpriteRenderer>();
+        SpriteRenderer core = coreObject.GetComponent<SpriteRenderer>();
+        if (core == null)
+            core = coreObject.AddComponent<SpriteRenderer>();
+
         core.sprite = square;
         core.color = new Color(0.18f, 0.65f, 0.42f, 1f);
         coreObject.transform.localScale = new Vector3(0.7f, 0.8f, 1f);
