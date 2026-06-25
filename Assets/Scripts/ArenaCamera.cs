@@ -79,11 +79,16 @@ public class ArenaCamera : MonoBehaviour
 
     private static float shakeIntensity;
     private static float shakeDuration;
+    private static ArenaCamera instance;
+    private bool isCinematic = false;
+    private Vector3 cinematicTarget;
+    private float cinematicZoom;
 
     public bool IsSplitScreenActive => splitProgress > 0.001f;
 
     void Awake()
     {
+        instance = this;
         sharedCamera = GetComponent<Camera>();
         if (sharedCamera != null)
         {
@@ -105,6 +110,25 @@ public class ArenaCamera : MonoBehaviour
 
     void LateUpdate()
     {
+        if (isCinematic)
+        {
+            transform.position = Vector3.Lerp(
+                transform.position,
+                new Vector3(cinematicTarget.x, cinematicTarget.y, transform.position.z),
+                followSmoothness * Time.deltaTime
+            );
+            if (sharedCamera != null)
+                sharedCamera.orthographicSize = Mathf.Lerp(
+                    sharedCamera.orthographicSize,
+                    cinematicZoom,
+                    zoomSmoothness * Time.deltaTime
+                );
+
+            UpdateShake();
+            transform.position += shakeOffset;
+            return;
+        }
+
         if (sharedCamera == null) return;
 
         ResolveTargets();
@@ -145,9 +169,7 @@ public class ArenaCamera : MonoBehaviour
         }
 
         if (playerOne == null && Registry.Players.Count > 0)
-        {
             playerOne = Registry.Players[0];
-        }
 
         if (playerTwo == null)
         {
@@ -177,23 +199,16 @@ public class ArenaCamera : MonoBehaviour
         if (!enableSplitScreen || target1 == null || target2 == null)
         {
             if (splitState != SplitState.Shared)
-            {
                 BeginSplitTransition(false);
-            }
-
             return;
         }
 
         float distance = Vector2.Distance(target1.position, target2.position);
 
         if ((splitState == SplitState.Shared || splitState == SplitState.Merging) && distance >= splitThreshold)
-        {
             BeginSplitTransition(true);
-        }
         else if ((splitState == SplitState.Split || splitState == SplitState.Splitting) && distance <= mergeThreshold)
-        {
             BeginSplitTransition(false);
-        }
     }
 
     void BeginSplitTransition(bool split)
@@ -204,16 +219,12 @@ public class ArenaCamera : MonoBehaviour
         if (!split && splitState == SplitState.Shared) return;
 
         if (splitTransitionRoutine != null)
-        {
             StopCoroutine(splitTransitionRoutine);
-        }
 
         EnsureSplitCameras();
 
         if (split)
-        {
             InitializeSplitPositionsFromSharedCrop();
-        }
 
         splitTransitionRoutine = StartCoroutine(SplitTransitionRoutine(split));
     }
@@ -241,24 +252,15 @@ public class ArenaCamera : MonoBehaviour
         splitTransitionRoutine = null;
 
         if (!split)
-        {
             splitPositionsInitialized = false;
-        }
     }
 
     void EnsureSplitCameras()
     {
         if (!enableSplitScreen || sharedCamera == null) return;
 
-        if (leftSplitCamera == sharedCamera)
-        {
-            leftSplitCamera = null;
-        }
-
-        if (rightSplitCamera == sharedCamera)
-        {
-            rightSplitCamera = null;
-        }
+        if (leftSplitCamera == sharedCamera) leftSplitCamera = null;
+        if (rightSplitCamera == sharedCamera) rightSplitCamera = null;
 
         if (leftSplitCamera == null && createSplitCamerasAutomatically)
         {
@@ -299,9 +301,7 @@ public class ArenaCamera : MonoBehaviour
 
         AudioListener audioListener = cameraComponent.GetComponent<AudioListener>();
         if (audioListener != null)
-        {
             audioListener.enabled = false;
-        }
     }
 
     void ApplyCameraLayout()
@@ -349,10 +349,7 @@ public class ArenaCamera : MonoBehaviour
         if (!drawScreenDivider)
         {
             if (dividerImage != null)
-            {
                 dividerImage.gameObject.SetActive(false);
-            }
-
             return;
         }
 
@@ -389,18 +386,14 @@ public class ArenaCamera : MonoBehaviour
         float currentSharedZoom = sharedCamera.orthographicSize;
 
         if (splitProgress <= 0.001f || leftSplitCamera == null || rightSplitCamera == null || target1 == null || target2 == null)
-        {
             return;
-        }
 
         Transform leftTarget = GetLeftTarget();
         Transform rightTarget = GetRightTarget();
         if (leftTarget == null || rightTarget == null) return;
 
         if (!splitPositionsInitialized)
-        {
             InitializeSplitPositionsFromSharedCrop();
-        }
 
         leftSplitPosition = UpdateDeadZonePosition(leftTarget, leftSplitPosition, leftSplitCamera);
         rightSplitPosition = UpdateDeadZonePosition(rightTarget, rightSplitPosition, rightSplitCamera);
@@ -417,23 +410,14 @@ public class ArenaCamera : MonoBehaviour
         SetCameraPose(rightSplitCamera, rightPosition, currentSplitZoom);
     }
 
-    Transform GetLeftTarget()
-    {
-        return playerOneOnRight ? target2 : target1;
-    }
-
-    Transform GetRightTarget()
-    {
-        return playerOneOnRight ? target1 : target2;
-    }
+    Transform GetLeftTarget() => playerOneOnRight ? target2 : target1;
+    Transform GetRightTarget() => playerOneOnRight ? target1 : target2;
 
     Vector3 GetSharedTargetPosition()
     {
         Transform target = target1 != null ? target1 : target2;
         if (target2 == null || target1 == null)
-        {
             return new Vector3(target.position.x + offset.x, target.position.y + offset.y, transform.position.z);
-        }
 
         Vector2 center = ((Vector2)target1.position + (Vector2)target2.position) * 0.5f;
         return new Vector3(center.x + offset.x, center.y + offset.y, transform.position.z);
@@ -444,26 +428,19 @@ public class ArenaCamera : MonoBehaviour
         float targetZoom = minZoom;
         if (target1 != null && target2 != null)
         {
-            float fullScreenAspect = Screen.height > 0
-                ? (float)Screen.width / Screen.height
-                : sharedCamera.aspect;
-
+            float fullScreenAspect = Screen.height > 0 ? (float)Screen.width / Screen.height : sharedCamera.aspect;
             float halfWidth = Mathf.Abs(target1.position.x - target2.position.x) * 0.5f;
             float halfHeight = Mathf.Abs(target1.position.y - target2.position.y) * 0.5f;
             float horizontalZoom = halfWidth / Mathf.Max(0.01f, fullScreenAspect);
             float requiredZoom = Mathf.Max(horizontalZoom, halfHeight) + zoomPadding;
             targetZoom = Mathf.Clamp(requiredZoom, minZoom, maxZoom);
         }
-
         return ClampZoomToMap(targetZoom, sharedCamera);
     }
 
     Vector3 GetSharedCropPosition(Vector3 sharedPosition, float sharedZoom, bool leftSide)
     {
-        float fullScreenAspect = Screen.height > 0
-            ? (float)Screen.width / Screen.height
-            : sharedCamera.aspect;
-
+        float fullScreenAspect = Screen.height > 0 ? (float)Screen.width / Screen.height : sharedCamera.aspect;
         float cropOffset = sharedZoom * fullScreenAspect * 0.5f;
         Vector3 cropPosition = sharedPosition + Vector3.right * (leftSide ? -cropOffset : cropOffset);
         cropPosition.z = transform.position.z;
@@ -485,15 +462,11 @@ public class ArenaCamera : MonoBehaviour
 
         float deltaX = targetPosition.x - currentPosition.x;
         if (Mathf.Abs(deltaX) > splitDeadZone.x)
-        {
             desiredPosition.x += deltaX - Mathf.Sign(deltaX) * splitDeadZone.x;
-        }
 
         float deltaY = targetPosition.y - currentPosition.y;
         if (Mathf.Abs(deltaY) > splitDeadZone.y)
-        {
             desiredPosition.y += deltaY - Mathf.Sign(deltaY) * splitDeadZone.y;
-        }
 
         return desiredPosition;
     }
@@ -509,53 +482,37 @@ public class ArenaCamera : MonoBehaviour
     void SetCameraPose(Camera cameraComponent, Vector3 targetPosition, float targetZoom)
     {
         if (cameraComponent == null) return;
-
         cameraComponent.transform.rotation = transform.rotation;
         cameraComponent.transform.position = ClampToMap(targetPosition + shakeOffset, cameraComponent);
         if (cameraComponent.orthographic)
-        {
             cameraComponent.orthographicSize = ClampZoomToMap(targetZoom, cameraComponent);
-        }
     }
 
     void UpdateCameraZoom(Camera cameraComponent, float targetZoom)
     {
         if (cameraComponent == null || !cameraComponent.orthographic) return;
-
         targetZoom = ClampZoomToMap(targetZoom, cameraComponent);
-        cameraComponent.orthographicSize = Mathf.Lerp(
-            cameraComponent.orthographicSize,
-            targetZoom,
-            Time.deltaTime * zoomSmoothness);
+        cameraComponent.orthographicSize = Mathf.Lerp(cameraComponent.orthographicSize, targetZoom, Time.deltaTime * zoomSmoothness);
     }
 
-    float GetSplitZoom(Camera cameraComponent)
-    {
-        return ClampZoomToMap(Mathf.Max(0.1f, splitZoom), cameraComponent);
-    }
+    float GetSplitZoom(Camera cameraComponent) => ClampZoomToMap(Mathf.Max(0.1f, splitZoom), cameraComponent);
 
     float ClampZoomToMap(float targetZoom, Camera cameraComponent)
     {
         if (mapSprite == null || cameraComponent == null || !cameraComponent.orthographic)
-        {
             return targetZoom;
-        }
 
         Bounds mapBounds = mapSprite.bounds;
         float aspect = Mathf.Max(0.01f, cameraComponent.aspect);
         float maxVerticalZoom = mapBounds.size.y * 0.5f;
         float maxHorizontalZoom = (mapBounds.size.x * 0.5f) / aspect;
-        float absoluteMaxZoom = Mathf.Min(maxVerticalZoom, maxHorizontalZoom);
-
-        return Mathf.Min(targetZoom, absoluteMaxZoom);
+        return Mathf.Min(targetZoom, Mathf.Min(maxVerticalZoom, maxHorizontalZoom));
     }
 
     Vector3 ClampToMap(Vector3 position, Camera cameraComponent)
     {
         if (mapSprite == null || cameraComponent == null || !cameraComponent.orthographic)
-        {
             return position;
-        }
 
         Bounds mapBounds = mapSprite.bounds;
         float camHeight = cameraComponent.orthographicSize;
@@ -600,15 +557,8 @@ public class ArenaCamera : MonoBehaviour
         ApplyCameraLayout();
         UpdateDivider();
 
-        if (leftSplitCamera != null)
-        {
-            leftSplitCamera.enabled = false;
-        }
-
-        if (rightSplitCamera != null)
-        {
-            rightSplitCamera.enabled = false;
-        }
+        if (leftSplitCamera != null) leftSplitCamera.enabled = false;
+        if (rightSplitCamera != null) rightSplitCamera.enabled = false;
     }
 
     void UpdateShake()
@@ -640,11 +590,12 @@ public class ArenaCamera : MonoBehaviour
 
     float GetShakeScale()
     {
-        if (!cameraShakeEnabled)
-            return 0f;
+        if (!cameraShakeEnabled) return 0f;
 
-        if (IsSplitScreenActive && disableShakeDuringSplitScreen)
-            return 0f;
+        // ¬о врем€ кинематики всегда разрешаем shake на полную
+        if (isCinematic) return 1f;
+
+        if (IsSplitScreenActive && disableShakeDuringSplitScreen) return 0f;
 
         float levelScale = Mathf.Clamp(shakeIntensityLevel, 1f, 10f) / 10f;
         if (IsSplitScreenActive)
@@ -663,38 +614,16 @@ public class ArenaCamera : MonoBehaviour
             sharedCamera.clearFlags = originalSharedClearFlags;
         }
 
-        if (leftSplitCamera != null)
-        {
-            leftSplitCamera.enabled = false;
-        }
-
-        if (rightSplitCamera != null)
-        {
-            rightSplitCamera.enabled = false;
-        }
-
-        if (dividerImage != null)
-        {
-            dividerImage.gameObject.SetActive(false);
-        }
+        if (leftSplitCamera != null) leftSplitCamera.enabled = false;
+        if (rightSplitCamera != null) rightSplitCamera.enabled = false;
+        if (dividerImage != null) dividerImage.gameObject.SetActive(false);
     }
 
     void OnDestroy()
     {
-        if (createdLeftSplitCamera && leftSplitCamera != null)
-        {
-            Destroy(leftSplitCamera.gameObject);
-        }
-
-        if (createdRightSplitCamera && rightSplitCamera != null)
-        {
-            Destroy(rightSplitCamera.gameObject);
-        }
-
-        if (createdDividerCanvas && dividerCanvas != null)
-        {
-            Destroy(dividerCanvas.gameObject);
-        }
+        if (createdLeftSplitCamera && leftSplitCamera != null) Destroy(leftSplitCamera.gameObject);
+        if (createdRightSplitCamera && rightSplitCamera != null) Destroy(rightSplitCamera.gameObject);
+        if (createdDividerCanvas && dividerCanvas != null) Destroy(dividerCanvas.gameObject);
     }
 
     void OnValidate()
@@ -715,14 +644,26 @@ public class ArenaCamera : MonoBehaviour
         shakeDamping = Mathf.Max(0f, shakeDamping);
 
         if (splitEase == null || splitEase.length == 0)
-        {
             splitEase = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
-        }
     }
 
     public static void Shake(float intensity, float duration)
     {
         shakeIntensity = Mathf.Max(shakeIntensity, intensity);
         shakeDuration = Mathf.Max(shakeDuration, duration);
+    }
+
+    public static void SetCinematicTarget(Vector3 target, float zoom)
+    {
+        if (instance == null) return;
+        instance.isCinematic = true;
+        instance.cinematicTarget = target;
+        instance.cinematicZoom = zoom;
+    }
+
+    public static void RestoreNormal()
+    {
+        if (instance == null) return;
+        instance.isCinematic = false;
     }
 }

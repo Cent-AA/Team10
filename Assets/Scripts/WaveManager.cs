@@ -35,6 +35,14 @@ public class WaveManager : MonoBehaviour
     [Header("Camera")]
     public float waveShakeIntensity = 0.3f;
 
+
+    [Header("Boss")]
+    public GameObject bossPrefab;
+    public BossIntroSequence bossIntroSequence;
+    public Transform bossSpawnPoint;   // пустой Transform слева от арены
+    public int bossWave = 2;
+    private bool bossSpawned = false;
+
     private int currentWave = 0;
     private int zombiesAlive = 0;
     private int lastDisplayedZombiesAlive = -1;
@@ -52,6 +60,8 @@ public class WaveManager : MonoBehaviour
     public System.Action<int> OnWaveStart;
     public System.Action<int> OnWaveComplete;
     public System.Action OnAllWavesComplete;
+
+
 
     void Start()
     {
@@ -107,6 +117,11 @@ public class WaveManager : MonoBehaviour
         StartCoroutine(ShowWaveText());
         ArenaCamera.Shake(waveShakeIntensity, 0.5f);
         StartCoroutine(SpawnWaveZombies());
+        if (currentWave == bossWave && !bossSpawned && bossPrefab != null)
+        {
+            bossSpawned = true;
+            StartCoroutine(SpawnBoss());
+        }
     }
 
     IEnumerator ShowWaveText()
@@ -150,6 +165,31 @@ public class WaveManager : MonoBehaviour
         }
 
         spawningWave = false;
+    }
+
+    IEnumerator SpawnBoss()
+    {
+        yield return new WaitForSeconds(1f);
+
+        Vector3 spawnPos = bossSpawnPoint != null
+            ? bossSpawnPoint.position
+            : new Vector3(-15f, 0f, 0f);
+
+        GameObject bossObj = Instantiate(bossPrefab, spawnPos, Quaternion.identity);
+        BossController bossCtrl = bossObj.GetComponent<BossController>();
+
+        if (bossCtrl == null) yield break;
+
+        if (bossIntroSequence != null)
+        {
+            bossIntroSequence.boss = bossCtrl;
+            bossIntroSequence.Play();
+        }
+        else
+        {
+            // Если нет интро — просто активируем
+            bossCtrl.Activate();
+        }
     }
 
     void SpawnZombie()
@@ -341,4 +381,21 @@ public class WaveManager : MonoBehaviour
         return campfireObject != null ? campfireObject.transform : null;
     }
 }
+// ============================================================
+// ПАТЧ ДЛЯ WaveManager.cs
+// Добавь эти поля и методы в существующий WaveManager
+// ============================================================
+
+// 1. ПОЛЯ — добавь после [Header("Camera")] блока:
+
+
+// ============================================================
+
+// 2. В метод StartWave() — добавь в конец, после StartCoroutine(SpawnWaveZombies()):
+
+
+
+// ============================================================
+
+// 3. Новый метод — добавь рядом с SpawnWaveZombies():
 
