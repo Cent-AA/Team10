@@ -402,7 +402,11 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 256
+  sharedInput: {fileID: 0}
+  sharedHealth: {fileID: 0}
+  motor: {fileID: 0}
   wrenchHitSound: {fileID: 0}
+  onHitVoiceLine: {fileID: 8300000, guid: 593eb78c58f984b589ac86717e0a5cb1, type: 3}
 --- !u!114 &4164397194038707932
 MonoBehaviour:
   m_ObjectHideFlags: 0

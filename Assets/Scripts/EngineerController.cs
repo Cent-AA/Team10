@@ -58,7 +58,9 @@ public class EngineerController : MonoBehaviour
 
     [Header("═══ Звуки ═══")]
     public AudioClip wrenchHitSound;
+    public AudioClip onHitVoiceLine;
     private AudioSource audioSource;
+    private int hitVoiceLineCounter = 0;
 
     // Внутреннее
     private Vector2 moveInput;
@@ -561,6 +563,7 @@ public class EngineerController : MonoBehaviour
 
     void HandleDowned()
     {
+        hitVoiceLineCounter = 0;
         currentHealth = 0f;
         if (motor != null)
             motor.SetMovementLocked(true);
@@ -652,7 +655,12 @@ public class EngineerController : MonoBehaviour
         sharedHealthSubscribed = true;
     }
 
-    void OnHitDialogue() => GetComponent<DialogueTrigger>()?.OnDamaged();
+    void OnHitDialogue()
+    {
+        GetComponent<DialogueTrigger>()?.OnDamaged();
+        hitVoiceLineCounter++;
+        if (hitVoiceLineCounter % 3 == 1) PlaySound(onHitVoiceLine);
+    }
     void OnDeathDialogue() => GetComponent<DialogueTrigger>()?.OnDeath();
 
     void UnsubscribeSharedHealth()
