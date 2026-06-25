@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4c76bce30f64f729bb8611857e14c57, type: 3}
+  m_Name: RuntimeFontSwitcherConfig
+  m_EditorClassIdentifier: 
+  tmpFontAsset: {fileID: 11400000, guid: c03f086582cc5844588b8b0c238de42a, type: 2}
+  legacyFont: {fileID: 12800000, guid: e3b3fce4ae0df1a4abd2e65fa2869631, type: 3}
+  rescanInterval: 0.25

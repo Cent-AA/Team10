@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: c3bdd4aa6f9b57f40aaf94d7c811fd59
+guid: e3b3fce4ae0df1a4abd2e65fa2869631
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -12,7 +12,7 @@ TrueTypeFontImporter:
   - bomj's O's
   fallbackFontReferences: []
   customCharacters: 
-  fontRenderingMode: 3
+  fontRenderingMode: 0
   ascentCalculationMode: 1
   useLegacyBoundsCalculation: 0
   shouldRoundAdvanceValue: 1
