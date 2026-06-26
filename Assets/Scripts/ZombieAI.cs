@@ -415,7 +415,10 @@ public class ZombieAI : MonoBehaviour
             if (player != null)
             {
                 Vector2 knockDir = delta.sqrMagnitude > 0.0001f ? delta.normalized : Vector2.right;
+                float previousHealth = player.currentHealth;
                 player.TakeDamage(attackDamage, knockDir);
+                if (player.currentHealth < previousHealth)
+                    PixelBloodOverlay.PlayForPlayer(player.playerNumber, attackDamage);
                 ArenaCamera.Shake(0.3f, 0.1f);
                 return;
             }
@@ -424,7 +427,10 @@ public class ZombieAI : MonoBehaviour
             if (engineer != null)
             {
                 Vector2 knockDir = delta.sqrMagnitude > 0.0001f ? delta.normalized : Vector2.right;
+                float previousHealth = engineer.currentHealth;
                 engineer.TakeDamage(attackDamage, knockDir, transform);
+                if (engineer.currentHealth < previousHealth)
+                    PixelBloodOverlay.PlayForPlayer(engineer.playerNumber, attackDamage);
                 ArenaCamera.Shake(0.3f, 0.1f);
             }
         }
