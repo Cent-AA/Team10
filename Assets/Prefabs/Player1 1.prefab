@@ -445,6 +445,7 @@ MonoBehaviour:
   heavyHitSound: {fileID: 8300000, guid: 2490e2fc4c408c04598e42dd06efc12f, type: 3}
   chargeSound: {fileID: 8300000, guid: 2490e2fc4c408c04598e42dd06efc12f, type: 3}
   barrageSound: {fileID: 8300000, guid: 770f9fd349950584aad0fcd4088f7b2b, type: 3}
+  onHitVoiceLine: {fileID: 8300000, guid: bfaf647a421b14ef9b718cc240facf66, type: 3}
   puppet: {fileID: 6947892943637507798}
   rb: {fileID: 1357103608841584705}
   spriteRenderers:

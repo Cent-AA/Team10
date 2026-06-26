@@ -76,7 +76,9 @@ public class PrototypeEngineerBuilder : MonoBehaviour
             activeTurret = turretObject.AddComponent<PrototypeTurret>();
 
         activeTurret.owner = transform;
+        activeTurret.OnKill += OnSentryKill;
         turretTimer = turretCooldown;
+        engineer.PlaySound(engineer.buildTurretVoiceLine);
         ArenaCamera.Shake(0.2f, 0.12f);
     }
 
@@ -105,6 +107,7 @@ public class PrototypeEngineerBuilder : MonoBehaviour
 
         activeDispenser.owner = transform;
         dispenserTimer = dispenserCooldown;
+        engineer.PlaySound(engineer.buildDispenserVoiceLine);
         ArenaCamera.Shake(0.15f, 0.1f);
     }
 
@@ -220,4 +223,6 @@ public class PrototypeEngineerBuilder : MonoBehaviour
 
         return PlayerInputBindings.GetKeyboardKey(engineer.playerNumber, PlayerControlAction.Block).ToString();
     }
+
+    void OnSentryKill() => engineer.PlaySound(engineer.sentryKillVoiceLine);
 }

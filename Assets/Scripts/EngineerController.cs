@@ -58,7 +58,12 @@ public class EngineerController : MonoBehaviour
 
     [Header("═══ Звуки ═══")]
     public AudioClip wrenchHitSound;
+    public AudioClip onHitVoiceLine;
+    public AudioClip buildTurretVoiceLine;
+    public AudioClip buildDispenserVoiceLine;
+    public AudioClip sentryKillVoiceLine;
     private AudioSource audioSource;
+    private int hitVoiceLineCounter = 0;
 
     // Внутреннее
     private Vector2 moveInput;
@@ -562,6 +567,7 @@ public class EngineerController : MonoBehaviour
 
     void HandleDowned()
     {
+        hitVoiceLineCounter = 0;
         currentHealth = 0f;
         if (motor != null)
             motor.SetMovementLocked(true);
@@ -659,8 +665,19 @@ public class EngineerController : MonoBehaviour
         sharedHealth.OnHealthChanged += HandleSharedHealthChanged;
         sharedHealth.OnDowned += HandleDowned;
         sharedHealth.OnRevived += HandleRevived;
+        sharedHealth.OnHit += OnHitDialogue;
+        sharedHealth.OnDowned += OnDeathDialogue;
+
         sharedHealthSubscribed = true;
     }
+
+    void OnHitDialogue()
+    {
+        GetComponent<DialogueTrigger>()?.OnDamaged();
+        hitVoiceLineCounter++;
+        if (hitVoiceLineCounter % 3 == 1) PlaySound(onHitVoiceLine);
+    }
+    void OnDeathDialogue() => GetComponent<DialogueTrigger>()?.OnDeath();
 
     void UnsubscribeSharedHealth()
     {
@@ -670,10 +687,13 @@ public class EngineerController : MonoBehaviour
         sharedHealth.OnHealthChanged -= HandleSharedHealthChanged;
         sharedHealth.OnDowned -= HandleDowned;
         sharedHealth.OnRevived -= HandleRevived;
+        sharedHealth.OnHit -= OnHitDialogue;
+        sharedHealth.OnDowned -= OnDeathDialogue;
+
         sharedHealthSubscribed = false;
     }
 
-    void PlaySound(AudioClip clip)
+    public void PlaySound(AudioClip clip)
     {
         if (clip != null && audioSource != null) audioSource.PlayOneShot(clip);
     }

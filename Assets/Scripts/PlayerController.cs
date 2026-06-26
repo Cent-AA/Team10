@@ -46,6 +46,7 @@ public class PlayerController : MonoBehaviour
     public AudioClip heavyHitSound;
     public AudioClip chargeSound;           // Звук зарядки барража
     public AudioClip barrageSound;          // Звук барража
+    public AudioClip onHitVoiceLine;
     private AudioSource audioSource;
 
     [Header("═══ Компоненты ═══")]
@@ -80,6 +81,8 @@ public class PlayerController : MonoBehaviour
     private float heavyAttackCooldownTimer = 0f;
     private float barrageCooldownTimer = 0f;
     private float nextBarrageHitSoundTime = 0f;
+
+    private int hitVoiceLineCounter = 0;
 
     // Зарядка Heavy
     private bool isHoldingHeavy = false;
@@ -561,6 +564,8 @@ public class PlayerController : MonoBehaviour
         else if (puppet != null && !puppet.IsBlocking() && !puppet.IsBarraging())
         {
             puppet.TakeHit();
+            hitVoiceLineCounter++;
+            if (hitVoiceLineCounter % 3 == 1) PlaySound(onHitVoiceLine);
             StartCoroutine(InvulnerabilityRoutine());
         }
     }
@@ -618,15 +623,19 @@ public class PlayerController : MonoBehaviour
 
     void Die()
     {
-    if (EnsurePuppet()) puppet.Die();
-    OnDeath?.Invoke();
-    if (rb != null)
-    {
-        rb.bodyType = RigidbodyType2D.Kinematic;
-        rb.linearVelocity = Vector2.zero;
-    }
-    gameObject.layer = LayerMask.NameToLayer("DeadPlayer");
-    // adds player to layer that doesnt collide with enemy. need to make it so it add layer back on revives
+        hitVoiceLineCounter = 0;
+
+        if (EnsurePuppet()) puppet.Die();
+        OnDeath?.Invoke();
+
+        if (rb != null)
+        {
+            rb.bodyType = RigidbodyType2D.Kinematic;
+            rb.linearVelocity = Vector2.zero;
+        }
+
+        gameObject.layer = LayerMask.NameToLayer("DeadPlayer");
+        // Adds player to a layer that does not collide with enemies. Restore the layer on revive.
     }
 
     void PlaySound(AudioClip clip)

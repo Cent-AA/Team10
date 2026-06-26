@@ -440,6 +440,10 @@ MonoBehaviour:
   sharedHealth: {fileID: 0}
   motor: {fileID: 0}
   wrenchHitSound: {fileID: 0}
+  onHitVoiceLine: {fileID: 8300000, guid: 593eb78c58f984b589ac86717e0a5cb1, type: 3}
+  buildTurretVoiceLine: {fileID: 8300000, guid: ed562d0d24dd3403aa26f7ec34c70be9, type: 3}
+  buildDispenserVoiceLine: {fileID: 8300000, guid: f37e11f7b1650495ebedf11ccd2e3a9d, type: 3}
+  sentryKillVoiceLine: {fileID: 8300000, guid: 602438a6596544e5daa287b20adf61c8, type: 3}
 --- !u!114 &4164397194038707932
 MonoBehaviour:
   m_ObjectHideFlags: 0
