@@ -30,6 +30,7 @@ public class MainMenuController : MonoBehaviour
     [Header("Radio / кнопки страниц")]
     [SerializeField] private Selectable soundSettingsRadioButton;
     [SerializeField] private Selectable controlsSettingsRadioButton;
+    [SerializeField] private Button backButton;
 
     private OptionsPage currentOptionsPage = OptionsPage.Sound;
     private bool optionButtonsWired;
@@ -66,6 +67,12 @@ public class MainMenuController : MonoBehaviour
     private void OnApplicationQuit()
     {
         SaveAudioPrefsIfDirty();
+    }
+
+    private void Update()
+    {
+        if (optionsMenuPanel != null && optionsMenuPanel.activeInHierarchy && Input.GetKeyDown(KeyCode.Escape))
+            CloseOptions();
     }
 
     private void LateUpdate()
@@ -259,6 +266,13 @@ public class MainMenuController : MonoBehaviour
 
         if (controlsSettingsRadioButton == null)
             controlsSettingsRadioButton = FindSideSelectable("Controls");
+
+        if (backButton == null)
+        {
+            Transform found = FindChildRecursive(optionsMenuPanel.transform, "BackButton");
+            if (found != null)
+                backButton = found.GetComponent<Button>();
+        }
     }
 
     private GameObject FindSoundSettingsPage()
@@ -328,6 +342,9 @@ public class MainMenuController : MonoBehaviour
         optionButtonsWired = true;
         WireSelectable(soundSettingsRadioButton, ShowSoundSettings);
         WireSelectable(controlsSettingsRadioButton, ShowControlsSettings);
+
+        if (backButton != null)
+            backButton.onClick.AddListener(CloseOptions);
     }
 
     private void WireSelectable(Selectable selectable, UnityEngine.Events.UnityAction action)

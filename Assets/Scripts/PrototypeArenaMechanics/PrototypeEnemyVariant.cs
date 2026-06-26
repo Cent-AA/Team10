@@ -138,11 +138,21 @@ public class PrototypeEnemyVariant : MonoBehaviour
 
             PlayerController player = hit.GetComponent<PlayerController>();
             if (player != null)
+            {
+                float previousHealth = player.currentHealth;
                 player.TakeDamage(damage, direction);
+                if (player.currentHealth < previousHealth)
+                    PixelBloodOverlay.PlayForPlayer(player.playerNumber, damage);
+            }
 
             EngineerController engineer = hit.GetComponent<EngineerController>();
             if (engineer != null)
+            {
+                float previousHealth = engineer.currentHealth;
                 engineer.TakeDamage(damage, direction);
+                if (engineer.currentHealth < previousHealth)
+                    PixelBloodOverlay.PlayForPlayer(engineer.playerNumber, damage);
+            }
         }
 
         if (PrototypeCampfireHealth.Instance != null && PrototypeCampfireHealth.Instance.IsDestroyed == false)
