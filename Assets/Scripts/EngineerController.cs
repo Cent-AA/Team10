@@ -59,6 +59,9 @@ public class EngineerController : MonoBehaviour
     [Header("═══ Звуки ═══")]
     public AudioClip wrenchHitSound;
     public AudioClip onHitVoiceLine;
+    public AudioClip buildTurretVoiceLine;
+    public AudioClip buildDispenserVoiceLine;
+    public AudioClip sentryKillVoiceLine;
     private AudioSource audioSource;
     private int hitVoiceLineCounter = 0;
 
@@ -677,7 +680,7 @@ public class EngineerController : MonoBehaviour
         sharedHealthSubscribed = false;
     }
 
-    void PlaySound(AudioClip clip)
+    public void PlaySound(AudioClip clip)
     {
         if (clip != null && audioSource != null) audioSource.PlayOneShot(clip);
     }

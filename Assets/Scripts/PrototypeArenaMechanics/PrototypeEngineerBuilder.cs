@@ -10,14 +10,8 @@ public class PrototypeEngineerBuilder : MonoBehaviour
     public int maxTurrets = 1;
     public int maxDispensers = 1;
 
-    [Header("Voice Lines")]
-    public AudioClip buildTurretVoiceLine;
-    public AudioClip buildDispenserVoiceLine;
-    public AudioClip sentryKillVoiceLine;
-
     private EngineerController engineer;
     private PlayerSharedInput sharedInput;
-    private AudioSource audioSource;
     private PrototypeTurret activeTurret;
     private PrototypeDispenser activeDispenser;
     private float turretTimer;
@@ -32,8 +26,6 @@ public class PrototypeEngineerBuilder : MonoBehaviour
 
     void Start()
     {
-        audioSource = GetComponent<AudioSource>();
-        if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
         CreateHint();
     }
 
@@ -71,7 +63,7 @@ public class PrototypeEngineerBuilder : MonoBehaviour
         activeTurret.owner = transform;
         activeTurret.OnKill += OnSentryKill;
         turretTimer = turretCooldown;
-        PlaySound(buildTurretVoiceLine);
+        engineer.PlaySound(engineer.buildTurretVoiceLine);
         ArenaCamera.Shake(0.2f, 0.12f);
     }
 
@@ -89,7 +81,7 @@ public class PrototypeEngineerBuilder : MonoBehaviour
         activeDispenser = dispenserObject.AddComponent<PrototypeDispenser>();
         activeDispenser.owner = transform;
         dispenserTimer = dispenserCooldown;
-        PlaySound(buildDispenserVoiceLine);
+        engineer.PlaySound(engineer.buildDispenserVoiceLine);
         ArenaCamera.Shake(0.15f, 0.1f);
     }
 
@@ -206,10 +198,5 @@ public class PrototypeEngineerBuilder : MonoBehaviour
         return PlayerInputBindings.GetKeyboardKey(engineer.playerNumber, PlayerControlAction.Block).ToString();
     }
 
-    void OnSentryKill() => PlaySound(sentryKillVoiceLine);
-
-    void PlaySound(AudioClip clip)
-    {
-        if (clip != null && audioSource != null) audioSource.PlayOneShot(clip);
-    }
+    void OnSentryKill() => engineer.PlaySound(engineer.sentryKillVoiceLine);
 }
