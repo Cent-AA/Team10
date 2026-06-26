@@ -4,6 +4,7 @@ using UnityEngine;
 public class PrototypeTurret : MonoBehaviour
 {
     public Transform owner;
+    public System.Action OnKill;
     public float range = 9f;
     public float targetRefreshInterval = 0.12f;
     public float fireInterval = 0.28f;
@@ -95,6 +96,7 @@ public class PrototypeTurret : MonoBehaviour
             return;
 
         target.TakeDamage(damage, direction * 0.4f, owner);
+        if (!target.IsAlive) OnKill?.Invoke();
         StartCoroutine(TracerRoutine(target.transform.position));
     }
 
