@@ -322,6 +322,7 @@ MonoBehaviour:
   moveSpeed: 2
   stopRange: 2.5
   maxHealth: 500
+  screamDuration: 3.05
   leftArm: {fileID: 5731069587833308963}
   rightArm: {fileID: 1640183208401988013}
   head: {fileID: 6300768182394289564}

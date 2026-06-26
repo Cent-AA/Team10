@@ -87,10 +87,12 @@ public class BossIntroSequence : MonoBehaviour
         yield return new WaitForSeconds(delayOnBoss);
 
         // --- Крик + трясение ---
-        yield return new WaitForSeconds(1.1f);
-        ArenaCamera.Shake(screamShakeMagnitude, screamDuration);
+        float actualScreamDuration = boss != null ? boss.ScreamDuration : screamDuration;
+        if (boss != null)
+            boss.PlayIntroScream();
 
-        yield return new WaitForSeconds(screamDuration);
+        ArenaCamera.Shake(screamShakeMagnitude, actualScreamDuration);
+        yield return new WaitForSeconds(actualScreamDuration);
 
         // --- Камера обратно ---
         ArenaCamera.RestoreNormal();
@@ -100,7 +102,7 @@ public class BossIntroSequence : MonoBehaviour
         SetPlayersActive(true);
 
         if (boss != null)
-            boss.Activate();
+            boss.BeginChase();
     }
 
     GameObject CreatePanel()
