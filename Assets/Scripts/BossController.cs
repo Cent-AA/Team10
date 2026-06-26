@@ -3,10 +3,17 @@ using System.Collections;
 
 public class BossController : MonoBehaviour
 {
+    const int IdleState = 0;
+    const int WalkState = 1;
+    const int ScreamState = 2;
+
     [Header("Stats")]
     public float moveSpeed = 2f;
     public float stopRange = 2.5f;
     public float maxHealth = 500f;
+
+    [Header("Animation")]
+    public float screamDuration = 3.05f;
 
     [Header("Parts")]
     public Transform leftArm;
@@ -17,36 +24,55 @@ public class BossController : MonoBehaviour
 
     private Animator anim;
     private float currentHealth;
-    private bool isActive = false;
+    private bool isActive;
     private int currentState = -1;
     private Transform currentTarget;
+    private Coroutine activationRoutine;
+    private bool hasStateParameter;
+
+    public float ScreamDuration => Mathf.Max(0.01f, screamDuration);
+
+    void Awake()
+    {
+        anim = GetComponent<Animator>();
+        currentHealth = maxHealth;
+    }
 
     void Start()
     {
-        anim = GetComponent<Animator>();
-        Debug.Log("Animator найден: " + (anim != null));
-        if (anim != null)
-        {
-            // Проверяем что параметр существует
-            foreach (var p in anim.parameters)
-                Debug.Log("Параметр: " + p.name + " тип: " + p.type);
-        }
+        ValidateAnimator();
         currentHealth = maxHealth;
-        SetState(0);
+        SetState(IdleState);
     }
 
     public void Activate()
     {
-        Debug.Log("Boss Activated!");
-        isActive = true;
-        StartCoroutine(ScreamThenWalk());
+        if (activationRoutine != null)
+            StopCoroutine(activationRoutine);
+
+        activationRoutine = StartCoroutine(ScreamThenWalk());
     }
 
     IEnumerator ScreamThenWalk()
     {
-        SetState(2);
-        yield return new WaitForSeconds(1.5f);
-        SetState(1);
+        isActive = false;
+        SetState(ScreamState);
+        yield return new WaitForSeconds(ScreamDuration);
+        StartChaseState();
+        activationRoutine = null;
+    }
+
+    public void PlayIntroScream()
+    {
+        StopActivationRoutine();
+        isActive = false;
+        SetState(ScreamState);
+    }
+
+    public void BeginChase()
+    {
+        StopActivationRoutine();
+        StartChaseState();
     }
 
     void Update()
@@ -62,44 +88,94 @@ public class BossController : MonoBehaviour
         {
             Vector3 dir = (currentTarget.position - transform.position).normalized;
             transform.position += dir * moveSpeed * Time.deltaTime;
-            SetState(1);
+            SetState(WalkState);
 
             float dirX = currentTarget.position.x - transform.position.x;
-            transform.localScale = new Vector3(
-                Mathf.Sign(dirX) * Mathf.Abs(transform.localScale.x),
-                transform.localScale.y,
-                transform.localScale.z
-            );
+            if (!Mathf.Approximately(dirX, 0f))
+            {
+                transform.localScale = new Vector3(
+                    Mathf.Sign(dirX) * Mathf.Abs(transform.localScale.x),
+                    transform.localScale.y,
+                    transform.localScale.z
+                );
+            }
         }
         else
         {
-            SetState(0);
+            SetState(IdleState);
         }
+    }
+
+    void StartChaseState()
+    {
+        isActive = true;
+        SetState(WalkState);
+    }
+
+    void StopActivationRoutine()
+    {
+        if (activationRoutine == null) return;
+
+        StopCoroutine(activationRoutine);
+        activationRoutine = null;
     }
 
     void SetState(int state)
     {
         if (currentState == state) return;
         currentState = state;
-        if (anim != null)
+
+        if (!hasStateParameter)
+            return;
+
+        anim.SetFloat("State", state);
+    }
+
+    bool CacheStateParameter()
+    {
+        if (anim == null) return false;
+
+        foreach (AnimatorControllerParameter parameter in anim.parameters)
         {
-            Debug.Log("SetState: " + state);
-            anim.SetInteger("State", state);
+            if (parameter.name != "State")
+                continue;
+
+            if (parameter.type == AnimatorControllerParameterType.Float)
+                return true;
         }
+
+        return false;
+    }
+
+    void ValidateAnimator()
+    {
+        if (anim == null)
+        {
+            Debug.LogWarning($"{nameof(BossController)} on {name} has no Animator.", this);
+            return;
+        }
+
+        hasStateParameter = CacheStateParameter();
+        if (!hasStateParameter)
+            Debug.LogWarning($"{nameof(BossController)} on {name} needs a float Animator parameter named State.", this);
     }
 
     public void TakeDamage(float amount)
     {
         if (currentHealth <= 0f) return;
+
         currentHealth -= amount;
         ArenaCamera.Shake(0.15f, 0.1f);
-        if (currentHealth <= 0f) Die();
+
+        if (currentHealth <= 0f)
+            Die();
     }
 
     void Die()
     {
+        StopActivationRoutine();
         isActive = false;
-        SetState(0);
+        SetState(IdleState);
         Destroy(gameObject, 2f);
     }
 
@@ -107,16 +183,26 @@ public class BossController : MonoBehaviour
     {
         Transform closest = null;
         float minDist = float.MaxValue;
-        foreach (Transform p in Registry.Players)
+
+        foreach (Transform player in Registry.Players)
         {
-            if (p == null) continue;
-            float d = Vector3.Distance(transform.position, p.position);
-            if (d < minDist) { minDist = d; closest = p; }
+            if (player == null) continue;
+
+            float distance = Vector3.Distance(transform.position, player.position);
+            if (distance < minDist)
+            {
+                minDist = distance;
+                closest = player;
+            }
         }
+
         return closest;
     }
 
-    public float GetHealthPercent() => currentHealth / maxHealth;
+    public float GetHealthPercent()
+    {
+        return maxHealth > 0f ? currentHealth / maxHealth : 0f;
+    }
 
     void OnDrawGizmosSelected()
     {

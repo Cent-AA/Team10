@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: e3b3fce4ae0df1a4abd2e65fa2869631
+guid: 71cd41989941cf14b84ab528e63b8511
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - bomj's O's
+  - bom Journey
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0

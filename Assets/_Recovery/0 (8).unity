@@ -3358,7 +3358,7 @@ MonoBehaviour:
   slideOutDuration: 0.07
   delayBeforeCamera: 0.2
   delayOnBoss: 0.4
-  screamDuration: 1.6
+  screamDuration: 3.05
   delayBeforeActivate: 0.5
   cinematicZoom: 4
   screamShakeMagnitude: 0.2
