@@ -1440,10 +1440,12 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\n\n\nMove: <color=#68A8FF><link=\"Move\">W A S D</link></color>\nRun: <color=#68A8FF><link=\"Run\">LEFT SHIFT</link></color>
-    \nDash: <color=#68A8FF><link=\"Dash\">R</link></color>\nRoll: <color=#68A8FF><link=\"Roll\">F</link></color>\n\n                                                    
-    <b></b>\nLight attack: <color=#68A8FF><link=\"LightAttack\">SPACE</link></color>\nHeavy attack: <color=#68A8FF><link=\"HeavyAttack\">Q</link></color>\nBlock:
-    <color=#68A8FF><link=\"Block\">C</link></color>    \nShoot /<color=#68A8FF>or</color> class skill: <color=#68A8FF><link=\"Shoot\">J</link></color>\n"
+  m_text: "\n\n\nMove: <color=#68A8FF><link=\"Move\">W A S D</link></color>\nRun:
+    <color=#68A8FF><link=\"Run\">LEFT SHIFT</link></color> \nDash: <color=#68A8FF><link=\"Dash\">R</link></color>\nRoll:
+    <color=#68A8FF><link=\"Roll\">F</link></color>\n\n                                                    
+    <b></b>\nLight attack: <color=#68A8FF><link=\"LightAttack\">SPACE</link></color>\nHeavy
+    attack: <color=#68A8FF><link=\"HeavyAttack\">Q</link></color>\nBlock: <color=#68A8FF><link=\"Block\">C</link></color>   
+    \nShoot /<color=#68A8FF>or</color> class skill: <color=#68A8FF><link=\"Shoot\">J</link></color>\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 995a5b3a08862254884894fb662c133f, type: 2}
   m_sharedMaterial: {fileID: -8930848367627181546, guid: 995a5b3a08862254884894fb662c133f, type: 2}
@@ -3025,7 +3027,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\t\t<color=#AEB8C4><link=\"Navigate\">A / D</link>: switch tab \t\t\t\t\tTAB: close</color>"
+  m_text: "\t\t<color=#AEB8C4><link=\"Navigate\">A / D</link>: switch tab \t\t\t\t\tTAB:
+    close</color>"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 995a5b3a08862254884894fb662c133f, type: 2}
   m_sharedMaterial: {fileID: -8930848367627181546, guid: 995a5b3a08862254884894fb662c133f, type: 2}
@@ -4043,10 +4046,12 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\n\n\nMove: <color=#FFB14A><link=\"Move\">\u2191 \u2190 \u2193 \u2192</link></color>\nRun: <color=#FFB14A><link=\"Run\">RIGHT
-    SHIFT</link></color> \nDash: <color=#FFB14A><link=\"Dash\">2</link></color>\nRoll: <color=#FFB14A><link=\"Roll\">3</link></color>\n\n                                                    
-    <b></b>\nLight attack: <color=#FFB14A><link=\"LightAttack\">0</link></color>\nHeavy attack: <color=#FFB14A><link=\"HeavyAttack\">1</link></color>\nBlock:
-    <color=#FFB14A><link=\"Block\">4</link></color>    \nShoot /<color=#FFB14A>or</color> class skill: <color=#FFB14A><link=\"Shoot\">5</link></color>\n"
+  m_text: "\n\n\nMove: <color=#FFB14A><link=\"Move\">\u2191 \u2190 \u2193 \u2192</link></color>\nRun:
+    <color=#FFB14A><link=\"Run\">RIGHT SHIFT</link></color> \nDash: <color=#FFB14A><link=\"Dash\">2</link></color>\nRoll:
+    <color=#FFB14A><link=\"Roll\">3</link></color>\n\n                                                    
+    <b></b>\nLight attack: <color=#FFB14A><link=\"LightAttack\">0</link></color>\nHeavy
+    attack: <color=#FFB14A><link=\"HeavyAttack\">1</link></color>\nBlock: <color=#FFB14A><link=\"Block\">4</link></color>   
+    \nShoot /<color=#FFB14A>or</color> class skill: <color=#FFB14A><link=\"Shoot\">5</link></color>\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 995a5b3a08862254884894fb662c133f, type: 2}
   m_sharedMaterial: {fileID: -8930848367627181546, guid: 995a5b3a08862254884894fb662c133f, type: 2}
@@ -4792,7 +4797,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\t\t<color=#AEB8C4><link=\"Navigate\">\u2190 / \u2192</link>: switch tab \t\t\t\t\t+: close</color>"
+  m_text: "\t\t<color=#AEB8C4><link=\"Navigate\">\u2190 / \u2192</link>: switch tab
+    \t\t\t\t\t+: close</color>"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 995a5b3a08862254884894fb662c133f, type: 2}
   m_sharedMaterial: {fileID: -8930848367627181546, guid: 995a5b3a08862254884894fb662c133f, type: 2}
@@ -5918,7 +5924,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 9085546173938197295, guid: 044edcfa31060b44790f9e3ca996381f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 044edcfa31060b44790f9e3ca996381f, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
