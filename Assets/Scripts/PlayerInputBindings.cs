@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
@@ -172,16 +173,30 @@ public static class PlayerInputBindings
 
     public static bool GetKeyboardAction(int playerNumber, PlayerControlAction action)
     {
+        if (TrainingTutorialManager.IsPlayerInputBlocked(playerNumber))
+            return false;
+
         return Input.GetKey(GetKeyboardKey(playerNumber, action));
     }
 
     public static bool GetKeyboardActionDown(int playerNumber, PlayerControlAction action)
+    {
+        if (TrainingTutorialManager.IsPlayerInputBlocked(playerNumber))
+            return false;
+
+        return GetKeyboardActionDownIgnoringGameplayBlock(playerNumber, action);
+    }
+
+    public static bool GetKeyboardActionDownIgnoringGameplayBlock(int playerNumber, PlayerControlAction action)
     {
         return Input.GetKeyDown(GetKeyboardKey(playerNumber, action));
     }
 
     public static bool GetGamepadAction(int playerNumber, PlayerControlAction action, int gamepadIndex)
     {
+        if (TrainingTutorialManager.IsPlayerInputBlocked(playerNumber))
+            return false;
+
         Gamepad gamepad = GetGamepad(gamepadIndex);
         if (gamepad == null)
             return false;
@@ -191,6 +206,18 @@ public static class PlayerInputBindings
 
     public static bool GetGamepadActionDown(int playerNumber, PlayerControlAction action, int gamepadIndex)
     {
+        if (TrainingTutorialManager.IsPlayerInputBlocked(playerNumber))
+            return false;
+
+        return GetGamepadActionDownIgnoringGameplayBlock(playerNumber, action, gamepadIndex);
+    }
+
+    public static bool GetGamepadActionDownIgnoringGameplayBlock(
+        int playerNumber,
+        PlayerControlAction action,
+        int gamepadIndex)
+    {
+
         Gamepad gamepad = GetGamepad(gamepadIndex);
         if (gamepad == null)
             return false;
@@ -202,7 +229,7 @@ public static class PlayerInputBindings
     public static string GetBindingName(int playerNumber, PlayerControlDevice device, PlayerControlAction action)
     {
         if (device == PlayerControlDevice.Keyboard)
-            return FormatBindingName(GetKeyboardKey(playerNumber, action).ToString());
+            return GetKeyboardKeyDisplayName(GetKeyboardKey(playerNumber, action));
 
         return FormatBindingName(GetGamepadControlName(GetGamepadControl(playerNumber, action)));
     }
@@ -499,6 +526,59 @@ public static class PlayerInputBindings
     private static string FormatBindingName(string value)
     {
         return string.IsNullOrEmpty(value) ? string.Empty : value.ToUpperInvariant();
+    }
+
+    private static string GetKeyboardKeyDisplayName(KeyCode key)
+    {
+        switch (key)
+        {
+            case KeyCode.UpArrow: return "↑";
+            case KeyCode.DownArrow: return "↓";
+            case KeyCode.LeftArrow: return "←";
+            case KeyCode.RightArrow: return "→";
+            case KeyCode.Alpha0:
+            case KeyCode.Keypad0: return "0";
+            case KeyCode.Alpha1:
+            case KeyCode.Keypad1: return "1";
+            case KeyCode.Alpha2:
+            case KeyCode.Keypad2: return "2";
+            case KeyCode.Alpha3:
+            case KeyCode.Keypad3: return "3";
+            case KeyCode.Alpha4:
+            case KeyCode.Keypad4: return "4";
+            case KeyCode.Alpha5:
+            case KeyCode.Keypad5: return "5";
+            case KeyCode.Alpha6:
+            case KeyCode.Keypad6: return "6";
+            case KeyCode.Alpha7:
+            case KeyCode.Keypad7: return "7";
+            case KeyCode.Alpha8:
+            case KeyCode.Keypad8: return "8";
+            case KeyCode.Alpha9:
+            case KeyCode.Keypad9: return "9";
+            case KeyCode.KeypadPlus: return "+";
+            case KeyCode.KeypadMinus: return "−";
+            case KeyCode.KeypadMultiply: return "×";
+            case KeyCode.KeypadDivide: return "÷";
+            case KeyCode.KeypadPeriod: return ".";
+            case KeyCode.KeypadEnter: return "ENTER";
+        }
+
+        string rawName = key.ToString();
+        if (string.IsNullOrEmpty(rawName))
+            return string.Empty;
+
+        StringBuilder displayName = new StringBuilder(rawName.Length + 4);
+        for (int i = 0; i < rawName.Length; i++)
+        {
+            char current = rawName[i];
+            if (i > 0 && char.IsUpper(current) && !char.IsUpper(rawName[i - 1]))
+                displayName.Append(' ');
+
+            displayName.Append(char.ToUpperInvariant(current));
+        }
+
+        return displayName.ToString();
     }
 
     private static string GetKeyboardKeyName(int playerNumber, PlayerControlAction action)

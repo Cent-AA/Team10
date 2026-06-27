@@ -2443,7 +2443,7 @@ MonoBehaviour:
   m_text: YES
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 995a5b3a08862254884894fb662c133f, type: 2}
-  m_sharedMaterial: {fileID: 2687573379150608014, guid: 995a5b3a08862254884894fb662c133f, type: 2}
+  m_sharedMaterial: {fileID: -8930848367627181546, guid: 995a5b3a08862254884894fb662c133f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2883,7 +2883,7 @@ MonoBehaviour:
   m_text: Are you sure you want to quit?
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 995a5b3a08862254884894fb662c133f, type: 2}
-  m_sharedMaterial: {fileID: 2687573379150608014, guid: 995a5b3a08862254884894fb662c133f, type: 2}
+  m_sharedMaterial: {fileID: -8930848367627181546, guid: 995a5b3a08862254884894fb662c133f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
