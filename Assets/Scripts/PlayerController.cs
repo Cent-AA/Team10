@@ -82,8 +82,6 @@ public class PlayerController : MonoBehaviour
     private float barrageCooldownTimer = 0f;
     private float nextBarrageHitSoundTime = 0f;
 
-    private int hitVoiceLineCounter = 0;
-
     // Зарядка Heavy
     private bool isHoldingHeavy = false;
     private float heavyHoldTime = 0f;
@@ -564,8 +562,7 @@ public class PlayerController : MonoBehaviour
         else if (puppet != null && !puppet.IsBlocking() && !puppet.IsBarraging())
         {
             puppet.TakeHit();
-            hitVoiceLineCounter++;
-            if (hitVoiceLineCounter % 3 == 1) PlaySound(onHitVoiceLine);
+            if (Random.value < 0.0006f) PlaySound(onHitVoiceLine);
             StartCoroutine(InvulnerabilityRoutine());
         }
     }
@@ -623,8 +620,6 @@ public class PlayerController : MonoBehaviour
 
     void Die()
     {
-        hitVoiceLineCounter = 0;
-
         if (EnsurePuppet()) puppet.Die();
         OnDeath?.Invoke();
 
