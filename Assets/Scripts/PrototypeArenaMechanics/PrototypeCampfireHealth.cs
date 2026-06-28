@@ -13,11 +13,13 @@ public class PrototypeCampfireHealth : MonoBehaviour
     public float damageRadius = 1.7f;
     public float damageTickInterval = 0.5f;
 
+    [Header("Serialized HUD")]
+    public TextMeshProUGUI healthText;
+    public Image healthFill;
+
     private float currentHealth;
     private float tickTimer;
     private bool destroyed;
-    private TextMeshProUGUI healthText;
-    private Image healthFill;
     private readonly Collider2D[] damageHitBuffer = new Collider2D[64];
 
     public float CurrentHealth => currentHealth;
@@ -41,7 +43,8 @@ public class PrototypeCampfireHealth : MonoBehaviour
         if (campfire == null)
             campfire = FindCampfireTransform();
 
-        CreateHud();
+        if (healthText == null || healthFill == null)
+            CreateHud();
         UpdateHud();
     }
 

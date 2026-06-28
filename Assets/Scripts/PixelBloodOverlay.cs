@@ -4,14 +4,26 @@ using UnityEngine.UI;
 
 public class PixelBloodOverlay : MonoBehaviour
 {
-    private const int SortingOrder = 7600;
-    private const int BaseParticleCount = 34;
+    [Header("Scene Setup")]
+    public int sortingOrder = 7600;
+    [Min(1)] public int baseParticleCount = 34;
+    public RectTransform player1Root;
+    public RectTransform player2Root;
 
     private static PixelBloodOverlay instance;
     private static Sprite pixelSprite;
 
-    private RectTransform player1Root;
-    private RectTransform player2Root;
+    private void Awake()
+    {
+        if (instance != null && instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
+        BuildCanvas();
+    }
 
     public static void PlayForPlayer(int playerNumber, float damage = 0f)
     {
@@ -24,25 +36,53 @@ public class PixelBloodOverlay : MonoBehaviour
         if (instance != null)
             return;
 
+        instance = FindFirstObjectByType<PixelBloodOverlay>(FindObjectsInactive.Include);
+        if (instance != null)
+        {
+            instance.BuildCanvas();
+            return;
+        }
+
         GameObject overlayObject = new GameObject("PixelBloodOverlay", typeof(RectTransform));
         instance = overlayObject.AddComponent<PixelBloodOverlay>();
-        DontDestroyOnLoad(overlayObject);
         instance.BuildCanvas();
+    }
+
+    private void OnDestroy()
+    {
+        if (instance == this)
+            instance = null;
     }
 
     private void BuildCanvas()
     {
-        Canvas canvas = gameObject.AddComponent<Canvas>();
-        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = SortingOrder;
+        Canvas canvas = GetComponent<Canvas>();
+        if (canvas == null)
+        {
+            canvas = gameObject.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        }
+        canvas.sortingOrder = sortingOrder;
 
-        CanvasScaler scaler = gameObject.AddComponent<CanvasScaler>();
-        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920f, 1080f);
-        scaler.matchWidthOrHeight = 0.5f;
+        CanvasScaler scaler = GetComponent<CanvasScaler>();
+        if (scaler == null)
+        {
+            scaler = gameObject.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920f, 1080f);
+            scaler.matchWidthOrHeight = 0.5f;
+        }
 
-        player1Root = CreateCornerRoot("Player1PixelBlood", new Vector2(0f, 1f), new Vector2(0f, 1f));
-        player2Root = CreateCornerRoot("Player2PixelBlood", new Vector2(1f, 1f), new Vector2(1f, 1f));
+        if (player1Root == null)
+            player1Root = FindCornerRoot("Player1PixelBlood") ?? CreateCornerRoot("Player1PixelBlood", new Vector2(0f, 1f), new Vector2(0f, 1f));
+        if (player2Root == null)
+            player2Root = FindCornerRoot("Player2PixelBlood") ?? CreateCornerRoot("Player2PixelBlood", new Vector2(1f, 1f), new Vector2(1f, 1f));
+    }
+
+    private RectTransform FindCornerRoot(string rootName)
+    {
+        Transform child = transform.Find(rootName);
+        return child != null ? child.GetComponent<RectTransform>() : null;
     }
 
     private RectTransform CreateCornerRoot(string rootName, Vector2 anchor, Vector2 pivot)
@@ -65,7 +105,7 @@ public class PixelBloodOverlay : MonoBehaviour
         if (root == null)
             return;
 
-        int particleCount = BaseParticleCount + Mathf.Clamp(Mathf.RoundToInt(damage * 0.75f), 0, 28);
+        int particleCount = baseParticleCount + Mathf.Clamp(Mathf.RoundToInt(damage * 0.75f), 0, 28);
         for (int i = 0; i < particleCount; i++)
         {
             bool isRightSide = playerNumber == 2;

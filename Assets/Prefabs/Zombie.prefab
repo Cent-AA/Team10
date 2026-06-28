@@ -204,20 +204,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZombieAI
   maxHealth: 100
-  moveSpeed: 3
-  runSpeed: 5
+  moveSpeed: 2
+  runSpeed: 4
   campfireStopDistance: 0.8
-  detectRange: 25
+  detectRange: 10
   chaseRange: 10
-  attackRange: 2.5
+  attackRange: 2
   loseTargetTime: 3
   targetRefreshInterval: 0.2
   attackerSwitchRange: 5
   groupedPlayersDistance: 2.5
   groupedLockDelay: 2
-  attackCooldown: 1.5
-  attackDamage: 15
-  knockbackForce: 3
+  attackCooldown: 3.4
+  attackDamage: 7
+  knockbackForce: 1.8
   animator: {fileID: 7896596668870529915}
   rb: {fileID: 7526398530335100886}
   spriteRenderer: {fileID: 5226093720813814071}

@@ -1,0 +1,571 @@
+fileFormatVersion: 2
+guid: 182a3a31761d72e42acb991618407699
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -7950638554904528755
+    second: GhostHnads_0
+  - first:
+      213: -1663867629042875941
+    second: GhostHnads_1
+  - first:
+      213: -3838862463974897310
+    second: GhostHnads_2
+  - first:
+      213: 1394979209831292949
+    second: GhostHnads_3
+  - first:
+      213: -5714521696539860882
+    second: GhostHnads_4
+  - first:
+      213: 2169582252021986148
+    second: GhostHnads_5
+  - first:
+      213: -555199804555257517
+    second: GhostHnads_6
+  - first:
+      213: 7529175928359484209
+    second: GhostHnads_7
+  - first:
+      213: -5813513612104219456
+    second: GhostHnads_8
+  - first:
+      213: -9098053196457291538
+    second: GhostHnads_9
+  - first:
+      213: 7170801761138792790
+    second: GhostHnads_10
+  - first:
+      213: 1598494864947784463
+    second: GhostHnads_11
+  - first:
+      213: -8192692930045375335
+    second: GhostHnads_12
+  - first:
+      213: 2669797777551671735
+    second: GhostHnads_13
+  - first:
+      213: 9078118664356806228
+    second: GhostHnads_14
+  - first:
+      213: -7082287089078531312
+    second: GhostHnads_15
+  - first:
+      213: 4014761216316294424
+    second: GhostHnads_16
+  - first:
+      213: 678406910355453223
+    second: GhostHnads_17
+  - first:
+      213: -5812556550434002191
+    second: GhostHnads_18
+  - first:
+      213: 3415625770970793620
+    second: GhostHnads_19
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 32
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: GhostHnads_0
+      rect:
+        serializedVersion: 2
+        x: 648
+        y: 571
+        width: 86
+        height: 68
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d88f36dcb58a9a190800000000000000
+      internalID: -7950638554904528755
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GhostHnads_2
+      rect:
+        serializedVersion: 2
+        x: 261
+        y: 484
+        width: 22
+        height: 57
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 269023d9dee99bac0800000000000000
+      internalID: -3838862463974897310
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GhostHnads_3
+      rect:
+        serializedVersion: 2
+        x: 474
+        y: 486
+        width: 22
+        height: 57
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 510ac0f4336fb5310800000000000000
+      internalID: 1394979209831292949
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GhostHnads_4
+      rect:
+        serializedVersion: 2
+        x: 865
+        y: 491
+        width: 68
+        height: 62
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e60aa783bc0f1b0b0800000000000000
+      internalID: -5714521696539860882
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GhostHnads_6
+      rect:
+        serializedVersion: 2
+        x: 493
+        y: 399
+        width: 47
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3591e1628b88b48f0800000000000000
+      internalID: -555199804555257517
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GhostHnads_7
+      rect:
+        serializedVersion: 2
+        x: 895
+        y: 424
+        width: 23
+        height: 56
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 13bf9459d910d7860800000000000000
+      internalID: 7529175928359484209
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GhostHnads_8
+      rect:
+        serializedVersion: 2
+        x: 63
+        y: 386
+        width: 87
+        height: 19
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c441adcb20425fa0800000000000000
+      internalID: -5813513612104219456
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GhostHnads_9
+      rect:
+        serializedVersion: 2
+        x: 283
+        y: 398
+        width: 87
+        height: 19
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ee05e8542d83db180800000000000000
+      internalID: -9098053196457291538
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GhostHnads_10
+      rect:
+        serializedVersion: 2
+        x: 701
+        y: 354
+        width: 68
+        height: 45
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6595c6f853ec38360800000000000000
+      internalID: 7170801761138792790
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GhostHnads_11
+      rect:
+        serializedVersion: 2
+        x: 45
+        y: 264
+        width: 23
+        height: 56
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f0baf784c9efe2610800000000000000
+      internalID: 1598494864947784463
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GhostHnads_12
+      rect:
+        serializedVersion: 2
+        x: 319
+        y: 228
+        width: 97
+        height: 90
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 99c8ac6df25bd4e80800000000000000
+      internalID: -8192692930045375335
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GhostHnads_14
+      rect:
+        serializedVersion: 2
+        x: 520
+        y: 237
+        width: 27
+        height: 61
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 45eb4d9c3d4fbfd70800000000000000
+      internalID: 9078118664356806228
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GhostHnads_15
+      rect:
+        serializedVersion: 2
+        x: 585
+        y: 236
+        width: 24
+        height: 69
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 01b83228a69a6bd90800000000000000
+      internalID: -7082287089078531312
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GhostHnads_16
+      rect:
+        serializedVersion: 2
+        x: 636
+        y: 226
+        width: 87
+        height: 19
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8154c8c1e0c47b730800000000000000
+      internalID: 4014761216316294424
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GhostHnads_17
+      rect:
+        serializedVersion: 2
+        x: 832
+        y: 238
+        width: 87
+        height: 19
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 72538e89d7f2a6900800000000000000
+      internalID: 678406910355453223
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GhostHnads_18
+      rect:
+        serializedVersion: 2
+        x: 38
+        y: 79
+        width: 47
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1fae2861d96a55fa0800000000000000
+      internalID: -5812556550434002191
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GhostHnads_19
+      rect:
+        serializedVersion: 2
+        x: 225
+        y: 34
+        width: 68
+        height: 45
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 496426cba8db66f20800000000000000
+      internalID: 3415625770970793620
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 80ce2bb5ccc0d4847be8c98add6c17a2
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      GhostHnads_0: -7950638554904528755
+      GhostHnads_1: -1663867629042875941
+      GhostHnads_10: 7170801761138792790
+      GhostHnads_11: 1598494864947784463
+      GhostHnads_12: -8192692930045375335
+      GhostHnads_13: 2669797777551671735
+      GhostHnads_14: 9078118664356806228
+      GhostHnads_15: -7082287089078531312
+      GhostHnads_16: 4014761216316294424
+      GhostHnads_17: 678406910355453223
+      GhostHnads_18: -5812556550434002191
+      GhostHnads_19: 3415625770970793620
+      GhostHnads_2: -3838862463974897310
+      GhostHnads_3: 1394979209831292949
+      GhostHnads_4: -5714521696539860882
+      GhostHnads_5: 2169582252021986148
+      GhostHnads_6: -555199804555257517
+      GhostHnads_7: 7529175928359484209
+      GhostHnads_8: -5813513612104219456
+      GhostHnads_9: -9098053196457291538
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

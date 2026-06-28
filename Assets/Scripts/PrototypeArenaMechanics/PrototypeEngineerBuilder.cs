@@ -14,13 +14,15 @@ public class PrototypeEngineerBuilder : MonoBehaviour
     public GameObject turretPrefab;
     public GameObject dispenserPrefab;
 
+    [Header("Scene HUD (resolved by name for spawned players)")]
+    public TextMeshProUGUI hintText;
+
     private EngineerController engineer;
     private PlayerSharedInput sharedInput;
     private PrototypeTurret activeTurret;
     private PrototypeDispenser activeDispenser;
     private float turretTimer;
     private float dispenserTimer;
-    private TextMeshProUGUI hintText;
 
     void Awake()
     {
@@ -183,6 +185,16 @@ public class PrototypeEngineerBuilder : MonoBehaviour
 
     void CreateHint()
     {
+        if (hintText == null)
+        {
+            GameObject existing = GameObject.Find("EngineerBuildHint");
+            if (existing != null)
+                hintText = existing.GetComponent<TextMeshProUGUI>();
+        }
+
+        if (hintText != null)
+            return;
+
         Canvas canvas = PrototypeArenaUi.GetOrCreateCanvas("PrototypeArenaHUD", 5500);
         hintText = PrototypeArenaUi.CreateText(
             canvas.transform,
