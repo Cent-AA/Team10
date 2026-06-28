@@ -284,7 +284,9 @@ GameObject:
   - component: {fileID: 8708859853339059741}
   - component: {fileID: 315805544276049375}
   - component: {fileID: 3695926138832037062}
-  m_Layer: 0
+  - component: {fileID: 6300768182394289601}
+  - component: {fileID: 6300768182394289602}
+  m_Layer: 8
   m_Name: ZombieBoss
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -321,13 +323,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BossController
   moveSpeed: 2
   stopRange: 2.5
-  maxHealth: 500
+  maxHealth: 1200
   screamDuration: 3.05
   leftArm: {fileID: 5731069587833308963}
   rightArm: {fileID: 1640183208401988013}
   head: {fileID: 6300768182394289564}
   torso: {fileID: 6596361454310094547}
   legs: {fileID: 2308146568749363668}
+  dashAnimDuration: 3
+  dashHitTime: 2.5
+  dashSlideDuration: 2.5
+  dashWindupDuration: 0.25
+  dashCooldown: 15
+  dashCircleDistance: 7
+  dashCircleRadius: 4.5
+  dashApproachSpeed: 14
+  dashCircleSpeed: 120
+  dashCircleSlowdown: 0.5
+  dashHitRadius: 4
+  dashDamage: 30
+  dashKnockback: 14
+  dashKnockbackDuration: 0.25
+  hitsToStun: 3
+  stunDuration: 1
+  hpBarWorldOffset: {x: 0, y: 2.5}
+  hpBarPixelSize: {x: 220, y: 22}
+  stunBarPixelSize: {x: 160, y: 8}
+  barCanvasScale: 0.01
+  hpBarColor: {r: 0.85, g: 0.15, b: 0.15, a: 1}
+  hpBarBgColor: {r: 0, g: 0, b: 0, a: 0.75}
+  stunBarColor: {r: 1, g: 0.85, b: 0.15, a: 1}
+  stunBarBgColor: {r: 0, g: 0, b: 0, a: 0.75}
 --- !u!95 &3695926138832037062
 Animator:
   serializedVersion: 7
@@ -350,6 +376,79 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!50 &6300768182394289601
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5504839550395175736}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 4
+--- !u!61 &6300768182394289602
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5504839550395175736}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0.5, y: -0.5999999}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1, y: 1}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 2.6, y: 2.8000002}
+  m_EdgeRadius: 0
 --- !u!1 &5987417920210902574
 GameObject:
   m_ObjectHideFlags: 0

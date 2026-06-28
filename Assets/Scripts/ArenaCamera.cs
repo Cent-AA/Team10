@@ -86,6 +86,9 @@ public class ArenaCamera : MonoBehaviour
 
     public bool IsSplitScreenActive => splitProgress > 0.001f;
 
+    // Спрайт карты, к которому привязаны границы камеры — переиспользуется боссом для своих границ.
+    public static SpriteRenderer MapSprite => instance != null ? instance.mapSprite : null;
+
     void Awake()
     {
         instance = this;
@@ -112,17 +115,20 @@ public class ArenaCamera : MonoBehaviour
     {
         if (isCinematic)
         {
-            transform.position = Vector3.Lerp(
-                transform.position,
-                new Vector3(cinematicTarget.x, cinematicTarget.y, transform.position.z),
-                followSmoothness * Time.deltaTime
-            );
+            // Сначала обновляем зум, потом клампим — чтобы ClampToMap считал границы по актуальному размеру.
             if (sharedCamera != null)
                 sharedCamera.orthographicSize = Mathf.Lerp(
                     sharedCamera.orthographicSize,
                     cinematicZoom,
                     zoomSmoothness * Time.deltaTime
                 );
+
+            Vector3 cinematicPos = Vector3.Lerp(
+                transform.position,
+                new Vector3(cinematicTarget.x, cinematicTarget.y, transform.position.z),
+                followSmoothness * Time.deltaTime
+            );
+            transform.position = ClampToMap(cinematicPos, sharedCamera);
 
             UpdateShake();
             transform.position += shakeOffset;
@@ -592,7 +598,7 @@ public class ArenaCamera : MonoBehaviour
     {
         if (!cameraShakeEnabled) return 0f;
 
-        // �� ����� ���������� ������ ��������� shake �� ������
+        // �� ����� ���������� ������ ��������� shake �� ������
         if (isCinematic) return 1f;
 
         if (IsSplitScreenActive && disableShakeDuringSplitScreen) return 0f;

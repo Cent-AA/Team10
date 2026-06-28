@@ -16,6 +16,8 @@ public class TargetingSystem : MonoBehaviour
     public float triangleDistance = 1f;
     public float rotationSpeed = 90f;
     public int triangleCount = 4;
+    [Tooltip("Во сколько раз увеличивать треугольники таргета, когда цель — босс")]
+    public float bossTargetScale = 2f;
 
     [HideInInspector] public Transform currentTarget;
 
@@ -88,6 +90,16 @@ public class TargetingSystem : MonoBehaviour
                     closestDistSqr = distSqr;
                     closest = zombie.transform;
                 }
+
+                targetHitBuffer[i] = null;
+                continue;
+            }
+
+            BossController boss = hit.GetComponentInParent<BossController>();
+            if (boss != null && boss.IsAlive)
+            {
+                closestDistSqr = distSqr;
+                closest = boss.transform;
             }
 
             targetHitBuffer[i] = null;
@@ -167,12 +179,16 @@ public class TargetingSystem : MonoBehaviour
         targetIndicator.transform.position = currentTarget.position;
         currentAngle += rotationSpeed * Time.deltaTime;
 
+        bool isBossTarget = currentTarget.GetComponent<BossController>() != null;
+        float scale = isBossTarget ? bossTargetScale : 1f;
+
         for (int i = 0; i < triangles.Count; i++)
         {
             float angle = currentAngle + (360f / triangleCount) * i;
             float rad = angle * Mathf.Deg2Rad;
-            Vector3 pos = new Vector3(Mathf.Cos(rad), Mathf.Sin(rad), 0) * triangleDistance;
+            Vector3 pos = new Vector3(Mathf.Cos(rad), Mathf.Sin(rad), 0) * triangleDistance * scale;
             triangles[i].transform.localPosition = pos;
+            triangles[i].transform.localScale = Vector3.one * triangleSize * scale;
 
             float lookAngle = angle + 90f;
             triangles[i].transform.localRotation = Quaternion.Euler(0, 0, lookAngle);

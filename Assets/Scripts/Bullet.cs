@@ -108,6 +108,14 @@ public class Bullet : MonoBehaviour
             return;
         }
 
+        BossController boss = collision.GetComponentInParent<BossController>();
+        if (boss != null && boss.IsAlive)
+        {
+            boss.TakeDamage(damage);
+            ReturnToPool();
+            return;
+        }
+
         PrototypeReviveTarget reviveTarget = collision.GetComponentInParent<PrototypeReviveTarget>();
         if (reviveTarget != null && reviveTarget.IsDowned)
         {

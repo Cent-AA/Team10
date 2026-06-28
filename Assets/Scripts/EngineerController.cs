@@ -82,6 +82,12 @@ public class EngineerController : MonoBehaviour
     private Vector3 wrenchOriginalScale;
     private Coroutine deathRoutine;
     private bool sharedHealthSubscribed;
+    private bool isKnockedDown = false;
+    private Coroutine knockdownRoutine;
+
+    [Header("Откидывание боссом")]
+    [Tooltip("Угол переворота тела при падении")]
+    public float knockdownTumbleAngle = 95f;
     private readonly Collider2D[] attackHitBuffer = new Collider2D[32];
     private readonly Collider2D[] reviveHitBuffer = new Collider2D[16];
 
@@ -133,6 +139,7 @@ public class EngineerController : MonoBehaviour
     void Update()
     {
         if (currentHealth <= 0) return;
+        if (isKnockedDown) return; // во время броска инженер беспомощен
 
         attackTimer -= Time.deltaTime;
         moveInput = sharedInput != null ? sharedInput.Movement : Vector2.zero;
@@ -143,7 +150,7 @@ public class EngineerController : MonoBehaviour
             motor.walkSpeed = moveSpeed;
             motor.runSpeed = runSpeed;
             motor.SetMovement(moveInput, isRunning);
-            motor.SetMovementLocked(isAttacking || currentHealth <= 0f);
+            motor.SetMovementLocked(isAttacking || currentHealth <= 0f || isKnockedDown);
         }
 
         // Направление
@@ -198,7 +205,7 @@ public class EngineerController : MonoBehaviour
     void FixedUpdate()
     {
         if (motor != null)
-            motor.SetMovementLocked(isAttacking || currentHealth <= 0f);
+            motor.SetMovementLocked(isAttacking || currentHealth <= 0f || isKnockedDown);
     }
 
     // ═══════════ КЛЮЧ — ПОКАЗАТЬ/СКРЫТЬ ═══════════
@@ -400,6 +407,14 @@ public class EngineerController : MonoBehaviour
                 hitSomething = true;
             }
 
+            BossController boss = hit.GetComponent<BossController>();
+            if (boss != null && boss.IsAlive)
+            {
+                boss.TakeDamage(damage);
+                PlaySound(wrenchHitSound);
+                hitSomething = true;
+            }
+
             PlayerController player = hit.GetComponent<PlayerController>();
             if (player != null)
             {
@@ -505,6 +520,55 @@ public class EngineerController : MonoBehaviour
         spriteRenderer.color = Color.red;
         yield return new WaitForSeconds(0.1f);
         spriteRenderer.color = orig;
+    }
+
+    // ═══════════ ОТКИДЫВАНИЕ БОССОМ (бросок + переворот + подъём) ═══════════
+    public void ApplyKnockback(Vector2 dir, float force, float downDuration)
+    {
+        if (currentHealth <= 0f) return;
+        if (knockdownRoutine != null) StopCoroutine(knockdownRoutine);
+        knockdownRoutine = StartCoroutine(KnockdownRoutine(dir.sqrMagnitude > 0.0001f ? dir.normalized : Vector2.right, force, downDuration));
+    }
+
+    IEnumerator KnockdownRoutine(Vector2 dir, float force, float downDuration)
+    {
+        isKnockedDown = true;
+        if (motor != null) motor.SetMovementLocked(true);
+
+        Transform vis = spriteRenderer != null ? spriteRenderer.transform : null;
+        Quaternion upright = Quaternion.identity; // поза покоя — без наклона
+        float tumbleSign = dir.x >= 0f ? -1f : 1f; // валится в сторону полёта
+        Quaternion downRot = Quaternion.Euler(0f, 0f, knockdownTumbleAngle * tumbleSign);
+
+        // Полёт — затухающий бросок через MovePosition (тело кинематическое)
+        float flightTime = 0.4f;
+        float t = 0f;
+        while (t < flightTime)
+        {
+            float falloff = 1f - (t / flightTime);
+            if (rb != null) rb.MovePosition(rb.position + dir * force * falloff * Time.fixedDeltaTime);
+            if (vis != null) vis.localRotation = Quaternion.Slerp(upright, downRot, Mathf.Clamp01(t / 0.18f));
+            t += Time.fixedDeltaTime;
+            yield return new WaitForFixedUpdate();
+        }
+        if (vis != null) vis.localRotation = downRot;
+
+        // Лежит
+        yield return new WaitForSeconds(Mathf.Max(0f, downDuration));
+
+        // Встаёт
+        t = 0f;
+        while (t < 0.25f)
+        {
+            t += Time.deltaTime;
+            if (vis != null) vis.localRotation = Quaternion.Slerp(downRot, upright, t / 0.25f);
+            yield return null;
+        }
+        if (vis != null) vis.localRotation = upright;
+
+        isKnockedDown = false;
+        if (motor != null) motor.SetMovementLocked(isAttacking || currentHealth <= 0f);
+        knockdownRoutine = null;
     }
 
     void Die()

@@ -71,6 +71,15 @@ public class PlayerController : MonoBehaviour
     private bool isDashing = false;
     private bool isInvulnerable = false;
     private bool isHitStopped = false;
+    private bool isKnockedDown = false;
+    private Coroutine knockdownRoutine;
+    private float defaultLinearDamping = 10f; // истинное демпфирование, восстанавливаем после броска
+
+    [Header("═══ Откидывание боссом ═══")]
+    [Tooltip("Демпфирование во время полёта (меньше = летит дальше)")]
+    public float knockdownDrag = 1.5f;
+    [Tooltip("Угол переворота тела при падении")]
+    public float knockdownTumbleAngle = 95f;
     private float dashCooldownTimer = 0f;
     private int comboStep = 0;
     private float comboTimer = 0f;
@@ -112,6 +121,8 @@ public class PlayerController : MonoBehaviour
 
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
+
+        if (rb != null) defaultLinearDamping = rb.linearDamping;
 
         EnsurePuppet();
         IncludeMainRendererForHitFlash();
@@ -199,6 +210,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         if (isHitStopped) return;
+        if (isKnockedDown) return; // во время броска игрок беспомощен
         if (!EnsurePuppet()) return;
         if (puppet.IsDead()) return;
 
@@ -246,7 +258,7 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (isDashing || isHitStopped) return;
+        if (isDashing || isHitStopped || isKnockedDown) return;
         EnsurePuppet();
         if (puppet != null && (puppet.IsDead() || (puppet.IsBusy() && !puppet.IsBarraging()))) return;
 
@@ -443,6 +455,15 @@ public class PlayerController : MonoBehaviour
                 StartCoroutine(HitStopRoutine());
             }
 
+            // Босс
+            BossController boss = hit.GetComponent<BossController>();
+            if (boss != null && boss.IsAlive)
+            {
+                boss.TakeDamage(damage);
+                hitSomething = true;
+                StartCoroutine(HitStopRoutine());
+            }
+
             // Другой игрок
             PlayerController enemy = hit.GetComponent<PlayerController>();
             if (enemy != null && enemy != this)
@@ -513,6 +534,13 @@ public class PlayerController : MonoBehaviour
             hitSomething = true;
         }
 
+        BossController boss = targeting.currentTarget.GetComponent<BossController>();
+        if (boss != null && boss.IsAlive)
+        {
+            boss.TakeDamage(damage);
+            hitSomething = true;
+        }
+
         PlayerController enemy = targeting.currentTarget.GetComponent<PlayerController>();
         if (enemy != null && enemy != this)
         {
@@ -569,8 +597,75 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator KnockbackRoutine(Vector2 dir)
     {
+        if (dir.sqrMagnitude < 0.0001f) yield break; // нокбэк не запрошен (источник толкает сам)
         float e = 0f;
         while (e < 0.15f) { e += Time.fixedDeltaTime; if (rb != null) rb.MovePosition(rb.position + dir * knockbackForce * Time.fixedDeltaTime); yield return new WaitForFixedUpdate(); }
+    }
+
+    // ═══════════ ОТКИДЫВАНИЕ БОССОМ (физический бросок + переворот + подъём) ═══════════
+    public void ApplyKnockback(Vector2 dir, float force, float downDuration)
+    {
+        EnsurePuppet();
+        if (puppet != null && puppet.IsDead()) return;
+        if (knockdownRoutine != null) StopCoroutine(knockdownRoutine);
+        knockdownRoutine = StartCoroutine(KnockdownRoutine(dir.sqrMagnitude > 0.0001f ? dir.normalized : Vector2.right, force, downDuration));
+    }
+
+    IEnumerator KnockdownRoutine(Vector2 dir, float force, float downDuration)
+    {
+        isKnockedDown = true;
+        if (puppet != null) puppet.TakeHit();
+
+        // Снижаем демпфирование и бросаем тело физикой — летит далеко, стены его остановят.
+        if (rb != null)
+        {
+            rb.linearDamping = knockdownDrag;
+            rb.linearVelocity = dir * force;
+        }
+
+        Transform vis = GetKnockdownVisual();
+        Quaternion upright = Quaternion.identity; // поза покоя — без наклона
+        float tumbleSign = dir.x >= 0f ? -1f : 1f; // валится в сторону полёта
+        Quaternion downRot = Quaternion.Euler(0f, 0f, knockdownTumbleAngle * tumbleSign);
+
+        // Падение
+        float t = 0f;
+        while (t < 0.18f)
+        {
+            t += Time.deltaTime;
+            if (vis != null) vis.localRotation = Quaternion.Slerp(upright, downRot, t / 0.18f);
+            yield return null;
+        }
+        if (vis != null) vis.localRotation = downRot;
+
+        // Лежит
+        yield return new WaitForSeconds(Mathf.Max(0f, downDuration));
+
+        // Встаёт
+        t = 0f;
+        while (t < 0.25f)
+        {
+            t += Time.deltaTime;
+            if (vis != null) vis.localRotation = Quaternion.Slerp(downRot, upright, t / 0.25f);
+            yield return null;
+        }
+        if (vis != null) vis.localRotation = upright;
+
+        if (rb != null) rb.linearDamping = defaultLinearDamping;
+        isKnockedDown = false;
+        knockdownRoutine = null;
+    }
+
+    Transform GetKnockdownVisual()
+    {
+        if (puppet != null)
+        {
+            SpriteRenderer main = puppet.GetMainRenderer();
+            if (main != null) return main.transform;
+        }
+        if (spriteRenderers != null && spriteRenderers.Length > 0 && spriteRenderers[0] != null)
+            return spriteRenderers[0].transform;
+        return null;
     }
 
     IEnumerator HitStopRoutine()

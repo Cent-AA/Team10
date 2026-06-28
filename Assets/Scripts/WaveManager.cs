@@ -42,6 +42,9 @@ public class WaveManager : MonoBehaviour
     public Transform bossSpawnPoint;   // пустой Transform слева от арены
     public int bossWave = 2;
     private bool bossSpawned = false;
+    private BossController activeBoss;
+    private bool bossWavePending = false; // идёт босс-волна и босс ещё не повержен
+    private bool bossHasSpawned = false;  // босс уже физически появился в сцене
 
     private int currentWave = 0;
     private int zombiesAlive = 0;
@@ -79,7 +82,7 @@ public class WaveManager : MonoBehaviour
 
     void Update()
     {
-        if (waveInProgress && !spawningWave && zombiesAlive <= 0)
+        if (waveInProgress && !spawningWave && zombiesAlive <= 0 && !IsBossBlockingWaveEnd())
         {
             waveInProgress = false;
             OnWaveComplete?.Invoke(currentWave);
@@ -120,6 +123,7 @@ public class WaveManager : MonoBehaviour
         if (currentWave == bossWave && !bossSpawned && bossPrefab != null)
         {
             bossSpawned = true;
+            bossWavePending = true; // волна не завершится, пока босс не повержен
             StartCoroutine(SpawnBoss());
         }
     }
@@ -179,6 +183,9 @@ public class WaveManager : MonoBehaviour
         BossController bossCtrl = bossObj.GetComponent<BossController>();
 
         if (bossCtrl == null) yield break;
+
+        activeBoss = bossCtrl;
+        bossHasSpawned = true;
 
         if (bossIntroSequence != null)
         {
@@ -368,9 +375,20 @@ public class WaveManager : MonoBehaviour
         }
     }
 
+    // Босс-волна не завершается, пока босс не появился и не повержен.
+    bool IsBossBlockingWaveEnd()
+    {
+        if (!bossWavePending) return false;
+        if (!bossHasSpawned) return true;                       // ещё спавнится / играет интро
+        if (activeBoss != null && activeBoss.IsAlive) return true; // жив — держим волну
+        bossWavePending = false;                                // повержен — снимаем блок
+        return false;
+    }
+
     public int GetCurrentWave() => currentWave;
     public int GetZombiesAlive() => zombiesAlive;
     public bool IsWaveInProgress() => waveInProgress;
+    public bool IsBossAlive() => bossWavePending && bossHasSpawned && activeBoss != null && activeBoss.IsAlive;
 
     static Transform FindCampfireTransform()
     {
@@ -381,21 +399,3 @@ public class WaveManager : MonoBehaviour
         return campfireObject != null ? campfireObject.transform : null;
     }
 }
-// ============================================================
-// ПАТЧ ДЛЯ WaveManager.cs
-// Добавь эти поля и методы в существующий WaveManager
-// ============================================================
-
-// 1. ПОЛЯ — добавь после [Header("Camera")] блока:
-
-
-// ============================================================
-
-// 2. В метод StartWave() — добавь в конец, после StartCoroutine(SpawnWaveZombies()):
-
-
-
-// ============================================================
-
-// 3. Новый метод — добавь рядом с SpawnWaveZombies():
-

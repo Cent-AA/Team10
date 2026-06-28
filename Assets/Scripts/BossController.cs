@@ -25,40 +25,54 @@ public class BossController : MonoBehaviour
     public Transform torso;
     public Transform legs;
 
-    [Header("Dash — Timing (must match animation)")]
-    [Tooltip("Полная длительность анимации рывка")]
-    public float dashAnimDuration = 3f;
-    [Tooltip("Когда происходит сам удар (момент кулака с земли)")]
-    public float dashHitTime = 2.5f;
-    [Tooltip("Длительность фазы скольжения (до резкого замаха)")]
-    public float dashSlideDuration = 2.5f;
-    [Tooltip("Длительность резкого замаха перед ударом (2.5 → 2.75)")]
-    public float dashWindupDuration = 0.25f;
+    [Header("Dash — Trigger")]
+    [Tooltip("Перезарядка рывка (сек)")]
+    public float dashCooldown = 8f;
+    [Tooltip("Максимальная дистанция, с которой босс может начать рывок")]
+    public float dashRange = 13f;
+    [Tooltip("Ближе этого рывок не запускается (игрок вплотную)")]
+    public float dashMinRange = 1.5f;
 
-    [Header("Dash — Behavior")]
-    public float dashCooldown = 15f;
-    [Tooltip("Если игрок дальше — летит к нему. Если ближе — кружит.")]
-    public float dashCircleDistance = 7f;
-    [Tooltip("На каком расстоянии от игрока кружится")]
-    public float dashCircleRadius = 4.5f;
-    [Tooltip("Скорость подлёта (юнитов в секунду)")]
-    public float dashApproachSpeed = 14f;
-    [Tooltip("Скорость кружения (градусов в секунду) — НЕ слишком много")]
-    public float dashCircleSpeed = 120f;
-    [Tooltip("Замедление кружения к концу (0..1) — ноль = не замедляется")]
-    [Range(0f, 1f)] public float dashCircleSlowdown = 0.5f;
-    [Tooltip("Радиус удара в момент кулака")]
-    public float dashHitRadius = 4f;
+    [Header("Dash — Choreography")]
+    [Tooltip("Замах/телеграф перед рывком — босс отшатывается назад")]
+    public float telegraphDuration = 0.42f;
+    [Tooltip("Насколько босс отшатывается назад на замахе")]
+    public float telegraphRecoil = 1.1f;
+    [Tooltip("Скорость рывка (юнитов/сек) — резкий бросок вперёд")]
+    public float lungeSpeed = 34f;
+    [Tooltip("Страховочный лимит длительности рывка")]
+    public float lungeMaxDuration = 0.5f;
+    [Tooltip("Насколько далеко за игрока целится бросок (перелёт)")]
+    public float lungeOvershoot = 2f;
+    [Tooltip("Восстановление после удара")]
+    public float recoverDuration = 0.5f;
+
+    [Header("Dash — Hit")]
+    [Tooltip("Радиус хитбокса удара (вокруг руки LeftArm)")]
+    public float dashHitRadius = 2.6f;
+    [Tooltip("Запасное смещение хитбокса вперёд, если LeftArm не назначена")]
+    public float dashHitForwardOffset = 1.6f;
     [Tooltip("Урон рывка")]
-    public float dashDamage = 30f;
-    [Tooltip("Сила отбрасывания")]
-    public float dashKnockback = 14f;
-    [Tooltip("Длительность отбрасывания")]
-    public float dashKnockbackDuration = 0.25f;
+    public float dashDamage = 22f;
+    [Tooltip("Сила броска при ударе рывком (летит далеко)")]
+    public float dashKnockback = 26f;
+    [Tooltip("Сколько секунд игрок лежит перевёрнутым после броска")]
+    public float dashThrowDownDuration = 2f;
+    [Tooltip("Подсветка телеграфа (цвет вспышки перед рывком)")]
+    public Color telegraphFlash = new Color(1f, 0.35f, 0.2f);
 
     [Header("Hurt & Stun")]
-    public int hitsToStun = 3;
-    public float stunDuration = 1f;
+    public int hitsToStun = 5;
+    public float stunDuration = 2f;
+
+    [Header("Contact Damage")]
+    [Tooltip("Урон при простом касании игрока")]
+    public float contactDamage = 12f;
+    [Tooltip("Сила лёгкого толчка при касании")]
+    public float contactKnockback = 14f;
+    public float contactKnockbackDuration = 0.25f;
+    [Tooltip("Минимальный интервал между касаниями одного и того же игрока")]
+    public float contactCooldown = 0.75f;
 
     [Header("UI Bars")]
     public Vector2 hpBarWorldOffset = new Vector2(0f, 2.5f);
@@ -84,13 +98,30 @@ public class BossController : MonoBehaviour
     private int hitCounter;
     private bool isStunned;
     private bool isDashing;
-    private float approachElapsed; // используется вместо ref
+    private readonly System.Collections.Generic.Dictionary<Transform, float> contactHitTimers = new System.Collections.Generic.Dictionary<Transform, float>();
+    private readonly System.Collections.Generic.HashSet<Transform> dashHitThisLunge = new System.Collections.Generic.HashSet<Transform>();
+    private readonly Collider2D[] hitBuffer = new Collider2D[16];
+    private SpriteRenderer[] bodySprites;
+    private Color[] bodyOriginalColors;
+
+    [Header("Contact — Detection")]
+    [Tooltip("Радиус зоны касания вокруг тела босса")]
+    public float contactRadius = 1.9f;
+    [Tooltip("Смещение зоны касания по Y (центр тела)")]
+    public float contactYOffset = 0f;
+
+    [Header("Arena Bounds")]
+    [Tooltip("Спрайт арены (ArenaFoet_0) — босс не выйдет за его границы")]
+    public SpriteRenderer arenaBounds;
+    [Tooltip("Отступ от края арены")]
+    public float arenaMargin = 0.5f;
 
     // UI
     private Canvas barCanvas;
     private RectTransform hpBarFill;
     private RectTransform stunBarFill;
     private RectTransform stunBarRoot;
+    private Transform bossVisualForBars;
 
     public float ScreamDuration => Mathf.Max(0.01f, screamDuration);
 
@@ -98,6 +129,32 @@ public class BossController : MonoBehaviour
     {
         anim = GetComponent<Animator>();
         currentHealth = maxHealth;
+        CacheBodySprites();
+    }
+
+    void CacheBodySprites()
+    {
+        bodySprites = GetComponentsInChildren<SpriteRenderer>(true);
+        bodyOriginalColors = new Color[bodySprites.Length];
+        for (int i = 0; i < bodySprites.Length; i++)
+            bodyOriginalColors[i] = bodySprites[i].color;
+    }
+
+    void TintBody(Color color, float lerp)
+    {
+        if (bodySprites == null) return;
+        for (int i = 0; i < bodySprites.Length; i++)
+        {
+            if (bodySprites[i] == null) continue;
+            bodySprites[i].color = Color.Lerp(bodyOriginalColors[i], color, lerp);
+        }
+    }
+
+    void RestoreBodyTint()
+    {
+        if (bodySprites == null) return;
+        for (int i = 0; i < bodySprites.Length; i++)
+            if (bodySprites[i] != null) bodySprites[i].color = bodyOriginalColors[i];
     }
 
     void Start()
@@ -107,6 +164,9 @@ public class BossController : MonoBehaviour
         SetState(IdleState);
         CreateBarsUI();
         dashTimer = dashCooldown;
+
+        // Босс спавнится в рантайме и не может ссылаться на сцену — берём границы у камеры.
+        if (arenaBounds == null) arenaBounds = ArenaCamera.MapSprite;
     }
 
     public void Activate()
@@ -144,15 +204,17 @@ public class BossController : MonoBehaviour
         currentTarget = GetClosestPlayer();
         if (currentTarget == null) return;
 
+        CheckContactDamage();
+
+        float dist = Vector3.Distance(transform.position, currentTarget.position);
+
         dashTimer -= Time.deltaTime;
-        if (dashTimer <= 0f)
+        if (dashTimer <= 0f && dist <= dashRange && dist >= dashMinRange)
         {
             dashTimer = dashCooldown;
             StartDashAttack();
             return;
         }
-
-        float dist = Vector3.Distance(transform.position, currentTarget.position);
 
         if (dist > stopRange)
         {
@@ -195,158 +257,203 @@ public class BossController : MonoBehaviour
         dashRoutine = StartCoroutine(DashAttackRoutine());
     }
 
+    // Рывок = ТЕЛЕГРАФ (замах назад + вспышка) → БРОСОК сквозь игрока → удар по ходу → восстановление.
     IEnumerator DashAttackRoutine()
     {
         isDashing = true;
+        dashHitThisLunge.Clear();
         SetState(DashState);
 
         Transform target = GetClosestPlayer();
         if (target == null) { EndDash(); yield break; }
 
-        approachElapsed = 0f;
+        FlipTowards(target.position.x);
 
-        // Фаза 1: подлёт если далеко
-        float distToTarget = Vector3.Distance(transform.position, target.position);
-        if (distToTarget > dashCircleDistance)
+        // ── Фаза 1: ТЕЛЕГРАФ — босс отшатывается назад, наливается цветом (читаемый замах) ──
+        Vector3 dir = AimDir(target);
+        Vector3 recoilStart = transform.position;
+        Vector3 recoilEnd = recoilStart - dir * telegraphRecoil;
+
+        float t = 0f;
+        while (t < telegraphDuration)
         {
-            yield return ApproachTarget(target);
+            t += Time.deltaTime;
+            float p = Mathf.Clamp01(t / telegraphDuration);
+            float ease = 1f - Mathf.Pow(1f - p, 2f);          // плавный замах с торможением
+            transform.position = Vector3.Lerp(recoilStart, recoilEnd, ease);
+            TintBody(telegraphFlash, Mathf.PingPong(p * 4f, 1f)); // пульсация вспышки
+            if (target != null) FlipTowards(target.position.x);
+            yield return null;
+        }
+        RestoreBodyTint();
+
+        // ── Фаза 2: БРОСОК — резкий рывок к точке за игроком (перелёт), удар проверяется по ходу ──
+        Vector3 aimPoint = target != null ? target.position : transform.position + dir * 5f;
+        dir = ((Vector2)aimPoint - (Vector2)transform.position).normalized;
+        if (dir.sqrMagnitude < 0.01f) dir = transform.localScale.x >= 0f ? Vector3.right : Vector3.left;
+        Vector3 lungeTarget = aimPoint + dir * lungeOvershoot;
+        FlipTowards(aimPoint.x);
+
+        float lungeT = 0f;
+        while (lungeT < lungeMaxDuration)
+        {
+            lungeT += Time.deltaTime;
+            Vector3 toTarget = lungeTarget - transform.position;
+            float step = lungeSpeed * Time.deltaTime;
+
+            if (toTarget.magnitude <= step)
+            {
+                transform.position = lungeTarget;
+                DoDashHit(dir);
+                break;
+            }
+
+            transform.position += dir * step;
+            DoDashHit(dir);   // непрерывная проверка — быстрый игрок не проскочит
+            yield return null;
         }
 
-        // Фаза 2: кружение оставшееся время
-        float circleTime = Mathf.Max(0f, dashSlideDuration - approachElapsed);
-        yield return CircleAroundTarget(target, circleTime);
+        DoDashHit(dir); // финальная контрольная проверка на месте приземления
 
-        // Фаза 3: резкий замах
-        yield return WindupBeforeHit(target);
-
-        // Фаза 4: УДАР
-        DoDashHit(target);
-
-        // Фаза 5: восстановление
-        float remainder = dashAnimDuration - dashHitTime;
-        if (remainder > 0f) yield return new WaitForSeconds(remainder);
+        // ── Фаза 3: ВОССТАНОВЛЕНИЕ ──
+        if (recoverDuration > 0f) yield return new WaitForSeconds(recoverDuration);
 
         EndDash();
     }
 
-    IEnumerator ApproachTarget(Transform target)
+    Vector3 AimDir(Transform target)
     {
-        if (target == null) yield break;
+        Vector3 d = target != null
+            ? ((Vector2)target.position - (Vector2)transform.position).normalized
+            : Vector3.zero;
+        if (d.sqrMagnitude < 0.01f) d = transform.localScale.x >= 0f ? Vector3.right : Vector3.left;
+        return d;
+    }
 
-        while (approachElapsed < dashSlideDuration)
+    // Хитбокс удара — окружность вокруг РУКИ босса (LeftArm). Каждый игрок бьётся раз за рывок и улетает с переворотом.
+    void DoDashHit(Vector3 forwardDir)
+    {
+        Vector2 center = leftArm != null
+            ? (Vector2)leftArm.position
+            : (Vector2)transform.position + (Vector2)forwardDir * dashHitForwardOffset;
+
+        int count = Physics2D.OverlapCircleNonAlloc(center, dashHitRadius, hitBuffer);
+        for (int i = 0; i < count; i++)
         {
-            if (target == null) yield break;
+            Collider2D hit = hitBuffer[i];
+            if (hit == null) continue;
 
-            Vector3 toTarget = target.position - transform.position;
-            float distNow = toTarget.magnitude;
+            Transform root = ResolvePlayerRoot(hit);
+            if (root == null || dashHitThisLunge.Contains(root)) continue;
 
-            if (distNow <= dashCircleRadius + 0.1f) yield break;
-
-            Vector3 dir = toTarget.normalized;
-            transform.position += dir * dashApproachSpeed * Time.deltaTime;
-            FlipTowards(target.position.x);
-
-            approachElapsed += Time.deltaTime;
-            yield return null;
+            dashHitThisLunge.Add(root);
+            HitPlayer(root, dashDamage, dashKnockback, dashThrowDownDuration, true);
+            ArenaCamera.Shake(0.5f, 0.3f);
         }
     }
 
-    IEnumerator CircleAroundTarget(Transform target, float duration)
+    // Нокбэк через MovePosition: оба типа игроков сами двигаются MovePosition в FixedUpdate,
+    // а наше продолжение после WaitForFixedUpdate идёт ПОСЛЕ него — поэтому перебивает управление.
+    IEnumerator KnockbackPlayer(Transform player, Vector2 dir, float force, float duration)
     {
-        if (target == null || duration <= 0f) yield break;
-
-        Vector3 toBoss = transform.position - target.position;
-        if (toBoss.sqrMagnitude < 0.01f)
-            toBoss = new Vector3(dashCircleRadius, 0f, 0f);
-
-        float angle = Mathf.Atan2(toBoss.y, toBoss.x) * Mathf.Rad2Deg;
-        float dirSign = Random.value > 0.5f ? 1f : -1f;
-        float t = 0f;
-
-        while (t < duration)
-        {
-            t += Time.deltaTime;
-
-            float progress = t / duration;
-            float speedMul = Mathf.Lerp(1f, 1f - dashCircleSlowdown, progress);
-            angle += dashCircleSpeed * dirSign * speedMul * Time.deltaTime;
-
-            if (target != null)
-            {
-                float rad = angle * Mathf.Deg2Rad;
-                Vector3 newPos = target.position + new Vector3(
-                    Mathf.Cos(rad) * dashCircleRadius,
-                    Mathf.Sin(rad) * dashCircleRadius,
-                    0f
-                );
-                transform.position = newPos;
-                FlipTowards(target.position.x);
-            }
-
-            yield return null;
-        }
-    }
-
-    IEnumerator WindupBeforeHit(Transform target)
-    {
-        if (dashWindupDuration <= 0f) yield break;
-
-        Vector3 startPos = transform.position;
-        Vector3 targetPos = target != null
-            ? target.position - (target.position - startPos).normalized * (dashHitRadius * 0.5f)
-            : startPos;
-
-        float t = 0f;
-        while (t < dashWindupDuration)
-        {
-            t += Time.deltaTime;
-            float eased = 1f - Mathf.Pow(1f - t / dashWindupDuration, 3f);
-            transform.position = Vector3.LerpUnclamped(startPos, targetPos, eased);
-            if (target != null) FlipTowards(target.position.x);
-            yield return null;
-        }
-    }
-
-    void DoDashHit(Transform mainTarget)
-    {
-        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, dashHitRadius);
-        foreach (var hit in hits)
-        {
-            var psh = hit.GetComponent<PlayerSharedHealth>();
-            if (psh == null) continue;
-
-            psh.TakeDamage(dashDamage);
-
-            Vector2 knockDir = ((Vector2)hit.transform.position - (Vector2)transform.position).normalized;
-            if (knockDir.sqrMagnitude < 0.01f) knockDir = Vector2.right;
-
-            StartCoroutine(KnockbackPlayer(hit.transform, knockDir));
-        }
-        ArenaCamera.Shake(0.5f, 0.3f);
-    }
-
-    IEnumerator KnockbackPlayer(Transform player, Vector2 dir)
-    {
-        if (player == null) yield break;
+        if (player == null || duration <= 0f) yield break;
 
         var rb = player.GetComponent<Rigidbody2D>();
         if (rb == null) yield break;
 
+        dir = dir.sqrMagnitude > 0.0001f ? dir.normalized : Vector2.right;
+
         float t = 0f;
-        while (t < dashKnockbackDuration && player != null && rb != null)
+        while (t < duration && player != null && rb != null)
         {
-            t += Time.deltaTime;
-            float falloff = 1f - (t / dashKnockbackDuration);
-            rb.linearVelocity = dir * dashKnockback * falloff;
-            yield return null;
+            float falloff = 1f - (t / duration);                 // затухание к концу
+            rb.MovePosition(rb.position + dir * force * falloff * Time.fixedDeltaTime);
+            t += Time.fixedDeltaTime;
+            yield return new WaitForFixedUpdate();
         }
     }
 
     void EndDash()
     {
         isDashing = false;
+        RestoreBodyTint();
+        dashHitThisLunge.Clear();
         SetState(WalkState);
         dashRoutine = null;
+    }
+
+    // ============================================================
+    // CONTACT DAMAGE — проактивная проверка касания (надёжнее OnCollision)
+    // ============================================================
+
+    void CheckContactDamage()
+    {
+        Vector2 center = (Vector2)transform.position + Vector2.up * contactYOffset;
+        int count = Physics2D.OverlapCircleNonAlloc(center, contactRadius, hitBuffer);
+        float now = Time.time;
+
+        for (int i = 0; i < count; i++)
+        {
+            Collider2D hit = hitBuffer[i];
+            if (hit == null) continue;
+
+            Transform root = ResolvePlayerRoot(hit);
+            if (root == null) continue;
+
+            if (contactHitTimers.TryGetValue(root, out float nextAllowed) && now < nextAllowed)
+                continue;
+
+            contactHitTimers[root] = now + contactCooldown;
+            HitPlayer(root, contactDamage, contactKnockback, contactKnockbackDuration, false);
+            ArenaCamera.Shake(0.18f, 0.14f);
+        }
+    }
+
+    // ============================================================
+    // ОБЩЕЕ НАНЕСЕНИЕ УРОНА ИГРОКУ (любой тип: боксёр / инженер)
+    // ============================================================
+
+    // Любой коллайдер → корневой объект игрока, если это игрок.
+    Transform ResolvePlayerRoot(Collider2D col)
+    {
+        PlayerController pc = col.GetComponentInParent<PlayerController>();
+        if (pc != null) return pc.transform;
+        EngineerController ec = col.GetComponentInParent<EngineerController>();
+        if (ec != null) return ec.transform;
+        return null;
+    }
+
+    // Урон проходит независимо от типа игрока. knockdown=true → дальний бросок с переворотом и подъёмом;
+    // knockdown=false → лёгкий толчок (касание).
+    void HitPlayer(Transform playerRoot, float damage, float knockForce, float knockTime, bool knockdown)
+    {
+        if (playerRoot == null) return;
+
+        Vector2 knockDir = ((Vector2)playerRoot.position - (Vector2)transform.position).normalized;
+        if (knockDir.sqrMagnitude < 0.01f)
+            knockDir = transform.localScale.x >= 0f ? Vector2.right : Vector2.left;
+
+        PlayerController pc = playerRoot.GetComponent<PlayerController>();
+        if (pc != null)
+        {
+            pc.TakeDamage(damage, Vector2.zero);
+            if (knockdown) pc.ApplyKnockback(knockDir, knockForce, knockTime);
+            else StartCoroutine(KnockbackPlayer(playerRoot, knockDir, knockForce, knockTime));
+            return;
+        }
+
+        EngineerController ec = playerRoot.GetComponent<EngineerController>();
+        if (ec != null)
+        {
+            ec.TakeDamage(damage, Vector2.zero);
+            if (knockdown) ec.ApplyKnockback(knockDir, knockForce, knockTime);
+            else StartCoroutine(KnockbackPlayer(playerRoot, knockDir, knockForce, knockTime));
+            return;
+        }
+
+        PlayerSharedHealth psh = playerRoot.GetComponent<PlayerSharedHealth>();
+        if (psh != null) psh.TakeDamage(damage);
+        StartCoroutine(KnockbackPlayer(playerRoot, knockDir, knockForce, knockTime));
     }
 
     // ============================================================
@@ -383,6 +490,8 @@ public class BossController : MonoBehaviour
     {
         if (dashRoutine != null) { StopCoroutine(dashRoutine); dashRoutine = null; }
         isDashing = false;
+        RestoreBodyTint();
+        dashHitThisLunge.Clear();
         isStunned = true;
         SetState(StunState);
 
@@ -408,6 +517,8 @@ public class BossController : MonoBehaviour
         if (dashRoutine != null) StopCoroutine(dashRoutine);
         if (stunRoutine != null) StopCoroutine(stunRoutine);
         isActive = false;
+        isDashing = false;
+        RestoreBodyTint();
         SetState(IdleState);
         if (barCanvas != null) Destroy(barCanvas.gameObject);
         Destroy(gameObject, 2f);
@@ -471,49 +582,38 @@ public class BossController : MonoBehaviour
     }
 
     public float GetHealthPercent() => maxHealth > 0f ? currentHealth / maxHealth : 0f;
+    public bool IsAlive => currentHealth > 0f;
 
     // ============================================================
     // UI BARS
     // ============================================================
 
+    const float BarBorder = 2f;
+
     void CreateBarsUI()
     {
+        // Канвас — ОТДЕЛЬНЫЙ объект (не дочерний боссу), чтобы не наследовать флип/масштаб тела.
         GameObject canvasObj = new GameObject("BossBarsCanvas");
-        canvasObj.transform.SetParent(transform, false);
-        canvasObj.transform.localPosition = new Vector3(hpBarWorldOffset.x, hpBarWorldOffset.y, 0f);
-
         barCanvas = canvasObj.AddComponent<Canvas>();
         barCanvas.renderMode = RenderMode.WorldSpace;
         barCanvas.sortingOrder = 100;
 
-        RectTransform canvasRect = canvasObj.GetComponent<RectTransform>();
-        canvasRect.sizeDelta = new Vector2(hpBarPixelSize.x, hpBarPixelSize.y + stunBarPixelSize.y + 10f);
+        RectTransform canvasRect = barCanvas.GetComponent<RectTransform>();
+        canvasRect.sizeDelta = new Vector2(hpBarPixelSize.x, hpBarPixelSize.y + stunBarPixelSize.y + 8f);
         canvasRect.localScale = Vector3.one * barCanvasScale;
 
+        // HP-бар: фон + заливка
         GameObject hpBg = CreateBarPart("HPBg", canvasObj.transform, hpBarPixelSize, hpBarBgColor);
-        RectTransform hpBgRect = hpBg.GetComponent<RectTransform>();
-        hpBgRect.anchoredPosition = new Vector2(0f, (stunBarPixelSize.y + 10f) * 0.5f);
+        ((RectTransform)hpBg.transform).anchoredPosition = new Vector2(0f, (stunBarPixelSize.y + 8f) * 0.5f);
+        hpBarFill = CreateFill("HPFill", hpBg.transform, hpBarPixelSize, hpBarColor);
 
-        GameObject hpFill = CreateBarPart("HPFill", hpBg.transform, hpBarPixelSize, hpBarColor);
-        hpBarFill = hpFill.GetComponent<RectTransform>();
-        hpBarFill.anchorMin = new Vector2(0f, 0.5f);
-        hpBarFill.anchorMax = new Vector2(0f, 0.5f);
-        hpBarFill.pivot = new Vector2(0f, 0.5f);
-        hpBarFill.sizeDelta = hpBarPixelSize;
-        hpBarFill.anchoredPosition = new Vector2(-hpBarPixelSize.x * 0.5f, 0f);
-
+        // Stun-бар: фон + заливка (под HP)
         GameObject stunBg = CreateBarPart("StunBg", canvasObj.transform, stunBarPixelSize, stunBarBgColor);
-        stunBarRoot = stunBg.GetComponent<RectTransform>();
-        stunBarRoot.anchoredPosition = new Vector2(0f, -(hpBarPixelSize.y + 4f) * 0.5f);
+        stunBarRoot = (RectTransform)stunBg.transform;
+        stunBarRoot.anchoredPosition = new Vector2(0f, -(hpBarPixelSize.y + 8f) * 0.5f);
+        stunBarFill = CreateFill("StunFill", stunBg.transform, stunBarPixelSize, stunBarColor);
 
-        GameObject stunFill = CreateBarPart("StunFill", stunBg.transform, stunBarPixelSize, stunBarColor);
-        stunBarFill = stunFill.GetComponent<RectTransform>();
-        stunBarFill.anchorMin = new Vector2(0f, 0.5f);
-        stunBarFill.anchorMax = new Vector2(0f, 0.5f);
-        stunBarFill.pivot = new Vector2(0f, 0.5f);
-        stunBarFill.sizeDelta = stunBarPixelSize;
-        stunBarFill.anchoredPosition = new Vector2(-stunBarPixelSize.x * 0.5f, 0f);
-
+        bossVisualForBars = transform;
         stunBarRoot.gameObject.SetActive(false);
         UpdateHpBar();
     }
@@ -524,6 +624,8 @@ public class BossController : MonoBehaviour
         obj.transform.SetParent(parent, false);
 
         RectTransform rect = obj.AddComponent<RectTransform>();
+        rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+        rect.pivot = new Vector2(0.5f, 0.5f);
         rect.sizeDelta = size;
 
         Image img = obj.AddComponent<Image>();
@@ -533,42 +635,77 @@ public class BossController : MonoBehaviour
         return obj;
     }
 
+    // Заливка: прижата к ЛЕВОМУ краю фона, убывает изменением ширины (без перекосов и localScale).
+    RectTransform CreateFill(string objName, Transform bg, Vector2 barSize, Color color)
+    {
+        GameObject obj = new GameObject(objName);
+        obj.transform.SetParent(bg, false);
+
+        RectTransform rect = obj.AddComponent<RectTransform>();
+        rect.anchorMin = rect.anchorMax = new Vector2(0f, 0.5f);
+        rect.pivot = new Vector2(0f, 0.5f);
+        rect.anchoredPosition = new Vector2(-barSize.x * 0.5f + BarBorder, 0f);
+        rect.sizeDelta = new Vector2(barSize.x - BarBorder * 2f, barSize.y - BarBorder * 2f);
+
+        Image img = obj.AddComponent<Image>();
+        img.color = color;
+        img.raycastTarget = false;
+
+        return rect;
+    }
+
     void UpdateHpBar()
     {
         if (hpBarFill == null) return;
-        float pct = Mathf.Clamp01(GetHealthPercent());
-        hpBarFill.localScale = new Vector3(pct, 1f, 1f);
+        float inner = hpBarPixelSize.x - BarBorder * 2f;
+        hpBarFill.sizeDelta = new Vector2(inner * Mathf.Clamp01(GetHealthPercent()), hpBarPixelSize.y - BarBorder * 2f);
     }
 
     void UpdateStunBar(float pct)
     {
         if (stunBarFill == null) return;
-        stunBarFill.localScale = new Vector3(Mathf.Clamp01(pct), 1f, 1f);
+        float inner = stunBarPixelSize.x - BarBorder * 2f;
+        stunBarFill.sizeDelta = new Vector2(inner * Mathf.Clamp01(pct), stunBarPixelSize.y - BarBorder * 2f);
     }
 
     void LateUpdate()
     {
-        // Канвас не флипается вместе с боссом
-        if (barCanvas != null)
-        {
-            Vector3 local = barCanvas.transform.localScale;
-            float absX = Mathf.Abs(local.x);
-            if (transform.localScale.x < 0f)
-                barCanvas.transform.localScale = new Vector3(-absX, local.y, local.z);
-            else
-                barCanvas.transform.localScale = new Vector3(absX, local.y, local.z);
-        }
+        ClampToArena();
+
+        if (barCanvas == null || bossVisualForBars == null) return;
+        // Канвас просто следует за боссом — без наследования флипа и масштаба.
+        barCanvas.transform.position = bossVisualForBars.position + (Vector3)hpBarWorldOffset;
+        barCanvas.transform.rotation = Quaternion.identity;
+    }
+
+    // Босс не покидает прямоугольник спрайта арены (с отступом).
+    void ClampToArena()
+    {
+        if (arenaBounds == null) return;
+        Bounds b = arenaBounds.bounds;
+        Vector3 p = transform.position;
+        float minX = b.min.x + arenaMargin, maxX = b.max.x - arenaMargin;
+        float minY = b.min.y + arenaMargin, maxY = b.max.y - arenaMargin;
+        if (minX <= maxX) p.x = Mathf.Clamp(p.x, minX, maxX);
+        if (minY <= maxY) p.y = Mathf.Clamp(p.y, minY, maxY);
+        transform.position = p;
+    }
+
+    void OnDestroy()
+    {
+        if (barCanvas != null) Destroy(barCanvas.gameObject);
     }
 
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, stopRange);
+        Gizmos.color = new Color(1f, 0.5f, 0f);
+        Gizmos.DrawWireSphere(transform.position, dashRange);
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, dashHitRadius);
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(transform.position, dashCircleDistance);
-        Gizmos.color = new Color(0f, 1f, 1f, 0.4f);
-        Gizmos.DrawWireSphere(transform.position, dashCircleRadius);
+        Vector3 facing = transform.localScale.x >= 0f ? Vector3.right : Vector3.left;
+        Gizmos.DrawWireSphere(transform.position + facing * dashHitForwardOffset, dashHitRadius);
+        Gizmos.color = new Color(1f, 0f, 0f, 0.5f);
+        Gizmos.DrawWireSphere(transform.position + Vector3.up * contactYOffset, contactRadius);
     }
 }
