@@ -1876,7 +1876,7 @@ MonoBehaviour:
   m_text: YES
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 995a5b3a08862254884894fb662c133f, type: 2}
-  m_sharedMaterial: {fileID: 2687573379150608014, guid: 995a5b3a08862254884894fb662c133f, type: 2}
+  m_sharedMaterial: {fileID: -8930848367627181546, guid: 995a5b3a08862254884894fb662c133f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2013,7 +2013,7 @@ MonoBehaviour:
   m_text: NO
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 995a5b3a08862254884894fb662c133f, type: 2}
-  m_sharedMaterial: {fileID: 2687573379150608014, guid: 995a5b3a08862254884894fb662c133f, type: 2}
+  m_sharedMaterial: {fileID: -8930848367627181546, guid: 995a5b3a08862254884894fb662c133f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2440,6 +2440,8 @@ MonoBehaviour:
   bushSpeedMultiplier: 1
   pauseBehindForest: 0.5
   nextSceneName: CharacterSelect
+  playArenaSceneName: TestArena_PrototypeMVP
+  trainingSceneName: TrainingScene
   entryForestDuration: 2
   entryMoonDuration: 2
   entryElementsDuration: 1.5
@@ -2447,6 +2449,9 @@ MonoBehaviour:
   moonCenterPos: {x: 0, y: 236}
   forestCoverPos: {x: 0, y: 160}
   bushCoverPos: {x: -2500, y: -82}
+  blackScreen: {fileID: 0}
+  blackFadeOutDuration: 1.5
+  pauseBushDuration: 1.5
 --- !u!4 &1096651595
 Transform:
   m_ObjectHideFlags: 0
@@ -2479,6 +2484,15 @@ MonoBehaviour:
   exitConfirmationPanel: {fileID: 901206443}
   volumeSlider: {fileID: 592887289}
   muteToggle: {fileID: 1628427498}
+  muteToggleBackground: {fileID: 0}
+  soundOnSprite: {fileID: 0}
+  soundOffSprite: {fileID: 0}
+  soundSettingsPage: {fileID: 0}
+  controlsSettingsPage: {fileID: 0}
+  controlsSettingsUI: {fileID: 0}
+  soundSettingsRadioButton: {fileID: 0}
+  controlsSettingsRadioButton: {fileID: 0}
+  backButton: {fileID: 0}
 --- !u!1 &1099191094
 GameObject:
   m_ObjectHideFlags: 0
@@ -2693,7 +2707,7 @@ MonoBehaviour:
   m_text: VOLUME
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 995a5b3a08862254884894fb662c133f, type: 2}
-  m_sharedMaterial: {fileID: 2687573379150608014, guid: 995a5b3a08862254884894fb662c133f, type: 2}
+  m_sharedMaterial: {fileID: -8930848367627181546, guid: 995a5b3a08862254884894fb662c133f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3102,7 +3116,7 @@ MonoBehaviour:
   m_text: Are you sure you want to quit?
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 995a5b3a08862254884894fb662c133f, type: 2}
-  m_sharedMaterial: {fileID: 2687573379150608014, guid: 995a5b3a08862254884894fb662c133f, type: 2}
+  m_sharedMaterial: {fileID: -8930848367627181546, guid: 995a5b3a08862254884894fb662c133f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3722,7 +3736,7 @@ MonoBehaviour:
   m_text: EXIT
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 995a5b3a08862254884894fb662c133f, type: 2}
-  m_sharedMaterial: {fileID: 2687573379150608014, guid: 995a5b3a08862254884894fb662c133f, type: 2}
+  m_sharedMaterial: {fileID: -8930848367627181546, guid: 995a5b3a08862254884894fb662c133f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

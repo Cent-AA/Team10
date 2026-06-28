@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using System.Collections;
 
 public class MenuTransition : MonoBehaviour
@@ -38,27 +39,79 @@ public class MenuTransition : MonoBehaviour
     private static bool playEntryAnimation = false;
     private static bool playPauseEntry = false;
 
-    public static void SetEntryAnimation() { playEntryAnimation = true; }
-    public static void SetPauseEntry() { playPauseEntry = true; }
+    private enum EntryAnimationMode
+    {
+        None,
+        Standard,
+        FromPause
+    }
+
+    private EntryAnimationMode entryAnimationMode;
+    private CanvasGroup menuCanvasGroup;
+    private LayoutGroup buttonsLayoutGroup;
+    private RectTransform buttonsLayoutRoot;
+    private bool buttonsLayoutSuspended;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStaticState()
+    {
+        playEntryAnimation = false;
+        playPauseEntry = false;
+    }
+
+    public static void SetEntryAnimation()
+    {
+        playEntryAnimation = true;
+        playPauseEntry = false;
+    }
+
+    public static void SetPauseEntry()
+    {
+        playPauseEntry = true;
+        playEntryAnimation = false;
+    }
 
     [Header("Вход из паузы")]
     public UnityEngine.UI.Image blackScreen;   // Чёрный Image на весь экран
     public float blackFadeOutDuration = 1.5f;
     public float pauseBushDuration = 1.5f;
 
+    void Awake()
+    {
+        if (playPauseEntry)
+            entryAnimationMode = EntryAnimationMode.FromPause;
+        else if (playEntryAnimation)
+            entryAnimationMode = EntryAnimationMode.Standard;
+        else
+            entryAnimationMode = EntryAnimationMode.None;
+
+        playEntryAnimation = false;
+        playPauseEntry = false;
+
+        Transform menuRoot = logo != null && logo.parent != null ? logo.parent : transform;
+        menuCanvasGroup = menuRoot.GetComponent<CanvasGroup>();
+        if (menuCanvasGroup == null)
+            menuCanvasGroup = menuRoot.gameObject.AddComponent<CanvasGroup>();
+
+        if (entryAnimationMode != EntryAnimationMode.None)
+            SetMenuPresentation(0f, false);
+    }
+
     void Start()
     {
         if (blackScreen != null) blackScreen.gameObject.SetActive(false);
 
-        if (playPauseEntry)
+        if (entryAnimationMode == EntryAnimationMode.FromPause)
         {
-            playPauseEntry = false;
             StartCoroutine(PlayPauseEntryAnimation());
         }
-        else if (playEntryAnimation)
+        else if (entryAnimationMode == EntryAnimationMode.Standard)
         {
-            playEntryAnimation = false;
             StartCoroutine(PlayEntryAnimation());
+        }
+        else
+        {
+            SetMenuPresentation(1f, true);
         }
     }
 
@@ -67,11 +120,13 @@ public class MenuTransition : MonoBehaviour
     {
         // Скрываем элементы
         Vector2 logoTarget = logo.anchoredPosition;
-        Vector2[] btnTargets = new Vector2[buttons.Length];
+        Vector2[] btnTargets = CaptureButtonTargetsAndSuspendLayout();
+        Vector2 bushTarget = bushOverlay != null ? bushOverlay.anchoredPosition : Vector2.zero;
+        Vector3 bushTargetScale = bushOverlay != null ? bushOverlay.localScale : Vector3.one;
         logo.anchoredPosition = new Vector2(logoTarget.x - 2000f, logoTarget.y);
         for (int i = 0; i < buttons.Length; i++)
         {
-            btnTargets[i] = buttons[i].anchoredPosition;
+            if (buttons[i] == null) continue;
             buttons[i].anchoredPosition = new Vector2(btnTargets[i].x - 2000f, btnTargets[i].y);
         }
 
@@ -87,16 +142,16 @@ public class MenuTransition : MonoBehaviour
             bushOverlay.localScale = Vector3.one * 3f;
         }
 
-        yield return new WaitForSeconds(0.3f);
+        SetMenuPresentation(1f, false);
+        yield return new WaitForSecondsRealtime(0.3f);
 
         // Фаза 1: Чёрный экран осветляется
         float elapsed = 0f;
-        while (elapsed < blackFadeOutDuration)
+        while (blackScreen != null && elapsed < blackFadeOutDuration)
         {
-            elapsed += Time.deltaTime;
-            float t = elapsed / blackFadeOutDuration;
-            if (blackScreen != null)
-                blackScreen.color = new Color(0, 0, 0, 1f - t);
+            elapsed += Time.unscaledDeltaTime;
+            float t = blackFadeOutDuration <= 0f ? 1f : Mathf.Clamp01(elapsed / blackFadeOutDuration);
+            blackScreen.color = new Color(0, 0, 0, 1f - t);
             yield return null;
         }
         if (blackScreen != null) blackScreen.gameObject.SetActive(false);
@@ -109,16 +164,18 @@ public class MenuTransition : MonoBehaviour
             elapsed = 0f;
             while (elapsed < pauseBushDuration)
             {
-                elapsed += Time.deltaTime;
-                float t = EaseInOutSine(Mathf.Clamp01(elapsed / pauseBushDuration));
+                elapsed += Time.unscaledDeltaTime;
+                float t = pauseBushDuration <= 0f ? 1f : EaseInOutSine(Mathf.Clamp01(elapsed / pauseBushDuration));
                 bushOverlay.anchoredPosition = Vector2.Lerp(bushStart, bushEnd, t);
                 bushOverlay.localScale = Vector3.one * Mathf.Lerp(3f, 1f, t);
                 yield return null;
             }
 
             // Телепортируем куст на оригинальную позицию (справа за экраном)
-            bushOverlay.anchoredPosition = new Vector2(1491f, -82f);
-            bushOverlay.localScale = Vector3.one;
+            bushOverlay.gameObject.SetActive(false);
+            bushOverlay.anchoredPosition = bushTarget;
+            bushOverlay.localScale = bushTargetScale;
+            bushOverlay.gameObject.SetActive(true);
         }
 
         // Фаза 3: Элементы заезжают
@@ -126,7 +183,7 @@ public class MenuTransition : MonoBehaviour
         float totalDuration = entryElementsDuration + buttons.Length * entryElementsDelay + 0.5f;
         while (elapsed < totalDuration)
         {
-            elapsed += Time.deltaTime;
+            elapsed += Time.unscaledDeltaTime;
 
             float logoT = EaseOutCubic(Mathf.Clamp01(elapsed / entryElementsDuration));
             logo.anchoredPosition = Vector2.Lerp(
@@ -145,18 +202,24 @@ public class MenuTransition : MonoBehaviour
             }
             yield return null;
         }
+
+        logo.anchoredPosition = logoTarget;
+        RestoreButtonLayout(btnTargets);
+        SetMenuPresentation(1f, true);
     }
 
     // === ВХОДНАЯ АНИМАЦИЯ ===
     IEnumerator PlayEntryAnimation()
     {
         Vector2 logoTarget = logo.anchoredPosition;
-        Vector2[] btnTargets = new Vector2[buttons.Length];
+        Vector2[] btnTargets = CaptureButtonTargetsAndSuspendLayout();
+        Vector2 forestRestingPosition = forestOverlay.anchoredPosition;
+        Vector2 bushRestingPosition = bushOverlay != null ? bushOverlay.anchoredPosition : Vector2.zero;
 
         logo.anchoredPosition = new Vector2(logoTarget.x - 2000f, logoTarget.y);
         for (int i = 0; i < buttons.Length; i++)
         {
-            btnTargets[i] = buttons[i].anchoredPosition;
+            if (buttons[i] == null) continue;
             buttons[i].anchoredPosition = new Vector2(btnTargets[i].x - 2000f, btnTargets[i].y);
         }
 
@@ -165,9 +228,11 @@ public class MenuTransition : MonoBehaviour
         forestOverlay.anchoredPosition = forestCoverPos;
         if (bushOverlay != null) bushOverlay.anchoredPosition = bushCoverPos;
 
-        Vector2 forestOffscreen = new Vector2(2500f, forestCoverPos.y);
-        Vector2 bushOffscreen = new Vector2(2500f, bushCoverPos.y);
+        Vector2 forestOffscreen = forestRestingPosition;
+        Vector2 bushOffscreen = bushRestingPosition;
         float bushDuration = entryForestDuration / bushSpeedMultiplier;
+
+        SetMenuPresentation(1f, false);
 
         float elapsed = 0f;
         float totalDuration = Mathf.Max(entryForestDuration, entryMoonDuration,
@@ -175,7 +240,7 @@ public class MenuTransition : MonoBehaviour
 
         while (elapsed < totalDuration)
         {
-            elapsed += Time.deltaTime;
+            elapsed += Time.unscaledDeltaTime;
 
             // Кусты уезжают быстрее
             if (bushOverlay != null)
@@ -212,6 +277,13 @@ public class MenuTransition : MonoBehaviour
 
             yield return null;
         }
+
+        logo.anchoredPosition = logoTarget;
+        moon.anchoredPosition = moonOriginal;
+        forestOverlay.anchoredPosition = forestOffscreen;
+        if (bushOverlay != null) bushOverlay.anchoredPosition = bushOffscreen;
+        RestoreButtonLayout(btnTargets);
+        SetMenuPresentation(1f, true);
     }
 
     // === ВЫХОДНАЯ АНИМАЦИЯ (Play) ===
@@ -242,9 +314,7 @@ public class MenuTransition : MonoBehaviour
         Vector2 bushStart = bushOverlay != null ? bushOverlay.anchoredPosition : Vector2.zero;
         float bushDuration = forestSlideDuration / bushSpeedMultiplier;
 
-        Vector2[] btnStarts = new Vector2[buttons.Length];
-        for (int i = 0; i < buttons.Length; i++)
-            btnStarts[i] = buttons[i].anchoredPosition;
+        Vector2[] btnStarts = CaptureButtonTargetsAndSuspendLayout();
 
         float elapsed = 0f;
         float totalDuration = Mathf.Max(
@@ -292,6 +362,86 @@ public class MenuTransition : MonoBehaviour
 
         yield return new WaitForSeconds(pauseBehindForest);
         SceneManager.LoadScene(nextSceneName);
+    }
+
+    private Vector2[] CaptureButtonTargetsAndSuspendLayout()
+    {
+        Canvas.ForceUpdateCanvases();
+
+        buttonsLayoutRoot = null;
+        buttonsLayoutGroup = null;
+
+        for (int i = 0; i < buttons.Length; i++)
+        {
+            if (buttons[i] != null && buttons[i].parent is RectTransform parent)
+            {
+                buttonsLayoutRoot = parent;
+                break;
+            }
+        }
+
+        if (buttonsLayoutRoot != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(buttonsLayoutRoot);
+            buttonsLayoutGroup = buttonsLayoutRoot.GetComponent<LayoutGroup>();
+        }
+
+        Vector2[] targets = new Vector2[buttons.Length];
+        for (int i = 0; i < buttons.Length; i++)
+        {
+            if (buttons[i] != null)
+                targets[i] = buttons[i].anchoredPosition;
+        }
+
+        if (buttonsLayoutGroup != null && buttonsLayoutGroup.enabled)
+        {
+            buttonsLayoutGroup.enabled = false;
+            buttonsLayoutSuspended = true;
+        }
+
+        return targets;
+    }
+
+    private void RestoreButtonLayout(Vector2[] targets)
+    {
+        if (targets != null)
+        {
+            int count = Mathf.Min(buttons.Length, targets.Length);
+            for (int i = 0; i < count; i++)
+            {
+                if (buttons[i] != null)
+                    buttons[i].anchoredPosition = targets[i];
+            }
+        }
+
+        if (buttonsLayoutSuspended && buttonsLayoutGroup != null)
+        {
+            buttonsLayoutGroup.enabled = true;
+            buttonsLayoutSuspended = false;
+        }
+
+        if (buttonsLayoutRoot != null)
+            LayoutRebuilder.ForceRebuildLayoutImmediate(buttonsLayoutRoot);
+
+        Canvas.ForceUpdateCanvases();
+    }
+
+    private void SetMenuPresentation(float alpha, bool interactive)
+    {
+        if (menuCanvasGroup == null) return;
+
+        menuCanvasGroup.alpha = alpha;
+        menuCanvasGroup.interactable = interactive;
+        menuCanvasGroup.blocksRaycasts = interactive;
+    }
+
+    void OnDisable()
+    {
+        if (buttonsLayoutSuspended && buttonsLayoutGroup != null)
+        {
+            buttonsLayoutGroup.enabled = true;
+            buttonsLayoutSuspended = false;
+        }
     }
 
     float EaseInCubic(float t) { return t * t * t; }

@@ -6,8 +6,10 @@ public class PrototypeClassRoleTuner : MonoBehaviour
 {
     public bool tuneRolesOnStart = true;
 
+    [Header("Serialized HUD")]
+    public TextMeshProUGUI rolesText;
+
     private bool tuned;
-    private TextMeshProUGUI rolesText;
 
     void Start()
     {
@@ -117,17 +119,26 @@ public class PrototypeClassRoleTuner : MonoBehaviour
 
     void CreateRolesHud(bool hasEngineer)
     {
-        Canvas canvas = PrototypeArenaUi.GetOrCreateCanvas("PrototypeArenaHUD", 5500);
         string p2Role = hasEngineer ? "P2 Engineer: charge attacks, faster repairs through cards" : "P2 Scout: fast attacks, fast dash";
-        rolesText = PrototypeArenaUi.CreateText(
-            canvas.transform,
-            "RolesText",
-            "P1 Heavy: tank, block, heavy barrage\n" + p2Role,
-            20,
-            TextAlignmentOptions.TopLeft,
-            new Vector2(0f, 1f),
-            new Vector2(0f, 1f),
-            new Vector2(24f, -24f),
-            new Vector2(540f, 110f));
+        string roleDescription = "P1 Heavy: tank, block, heavy barrage\n" + p2Role;
+
+        if (rolesText == null)
+        {
+            Canvas canvas = PrototypeArenaUi.GetOrCreateCanvas("PrototypeArenaHUD", 5500);
+            rolesText = PrototypeArenaUi.CreateText(
+                canvas.transform,
+                "RolesText",
+                roleDescription,
+                20,
+                TextAlignmentOptions.TopLeft,
+                new Vector2(0f, 1f),
+                new Vector2(0f, 1f),
+                new Vector2(24f, -24f),
+                new Vector2(540f, 110f));
+        }
+        else
+        {
+            rolesText.text = roleDescription;
+        }
     }
 }

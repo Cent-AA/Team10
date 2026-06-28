@@ -30,9 +30,14 @@ public class PrototypeCardRewardManager : MonoBehaviour
     public bool showRewardsAfterWave = true;
     public int choicesPerReward = 3;
 
+    [Header("Serialized HUD")]
+    public GameObject rewardPanel;
+    public TextMeshProUGUI rewardTitle;
+    public Button[] cardButtons = new Button[3];
+    public TextMeshProUGUI[] cardLabels = new TextMeshProUGUI[3];
+
     private readonly List<Card> deck = new List<Card>();
     private WaveManager waveManager;
-    private GameObject rewardPanel;
     private Card[] activeChoices;
     private bool rewardOpen;
 
@@ -43,6 +48,10 @@ public class PrototypeCardRewardManager : MonoBehaviour
         waveManager = FindFirstObjectByType<WaveManager>();
         if (waveManager != null)
             waveManager.OnWaveComplete += HandleWaveComplete;
+
+        ResolveRewardHud();
+        if (rewardPanel != null)
+            rewardPanel.SetActive(false);
     }
 
     void OnDestroy()
@@ -98,47 +107,102 @@ public class PrototypeCardRewardManager : MonoBehaviour
         rewardOpen = true;
         Time.timeScale = 0f;
 
-        Canvas canvas = PrototypeArenaUi.GetOrCreateCanvas("PrototypeArenaHUD", 5500);
-        rewardPanel = PrototypeArenaUi.CreatePanel(
-            canvas.transform,
-            "RewardPanel",
-            new Color(0.025f, 0.03f, 0.035f, 0.94f),
-            new Vector2(0.5f, 0.5f),
-            new Vector2(0.5f, 0.5f),
-            Vector2.zero,
-            new Vector2(940f, 560f)).gameObject;
-
-        PrototypeArenaUi.CreateText(
-            rewardPanel.transform,
-            "Title",
-            $"Wave {wave} cleared\nPick one upgrade",
-            24,
-            TextAlignmentOptions.Center,
-            new Vector2(0.5f, 1f),
-            new Vector2(0.5f, 1f),
-            new Vector2(0f, -80f),
-            new Vector2(780f, 110f));
+        ResolveRewardHud();
+        rewardPanel.SetActive(true);
+        rewardTitle.text = $"Wave {wave} cleared\nPick one upgrade";
 
         activeChoices = RollChoices();
 
-        for (int i = 0; i < activeChoices.Length; i++)
+        for (int i = 0; i < cardButtons.Length; i++)
         {
+            bool active = i < activeChoices.Length;
+            cardButtons[i].gameObject.SetActive(active);
+            if (!active)
+                continue;
+
             int choiceIndex = i;
             Card card = activeChoices[i];
-            string label = $"{i + 1}. {card.Title}\n\n{card.Body}";
-            PrototypeArenaUi.CreateButton(
-                rewardPanel.transform,
-                "CardButton" + (i + 1),
-                label,
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(-300f + i * 300f, -40f),
-                new Vector2(260f, 270f),
-                () => SelectCard(choiceIndex));
+            cardLabels[i].text = $"{i + 1}. {card.Title}\n\n{card.Body}";
+            cardButtons[i].onClick.RemoveAllListeners();
+            cardButtons[i].onClick.AddListener(() => SelectCard(choiceIndex));
+        }
+    }
+
+    void ResolveRewardHud()
+    {
+        Canvas canvas = null;
+
+        if (rewardPanel == null)
+        {
+            canvas = PrototypeArenaUi.GetOrCreateCanvas("PrototypeArenaHUD", 5500);
+            Transform existing = canvas.transform.Find("RewardPanel");
+            rewardPanel = existing != null
+                ? existing.gameObject
+                : PrototypeArenaUi.CreatePanel(
+                    canvas.transform,
+                    "RewardPanel",
+                    new Color(0.025f, 0.03f, 0.035f, 0.94f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    Vector2.zero,
+                    new Vector2(940f, 560f)).gameObject;
         }
 
-        for (int i = activeChoices.Length; i < 3; i++)
-            PrototypeArenaUi.SetChildActive(rewardPanel.transform, "CardButton" + (i + 1), false);
+        if (rewardTitle == null)
+        {
+            rewardTitle = PrototypeArenaUi.CreateText(
+                rewardPanel.transform,
+                "Title",
+                "Wave cleared\nPick one upgrade",
+                24,
+                TextAlignmentOptions.Center,
+                new Vector2(0.5f, 1f),
+                new Vector2(0.5f, 1f),
+                new Vector2(0f, -80f),
+                new Vector2(780f, 110f));
+        }
+
+        if (cardButtons == null || cardButtons.Length != 3)
+            cardButtons = new Button[3];
+        if (cardLabels == null || cardLabels.Length != 3)
+            cardLabels = new TextMeshProUGUI[3];
+
+        for (int i = 0; i < 3; i++)
+        {
+            if (cardButtons[i] == null)
+            {
+                int choiceIndex = i;
+                cardButtons[i] = PrototypeArenaUi.CreateButton(
+                    rewardPanel.transform,
+                    "CardButton" + (i + 1),
+                    "Card " + (i + 1),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(-300f + i * 300f, -40f),
+                    new Vector2(260f, 270f),
+                    () => SelectCard(choiceIndex));
+            }
+
+            if (cardLabels[i] == null)
+            {
+                Transform label = cardButtons[i].transform.Find("Label");
+                cardLabels[i] = label != null ? label.GetComponent<TextMeshProUGUI>() : null;
+            }
+
+            if (cardLabels[i] == null)
+            {
+                cardLabels[i] = PrototypeArenaUi.CreateText(
+                    cardButtons[i].transform,
+                    "Label",
+                    "Card " + (i + 1),
+                    16,
+                    TextAlignmentOptions.Center,
+                    Vector2.zero,
+                    Vector2.one,
+                    Vector2.zero,
+                    new Vector2(-24f, -24f));
+            }
+        }
     }
 
     Card[] RollChoices()

@@ -63,8 +63,6 @@ public class EngineerController : MonoBehaviour
     public AudioClip buildDispenserVoiceLine;
     public AudioClip sentryKillVoiceLine;
     private AudioSource audioSource;
-    private int hitVoiceLineCounter = 0;
-
     // Внутреннее
     private Vector2 moveInput;
     private bool isRunning;
@@ -567,7 +565,6 @@ public class EngineerController : MonoBehaviour
 
     void HandleDowned()
     {
-        hitVoiceLineCounter = 0;
         currentHealth = 0f;
         if (motor != null)
             motor.SetMovementLocked(true);
@@ -674,8 +671,7 @@ public class EngineerController : MonoBehaviour
     void OnHitDialogue()
     {
         GetComponent<DialogueTrigger>()?.OnDamaged();
-        hitVoiceLineCounter++;
-        if (hitVoiceLineCounter % 3 == 1) PlaySound(onHitVoiceLine);
+        if (Random.value < 0.0006f) PlaySound(onHitVoiceLine);
     }
     void OnDeathDialogue() => GetComponent<DialogueTrigger>()?.OnDeath();
 

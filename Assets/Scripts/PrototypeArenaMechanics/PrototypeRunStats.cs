@@ -14,9 +14,15 @@ public class PrototypeRunStats : MonoBehaviour
     public string resultTitle = "RUN RESULT";
     public bool pauseOnGameOver = true;
 
+    [Header("Serialized HUD")]
+    public TextMeshProUGUI hudText;
+    public GameObject resultPanel;
+    public TextMeshProUGUI resultTitleText;
+    public TextMeshProUGUI resultStatsText;
+    public Button restartButton;
+    public Button menuButton;
+
     private WaveManager waveManager;
-    private TextMeshProUGUI hudText;
-    private GameObject resultPanel;
     private readonly List<string> selectedCards = new List<string>();
     private int currentWave;
     private int kills;
@@ -48,7 +54,7 @@ public class PrototypeRunStats : MonoBehaviour
         if (waveManager != null)
             waveManager.OnWaveStart += HandleWaveStart;
 
-        CreateHud();
+        ResolveHudReferences();
         UpdateHud();
     }
 
@@ -135,19 +141,108 @@ public class PrototypeRunStats : MonoBehaviour
         return sawPlayer;
     }
 
-    void CreateHud()
+    void ResolveHudReferences()
     {
-        Canvas canvas = PrototypeArenaUi.GetOrCreateCanvas("PrototypeArenaHUD", 5500);
-        hudText = PrototypeArenaUi.CreateText(
-            canvas.transform,
-            "RunStatsText",
-            "",
-            24,
-            TextAlignmentOptions.TopRight,
-            new Vector2(1f, 1f),
-            new Vector2(1f, 1f),
-            new Vector2(-24f, -24f),
-            new Vector2(420f, 130f));
+        Canvas canvas = null;
+        if (hudText == null || resultPanel == null)
+            canvas = PrototypeArenaUi.GetOrCreateCanvas("PrototypeArenaHUD", 5500);
+
+        if (hudText == null)
+        {
+            hudText = PrototypeArenaUi.CreateText(
+                canvas.transform,
+                "RunStatsText",
+                "",
+                24,
+                TextAlignmentOptions.TopRight,
+                new Vector2(1f, 1f),
+                new Vector2(1f, 1f),
+                new Vector2(-24f, -24f),
+                new Vector2(420f, 130f));
+        }
+
+        if (resultPanel == null)
+        {
+            Transform existing = canvas.transform.Find("ResultPanel");
+            resultPanel = existing != null
+                ? existing.gameObject
+                : PrototypeArenaUi.CreatePanel(
+                    canvas.transform,
+                    "ResultPanel",
+                    new Color(0.03f, 0.025f, 0.02f, 0.92f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    Vector2.zero,
+                    new Vector2(760f, 520f)).gameObject;
+        }
+
+        EnsureResultHudComponents();
+        resultPanel.SetActive(false);
+    }
+
+    void EnsureResultHudComponents()
+    {
+        if (resultPanel == null)
+            return;
+
+        if (resultTitleText == null)
+        {
+            resultTitleText = PrototypeArenaUi.CreateText(
+                resultPanel.transform,
+                "Title",
+                resultTitle,
+                20,
+                TextAlignmentOptions.Center,
+                new Vector2(0.5f, 1f),
+                new Vector2(0.5f, 1f),
+                new Vector2(0f, -58f),
+                new Vector2(620f, 70f));
+        }
+
+        if (resultStatsText == null)
+        {
+            resultStatsText = PrototypeArenaUi.CreateText(
+                resultPanel.transform,
+                "Stats",
+                "",
+                16,
+                TextAlignmentOptions.Top,
+                Vector2.zero,
+                Vector2.one,
+                new Vector2(0f, 16f),
+                new Vector2(-80f, -190f));
+        }
+
+        if (restartButton == null)
+        {
+            restartButton = PrototypeArenaUi.CreateButton(
+                resultPanel.transform,
+                "RestartButton",
+                "Restart",
+                new Vector2(0.5f, 0f),
+                new Vector2(0.5f, 0f),
+                new Vector2(-140f, 70f),
+                new Vector2(220f, 64f),
+                RestartScene);
+        }
+
+        if (menuButton == null)
+        {
+            menuButton = PrototypeArenaUi.CreateButton(
+                resultPanel.transform,
+                "MenuButton",
+                "Menu",
+                new Vector2(0.5f, 0f),
+                new Vector2(0.5f, 0f),
+                new Vector2(140f, 70f),
+                new Vector2(220f, 64f),
+                LoadMainMenu);
+        }
+
+        restartButton.onClick.RemoveListener(RestartScene);
+        restartButton.onClick.AddListener(RestartScene);
+        menuButton.onClick.RemoveListener(LoadMainMenu);
+        menuButton.onClick.AddListener(LoadMainMenu);
     }
 
     void UpdateHud()
@@ -160,26 +255,10 @@ public class PrototypeRunStats : MonoBehaviour
 
     void ShowResult(string reason)
     {
-        Canvas canvas = PrototypeArenaUi.GetOrCreateCanvas("PrototypeArenaHUD", 5500);
-        resultPanel = PrototypeArenaUi.CreatePanel(
-            canvas.transform,
-            "ResultPanel",
-            new Color(0.03f, 0.025f, 0.02f, 0.92f),
-            new Vector2(0.5f, 0.5f),
-            new Vector2(0.5f, 0.5f),
-            Vector2.zero,
-            new Vector2(760f, 520f)).gameObject;
+        if (resultPanel == null || resultTitleText == null || resultStatsText == null)
+            ResolveHudReferences();
 
-        PrototypeArenaUi.CreateText(
-            resultPanel.transform,
-            "Title",
-            resultTitle,
-            20,
-            TextAlignmentOptions.Center,
-            new Vector2(0.5f, 1f),
-            new Vector2(0.5f, 1f),
-            new Vector2(0f, -58f),
-            new Vector2(620f, 70f));
+        resultTitleText.text = resultTitle;
 
         StringBuilder builder = new StringBuilder();
         builder.AppendLine(reason);
@@ -198,36 +277,8 @@ public class PrototypeRunStats : MonoBehaviour
                 builder.AppendLine("- " + selectedCards[i]);
         }
 
-        PrototypeArenaUi.CreateText(
-            resultPanel.transform,
-            "Stats",
-            builder.ToString(),
-            16,
-            TextAlignmentOptions.Top,
-            new Vector2(0f, 0f),
-            new Vector2(1f, 1f),
-            new Vector2(0f, 16f),
-            new Vector2(-80f, -190f));
-
-        PrototypeArenaUi.CreateButton(
-            resultPanel.transform,
-            "RestartButton",
-            "Restart",
-            new Vector2(0.5f, 0f),
-            new Vector2(0.5f, 0f),
-            new Vector2(-140f, 70f),
-            new Vector2(220f, 64f),
-            RestartScene);
-
-        PrototypeArenaUi.CreateButton(
-            resultPanel.transform,
-            "MenuButton",
-            "Menu",
-            new Vector2(0.5f, 0f),
-            new Vector2(0.5f, 0f),
-            new Vector2(140f, 70f),
-            new Vector2(220f, 64f),
-            LoadMainMenu);
+        resultStatsText.text = builder.ToString();
+        resultPanel.SetActive(true);
     }
 
     void RestartScene()

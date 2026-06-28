@@ -14,7 +14,6 @@ using UnityEngine.UI;
 public static class TestArenaPrototypeMvpHierarchyBuilder
 {
     private const string ScenePath = "Assets/Scenes/TestArena_PrototypeMVP.unity";
-    private const string AutoBuildSessionKey = "TestArenaPrototypeMvpHierarchyBuilder.AutoBuild.20260625";
     private const string ZombiePrefabPath = "Assets/Prefabs/Zombie.prefab";
     private const string BossPrefabPath = "Assets/Prefabs/ZombieBoss.prefab";
     private const string HeavyPrefabPath = "Assets/Prefabs/Player1 1.prefab";
@@ -22,29 +21,6 @@ public static class TestArenaPrototypeMvpHierarchyBuilder
     private const string TurretPrefabPath = "Assets/Prefabs/PrototypeTurret.prefab";
     private const string DispenserPrefabPath = "Assets/Prefabs/PrototypeDispenser.prefab";
     private const string ReviveTargetPrefabPath = "Assets/Prefabs/ReviveTarget.prefab";
-
-    [InitializeOnLoadMethod]
-    private static void ScheduleAutoBuildForOpenTestArena()
-    {
-        if (Application.isBatchMode)
-            return;
-
-        EditorApplication.delayCall += () =>
-        {
-            if (SessionState.GetBool(AutoBuildSessionKey, false))
-                return;
-
-            if (EditorApplication.isCompiling || EditorApplication.isPlayingOrWillChangePlaymode)
-                return;
-
-            Scene activeScene = EditorSceneManager.GetActiveScene();
-            if (!activeScene.IsValid() || activeScene.path != ScenePath)
-                return;
-
-            SessionState.SetBool(AutoBuildSessionKey, true);
-            BuildAndSave();
-        };
-    }
 
     [MenuItem("Codex/Test Arena/Rebuild Prototype MVP Hierarchy")]
     public static void BuildAndSaveFromMenu()
@@ -276,6 +252,9 @@ public static class TestArenaPrototypeMvpHierarchyBuilder
         heavyShockPanel.pivot = new Vector2(0.5f, 0.5f);
         heavyShockPanel.anchoredPosition = Vector2.zero;
         heavyShockPanel.sizeDelta = Vector2.zero;
+        Image heavyShockImage = EnsureComponent<Image>(heavyShockPanel.gameObject);
+        heavyShockImage.raycastTarget = false;
+        heavyShockImage.preserveAspect = true;
         heavyShockPanel.gameObject.SetActive(false);
 
         GameObject hud = Find(scene, "PrototypeArenaHUD") ?? CreateRectSceneObject(scene, "PrototypeArenaHUD");
@@ -297,6 +276,48 @@ public static class TestArenaPrototypeMvpHierarchyBuilder
         EnsureComponent<GraphicRaycaster>(hud);
 
         BuildPrototypeHud(hud.transform);
+        BuildPixelBloodOverlay(scene, ui.transform);
+    }
+
+    private static void BuildPixelBloodOverlay(Scene scene, Transform uiRoot)
+    {
+        GameObject overlay = Find(scene, "PixelBloodOverlay") ?? CreateRectSceneObject(scene, "PixelBloodOverlay");
+        overlay.transform.SetParent(uiRoot, false);
+
+        RectTransform overlayRect = EnsureRectTransform(overlay);
+        overlayRect.anchorMin = Vector2.zero;
+        overlayRect.anchorMax = Vector2.one;
+        overlayRect.anchoredPosition = Vector2.zero;
+        overlayRect.sizeDelta = Vector2.zero;
+
+        Canvas canvas = EnsureComponent<Canvas>(overlay);
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 7600;
+
+        CanvasScaler scaler = EnsureComponent<CanvasScaler>(overlay);
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.matchWidthOrHeight = 0.5f;
+
+        RectTransform player1Root = EnsureRectChild(overlay.transform, "Player1PixelBlood");
+        player1Root.anchorMin = new Vector2(0f, 1f);
+        player1Root.anchorMax = new Vector2(0f, 1f);
+        player1Root.pivot = new Vector2(0f, 1f);
+        player1Root.anchoredPosition = new Vector2(22f, -20f);
+        player1Root.sizeDelta = new Vector2(380f, 260f);
+
+        RectTransform player2Root = EnsureRectChild(overlay.transform, "Player2PixelBlood");
+        player2Root.anchorMin = new Vector2(1f, 1f);
+        player2Root.anchorMax = new Vector2(1f, 1f);
+        player2Root.pivot = new Vector2(1f, 1f);
+        player2Root.anchoredPosition = new Vector2(-22f, -20f);
+        player2Root.sizeDelta = new Vector2(380f, 260f);
+
+        PixelBloodOverlay bloodOverlay = EnsureComponent<PixelBloodOverlay>(overlay);
+        bloodOverlay.sortingOrder = 7600;
+        bloodOverlay.baseParticleCount = 34;
+        bloodOverlay.player1Root = player1Root;
+        bloodOverlay.player2Root = player2Root;
     }
 
     private static void BuildPrototypeHud(Transform hud)
@@ -519,6 +540,53 @@ public static class TestArenaPrototypeMvpHierarchyBuilder
         if (health != null)
             health.campfire = campfire;
 
+        Transform hud = Find(scene, "PrototypeArenaHUD")?.transform;
+        Transform campfireFrame = hud != null ? hud.Find("CampfireHealthFrame") : null;
+        Transform rewardPanel = hud != null ? hud.Find("RewardPanel") : null;
+        Transform resultPanel = hud != null ? hud.Find("ResultPanel") : null;
+
+        if (health != null && campfireFrame != null)
+        {
+            health.healthFill = campfireFrame.Find("Fill")?.GetComponent<Image>();
+            health.healthText = campfireFrame.Find("Label")?.GetComponent<TextMeshProUGUI>();
+        }
+
+        PrototypeRunStats runStats = Find(scene, "PrototypeArenaMechanics")?.GetComponent<PrototypeRunStats>();
+        if (runStats != null && hud != null)
+        {
+            runStats.hudText = hud.Find("RunStatsText")?.GetComponent<TextMeshProUGUI>();
+            runStats.resultPanel = resultPanel != null ? resultPanel.gameObject : null;
+            runStats.resultTitleText = resultPanel?.Find("Title")?.GetComponent<TextMeshProUGUI>();
+            runStats.resultStatsText = resultPanel?.Find("Stats")?.GetComponent<TextMeshProUGUI>();
+            runStats.restartButton = resultPanel?.Find("RestartButton")?.GetComponent<Button>();
+            runStats.menuButton = resultPanel?.Find("MenuButton")?.GetComponent<Button>();
+        }
+
+        PrototypeCardRewardManager rewards = Find(scene, "PrototypeArenaMechanics")?.GetComponent<PrototypeCardRewardManager>();
+        if (rewards != null && rewardPanel != null)
+        {
+            rewards.rewardPanel = rewardPanel.gameObject;
+            rewards.rewardTitle = rewardPanel.Find("Title")?.GetComponent<TextMeshProUGUI>();
+            rewards.cardButtons = new Button[3];
+            rewards.cardLabels = new TextMeshProUGUI[3];
+
+            for (int i = 0; i < 3; i++)
+            {
+                Transform card = rewardPanel.Find("CardButton" + (i + 1));
+                rewards.cardButtons[i] = card != null ? card.GetComponent<Button>() : null;
+                rewards.cardLabels[i] = card?.Find("Label")?.GetComponent<TextMeshProUGUI>();
+            }
+        }
+
+        PrototypeClassRoleTuner roleTuner = Find(scene, "PrototypeArenaMechanics")?.GetComponent<PrototypeClassRoleTuner>();
+        if (roleTuner != null && hud != null)
+            roleTuner.rolesText = hud.Find("RolesText")?.GetComponent<TextMeshProUGUI>();
+
+        if (rewardPanel != null)
+            rewardPanel.gameObject.SetActive(false);
+        if (resultPanel != null)
+            resultPanel.gameObject.SetActive(false);
+
         BossIntroSequence bossIntro = Find(scene, "BossIntro")?.GetComponent<BossIntroSequence>();
         if (bossIntro != null)
         {
@@ -664,18 +732,28 @@ public static class TestArenaPrototypeMvpHierarchyBuilder
             return;
 
         GameObject root = PrefabUtility.LoadPrefabContents(prefabPath);
-        PrototypeReviveTarget reviveTarget = EnsureComponent<PrototypeReviveTarget>(root);
-        Transform template = EnsureChild(root.transform, "ReviveProgressTemplate", false);
-        TextMeshPro text = EnsureComponent<TextMeshPro>(template.gameObject);
-        text.text = "REVIVE\n0 / 0";
-        text.fontSize = 3.2f;
-        text.alignment = TextAlignmentOptions.Center;
-        text.color = new Color(0.5f, 0.95f, 1f, 1f);
-        template.localPosition = new Vector3(0f, 1.65f, 0f);
-        template.gameObject.SetActive(false);
-        reviveTarget.reviveProgressTemplate = template;
-        PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
-        PrefabUtility.UnloadPrefabContents(root);
+        try
+        {
+            PrototypeReviveTarget reviveTarget = EnsureComponent<PrototypeReviveTarget>(root);
+            Transform template = EnsureChild(root.transform, "ReviveProgressTemplate", false);
+            TextMeshPro text = EnsureComponent<TextMeshPro>(template.gameObject);
+
+            // Adding 3D TMP to a legacy UI child can replace its RectTransform.
+            // Keep the fresh Transform instead of the now-destroyed reference.
+            template = text.transform;
+            text.text = "REVIVE\n0 / 0";
+            text.fontSize = 3.2f;
+            text.alignment = TextAlignmentOptions.Center;
+            text.color = new Color(0.5f, 0.95f, 1f, 1f);
+            template.localPosition = new Vector3(0f, 1.65f, 0f);
+            template.gameObject.SetActive(false);
+            reviveTarget.reviveProgressTemplate = template;
+            PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
+        }
+        finally
+        {
+            PrefabUtility.UnloadPrefabContents(root);
+        }
     }
 
     private static GameObject EnsureRoot(Scene scene, string name)

@@ -42,7 +42,7 @@ public class CharacterSelectTransition : MonoBehaviour
     public float exitForestDuration = 2f;
     public float pauseBehindForest = 0.5f;
     public string menuSceneName = "MainMenu";
-    public string arenaSceneName = "TestArena";
+    public string arenaSceneName = "TestArena_PrototypeMVP";
     private static string nextArenaSceneName;
 
     [Header("Позиции")]

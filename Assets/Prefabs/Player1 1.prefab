@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &614731933210410001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 614731933210410002}
+  m_Layer: 0
+  m_Name: ReviveProgressTemplate
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &614731933210410002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 614731933210410001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.65, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5115669818325191234}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1074112186030086738
 GameObject:
   m_ObjectHideFlags: 0
@@ -347,7 +378,7 @@ MonoBehaviour:
     loop: 0
     hitFrame: 0.6
   lightAttack1Effect:
-    sprite: {fileID: 8402637530612368236, guid: c34aa7ab5601992449c9afc9760944bf, type: 3}
+    sprite: {fileID: -3838862463974897310, guid: 182a3a31761d72e42acb991618407699, type: 3}
     frames: []
     size: {x: 2.2, y: 2.2}
     distance: 2.6
@@ -359,7 +390,7 @@ MonoBehaviour:
     startColor: {r: 1, g: 1, b: 1, a: 0.85}
     endColor: {r: 1, g: 1, b: 1, a: 0}
   lightAttack2Effect:
-    sprite: {fileID: 3625158158315172727, guid: c34aa7ab5601992449c9afc9760944bf, type: 3}
+    sprite: {fileID: 1394979209831292949, guid: 182a3a31761d72e42acb991618407699, type: 3}
     frames: []
     size: {x: 2.2, y: 2.2}
     distance: 2.6
@@ -373,8 +404,8 @@ MonoBehaviour:
   heavyAttackEffect:
     sprite: {fileID: 4724269236533150981, guid: c34aa7ab5601992449c9afc9760944bf, type: 3}
     frames:
-    - {fileID: 4724269236533150981, guid: c34aa7ab5601992449c9afc9760944bf, type: 3}
-    - {fileID: -281883526738620699, guid: c34aa7ab5601992449c9afc9760944bf, type: 3}
+    - {fileID: -7950638554904528755, guid: 182a3a31761d72e42acb991618407699, type: 3}
+    - {fileID: -5714521696539860882, guid: 182a3a31761d72e42acb991618407699, type: 3}
     size: {x: 2.6, y: 2.6}
     distance: 3.8
     duration: 0.28
@@ -385,7 +416,7 @@ MonoBehaviour:
     startColor: {r: 1, g: 1, b: 1, a: 0.85}
     endColor: {r: 1, g: 1, b: 1, a: 0}
   barrageEffect:
-    sprite: {fileID: 8402637530612368236, guid: c34aa7ab5601992449c9afc9760944bf, type: 3}
+    sprite: {fileID: 1394979209831292949, guid: 182a3a31761d72e42acb991618407699, type: 3}
     frames: []
     size: {x: 2.1, y: 2.1}
     distance: 3.2
@@ -601,6 +632,22 @@ MonoBehaviour:
     - {fileID: 4661171922336043666, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
     - {fileID: 5874890832201422217, guid: 23ff55eac4123b140908d5bb7a397192, type: 3}
   puppet: {fileID: 6947892943637507798}
+--- !u!114 &614731933210410003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5776117132991851733}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c085b59135e847c79c32ef592171baeb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PrototypeReviveTarget
+  baseRequiredDamage: 45
+  requiredDamageIncrease: 25
+  reviveHealthPercent: 0.3
+  reviveProgressTemplate: {fileID: 614731933210410002}
 --- !u!1 &8310704023448307592
 GameObject:
   m_ObjectHideFlags: 0
@@ -709,53 +756,10 @@ MonoBehaviour:
   bulletPrefab: {fileID: 2494202439001056463, guid: 367d038feb75d4faab0bc17eca657007, type: 3}
   firePoint: {fileID: 5961412198715906450}
   fireRate: 0.1
+  requireAmmo: 1
+  canShootWithoutTarget: 1
   rotationSpeed: 10
   targetRefreshInterval: 0.15
+  zombieTargetRange: 14
+  downedAllyTargetRange: 18
   playerNumber: 1
---- !u!1 &614731933210410001
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 614731933210410002}
-  m_Layer: 0
-  m_Name: ReviveProgressTemplate
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &614731933210410002
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 614731933210410001}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.65, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 5115669818325191234}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &614731933210410003
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5776117132991851733}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c085b59135e847c79c32ef592171baeb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PrototypeReviveTarget
-  baseRequiredDamage: 45
-  requiredDamageIncrease: 25
-  reviveHealthPercent: 0.3
-  reviveProgressTemplate: {fileID: 614731933210410002}
