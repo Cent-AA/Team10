@@ -64,6 +64,8 @@ public class PlayerController : MonoBehaviour
     public System.Action<float, float> OnHealthChanged;
     public System.Action OnDeath;
 
+    public bool IsBlocking => puppet != null && puppet.IsBlocking();
+
     // Внутреннее
     private Vector2 moveInput;
     private Vector2 lastMoveDir = Vector2.right;

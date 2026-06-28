@@ -1,61 +1,29 @@
 using UnityEngine;
 
+/// <summary>
+/// Lightweight wave composition policy. WaveManager asks it for a variant at
+/// spawn time; it never scans the active enemy list.
+/// </summary>
 public class PrototypeEnemyVariantManager : MonoBehaviour
 {
-    public int miniBossEveryWave = 5;
-    public float scanInterval = 0.2f;
+    [Min(0)] public int miniBossEveryWave = 5;
 
-    private WaveManager waveManager;
-    private float scanTimer;
-    private int bossWaveApplied = -1;
+    private int miniBossWaveApplied = -1;
 
-    void Start()
+    public void BeginWave(int wave)
     {
-        waveManager = FindFirstObjectByType<WaveManager>();
+        if (miniBossWaveApplied != wave)
+            miniBossWaveApplied = -1;
     }
 
-    void Update()
+    public PrototypeEnemyVariant.VariantType PickVariant(int wave, int spawnIndex)
     {
-        if (PrototypeRunStats.Instance != null && PrototypeRunStats.Instance.RunEnded)
-            return;
+        wave = Mathf.Max(1, wave);
 
-        scanTimer -= Time.deltaTime;
-        if (scanTimer > 0f)
-            return;
-
-        scanTimer = Mathf.Max(0.05f, scanInterval);
-        ApplyVariantsToActiveZombies();
-    }
-
-    void ApplyVariantsToActiveZombies()
-    {
-        int wave = waveManager != null ? Mathf.Max(1, waveManager.GetCurrentWave()) : 1;
-        Registry.CleanupZombies();
-
-        for (int i = 0; i < Registry.Zombies.Count; i++)
+        bool miniBossWave = miniBossEveryWave > 0 && wave % miniBossEveryWave == 0;
+        if (miniBossWave && miniBossWaveApplied != wave)
         {
-            ZombieAI zombie = Registry.Zombies[i];
-            if (zombie == null || !zombie.gameObject.activeInHierarchy || !zombie.IsAlive)
-                continue;
-
-            PrototypeEnemyVariant marker = zombie.GetComponent<PrototypeEnemyVariant>();
-            if (marker == null)
-                marker = zombie.gameObject.AddComponent<PrototypeEnemyVariant>();
-
-            if (marker.AppliedWave == wave)
-                continue;
-
-            PrototypeEnemyVariant.VariantType type = PickVariant(wave, i);
-            marker.Apply(type, wave);
-        }
-    }
-
-    PrototypeEnemyVariant.VariantType PickVariant(int wave, int index)
-    {
-        bool bossWave = miniBossEveryWave > 0 && wave % miniBossEveryWave == 0;
-        if (bossWave && bossWaveApplied != wave)
-        {
-            bossWaveApplied = wave;
+            miniBossWaveApplied = wave;
             return PrototypeEnemyVariant.VariantType.MiniBoss;
         }
 
@@ -63,17 +31,31 @@ public class PrototypeEnemyVariantManager : MonoBehaviour
             return PrototypeEnemyVariant.VariantType.Grunt;
 
         if (wave == 2)
-            return index % 3 == 0 ? PrototypeEnemyVariant.VariantType.Runner : PrototypeEnemyVariant.VariantType.Grunt;
+            return spawnIndex % 4 == 0
+                ? PrototypeEnemyVariant.VariantType.Runner
+                : PrototypeEnemyVariant.VariantType.Grunt;
 
         if (wave == 3)
-            return index % 4 == 0 ? PrototypeEnemyVariant.VariantType.Tank : PrototypeEnemyVariant.VariantType.Runner;
-
-        switch (index % 4)
         {
-            case 0: return PrototypeEnemyVariant.VariantType.Grunt;
-            case 1: return PrototypeEnemyVariant.VariantType.Runner;
-            case 2: return PrototypeEnemyVariant.VariantType.Tank;
-            default: return PrototypeEnemyVariant.VariantType.Exploder;
+            if (spawnIndex % 6 == 1) return PrototypeEnemyVariant.VariantType.Tank;
+            if (spawnIndex % 4 == 0) return PrototypeEnemyVariant.VariantType.Runner;
+            return PrototypeEnemyVariant.VariantType.Grunt;
+        }
+
+        // Stable ten-enemy composition: 50% grunt, 20% runner,
+        // 20% tank, 10% exploder. It is predictable enough to balance.
+        switch (spawnIndex % 10)
+        {
+            case 1:
+            case 6:
+                return PrototypeEnemyVariant.VariantType.Runner;
+            case 3:
+            case 8:
+                return PrototypeEnemyVariant.VariantType.Tank;
+            case 5:
+                return PrototypeEnemyVariant.VariantType.Exploder;
+            default:
+                return PrototypeEnemyVariant.VariantType.Grunt;
         }
     }
 }

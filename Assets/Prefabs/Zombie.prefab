@@ -212,12 +212,16 @@ MonoBehaviour:
   attackRange: 2
   loseTargetTime: 3
   targetRefreshInterval: 0.2
+  targetRefreshJitter: 0.1
   attackerSwitchRange: 5
   groupedPlayersDistance: 2.5
   groupedLockDelay: 2
   attackCooldown: 3.4
   attackDamage: 7
   knockbackForce: 1.8
+  separationRadius: 0.85
+  separationStrength: 1.4
+  separationRefreshInterval: 0.1
   animator: {fileID: 7896596668870529915}
   rb: {fileID: 7526398530335100886}
   spriteRenderer: {fileID: 5226093720813814071}

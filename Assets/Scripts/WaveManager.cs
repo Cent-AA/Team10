@@ -1,13 +1,23 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
 
 public class WaveManager : MonoBehaviour
 {
-    [Header("Zombie Spawning")]
+    [Header("Zombie Prefabs — assign variants here")]
+    [Tooltip("Required fallback prefab and the prefab used for Grunts.")]
     public GameObject zombiePrefab;
+    [Tooltip("Optional. Leave empty to reuse Zombie Prefab with Runner modifiers.")]
+    public GameObject runnerZombiePrefab;
+    [Tooltip("Optional. Leave empty to reuse Zombie Prefab with Tank modifiers.")]
+    public GameObject tankZombiePrefab;
+    [Tooltip("Optional. Leave empty to reuse Zombie Prefab with Exploder modifiers.")]
+    public GameObject exploderZombiePrefab;
+    [Tooltip("Optional. Leave empty to reuse Zombie Prefab with MiniBoss modifiers.")]
+    public GameObject miniBossZombiePrefab;
+
+    [Header("Zombie Spawning")]
     public Transform[] spawnPoints;
     public Transform campfireTarget;
     public bool useSpawnPointsWhenAvailable = true;
@@ -15,17 +25,27 @@ public class WaveManager : MonoBehaviour
     public float safeZoneRadius = 7f;
     public float spawnRingExtraDistance = 4f;
     public float spawnRingRandomness = 3f;
-    public int initialZombiePoolSize = 0;
+    public int initialZombiePoolSize = 32;
     public int maxZombiePoolSize = 64;
+    [Range(1, 64)] public int maxActiveZombies = 32;
 
     [Header("Wave Settings")]
     public int startZombies = 3;
     public int zombiesPerWave = 2;
     public float spawnInterval = 0.5f;
     public float timeBetweenWaves = 5f;
-    public float zombieHealthIncrease = 10f;
-    public float zombieSpeedIncrease = 0.3f;
-    public float zombieDamageIncrease = 2f;
+    public float zombieHealthIncrease = 8f;
+    public float zombieSpeedIncrease = 0.09f;
+    public float zombieDamageIncrease = 1f;
+
+    [Header("Wave Stat Caps")]
+    public float maxZombieMoveSpeed = 5.5f;
+    public float maxZombieRunSpeed = 6.75f;
+    public float maxZombieAttackDamage = 30f;
+
+    [Header("Enemy Coordination")]
+    public EnemyDirector enemyDirector;
+    public PrototypeEnemyVariantManager variantManager;
 
     [Header("UI")]
     public TextMeshProUGUI waveText;
@@ -35,46 +55,65 @@ public class WaveManager : MonoBehaviour
     [Header("Camera")]
     public float waveShakeIntensity = 0.3f;
 
-
     [Header("Boss")]
     public GameObject bossPrefab;
     public BossIntroSequence bossIntroSequence;
-    public Transform bossSpawnPoint;   // пустой Transform слева от арены
-    public int bossWave = 2;
-    private bool bossSpawned = false;
-    private BossController activeBoss;
-    private bool bossWavePending = false; // идёт босс-волна и босс ещё не повержен
-    private bool bossHasSpawned = false;  // босс уже физически появился в сцене
+    public Transform bossSpawnPoint;
+    public int bossWave = 5;
 
-    private int currentWave = 0;
-    private int zombiesAlive = 0;
+    private bool bossSpawned;
+    private BossController activeBoss;
+    private bool bossWavePending;
+    private bool bossHasSpawned;
+
+    private int currentWave;
+    private int zombiesAlive;
     private int lastDisplayedZombiesAlive = -1;
-    private int totalZombiesThisWave = 0;
-    private bool waveInProgress = false;
-    private bool spawningWave = false;
-    private readonly List<ZombieAI> activeZombies = new List<ZombieAI>();
-    private readonly Queue<ZombieAI> zombiePool = new Queue<ZombieAI>();
-    private float baseZombieHealth;
-    private float baseZombieMoveSpeed;
-    private float baseZombieRunSpeed;
-    private float baseZombieAttackDamage;
-    private bool hasZombieBaseStats;
+    private int lastDisplayedRemaining = -1;
+    private int totalZombiesThisWave;
+    private int spawnedZombiesThisWave;
+    private bool waveInProgress;
+    private bool spawningWave;
+
+    private readonly List<ZombieAI> activeZombies = new List<ZombieAI>(32);
+    private readonly Dictionary<GameObject, Queue<ZombieAI>> zombiePools = new Dictionary<GameObject, Queue<ZombieAI>>();
+    private readonly Dictionary<ZombieAI, GameObject> zombieSources = new Dictionary<ZombieAI, GameObject>();
+    private readonly Dictionary<GameObject, ZombieBaseStats> prefabBaseStats = new Dictionary<GameObject, ZombieBaseStats>();
+    private int pooledZombieCount;
+    private float ammoDropChanceBonus;
+
+    private struct ZombieBaseStats
+    {
+        public float Health;
+        public float MoveSpeed;
+        public float RunSpeed;
+        public float AttackDamage;
+        public float AmmoDropChance;
+    }
 
     public System.Action<int> OnWaveStart;
     public System.Action<int> OnWaveComplete;
     public System.Action OnAllWavesComplete;
-
-
 
     void Start()
     {
         if (campfireTarget == null)
             campfireTarget = FindCampfireTransform();
 
-        CacheZombieBaseStats();
+        if (enemyDirector == null)
+            enemyDirector = FindAnyObjectByType<EnemyDirector>();
+        if (enemyDirector == null)
+            enemyDirector = gameObject.AddComponent<EnemyDirector>();
+        enemyDirector.Initialize(campfireTarget);
+
+        if (variantManager == null)
+            variantManager = GetComponent<PrototypeEnemyVariantManager>();
+
+        CacheConfiguredPrefabStats();
         PrewarmZombiePool();
 
-        if (waveText != null) waveText.gameObject.SetActive(false);
+        if (waveText != null)
+            waveText.gameObject.SetActive(false);
         UpdateZombieCountUI(true);
 
         StartCoroutine(StartNextWaveAfterDelay(3f));
@@ -93,13 +132,14 @@ public class WaveManager : MonoBehaviour
     IEnumerator StartNextWaveAfterDelay(float delay)
     {
         float remaining = delay;
-        while (remaining > 0)
+        while (remaining > 0f)
         {
             if (waveText != null)
             {
                 waveText.gameObject.SetActive(true);
                 waveText.text = "Next wave in " + Mathf.CeilToInt(remaining);
             }
+
             remaining -= Time.deltaTime;
             yield return null;
         }
@@ -111,61 +151,73 @@ public class WaveManager : MonoBehaviour
     {
         currentWave++;
         totalZombiesThisWave = startZombies + (currentWave - 1) * zombiesPerWave;
+        spawnedZombiesThisWave = 0;
         waveInProgress = true;
         activeZombies.Clear();
         zombiesAlive = 0;
+        variantManager?.BeginWave(currentWave);
         UpdateZombieCountUI(true);
 
         OnWaveStart?.Invoke(currentWave);
         StartCoroutine(ShowWaveText());
         ArenaCamera.Shake(waveShakeIntensity, 0.5f);
         StartCoroutine(SpawnWaveZombies());
+
         if (currentWave == bossWave && !bossSpawned && bossPrefab != null)
         {
             bossSpawned = true;
-            bossWavePending = true; // волна не завершится, пока босс не повержен
+            bossWavePending = true;
             StartCoroutine(SpawnBoss());
         }
     }
 
     IEnumerator ShowWaveText()
     {
-        if (waveText != null)
+        if (waveText == null)
+            yield break;
+
+        waveText.gameObject.SetActive(true);
+        waveText.text = "Wave " + currentWave;
+
+        float elapsed = 0f;
+        while (elapsed < waveTextDisplayTime)
         {
-            waveText.gameObject.SetActive(true);
-            waveText.text = "Wave " + currentWave;
+            elapsed += Time.deltaTime;
+            float alpha = 1f - elapsed / waveTextDisplayTime * 0.5f;
+            float scale = 1f + Mathf.Sin(elapsed * 5f) * 0.05f;
+            waveText.transform.localScale = Vector3.one * scale;
 
-            float elapsed = 0f;
-            while (elapsed < waveTextDisplayTime)
-            {
-                elapsed += Time.deltaTime;
-                float alpha = 1f - (elapsed / waveTextDisplayTime) * 0.5f;
-                float scale = 1f + Mathf.Sin(elapsed * 5f) * 0.05f;
-                waveText.transform.localScale = Vector3.one * scale;
-
-                Color c = waveText.color;
-                c.a = alpha;
-                waveText.color = c;
-
-                yield return null;
-            }
-
-            waveText.gameObject.SetActive(false);
-            Color resetColor = waveText.color;
-            resetColor.a = 1f;
-            waveText.color = resetColor;
-            waveText.transform.localScale = Vector3.one;
+            Color color = waveText.color;
+            color.a = alpha;
+            waveText.color = color;
+            yield return null;
         }
+
+        waveText.gameObject.SetActive(false);
+        Color resetColor = waveText.color;
+        resetColor.a = 1f;
+        waveText.color = resetColor;
+        waveText.transform.localScale = Vector3.one;
     }
 
     IEnumerator SpawnWaveZombies()
     {
         spawningWave = true;
+        WaitForSeconds spawnDelay = new WaitForSeconds(Mathf.Max(0.01f, spawnInterval));
 
         for (int i = 0; i < totalZombiesThisWave; i++)
         {
-            SpawnZombie();
-            yield return new WaitForSeconds(spawnInterval);
+            // Once the active cap is reached, the rest of the wave waits as
+            // reinforcements instead of increasing the physics crowd.
+            while (activeZombies.Count >= Mathf.Max(1, maxActiveZombies))
+                yield return null;
+
+            SpawnZombie(i);
+            spawnedZombiesThisWave++;
+            UpdateZombieCountUI(false);
+
+            if (i + 1 < totalZombiesThisWave)
+                yield return spawnDelay;
         }
 
         spawningWave = false;
@@ -175,132 +227,186 @@ public class WaveManager : MonoBehaviour
     {
         yield return new WaitForSeconds(1f);
 
-        Vector3 spawnPos = bossSpawnPoint != null
+        Vector3 spawnPosition = bossSpawnPoint != null
             ? bossSpawnPoint.position
             : new Vector3(-15f, 0f, 0f);
 
-        GameObject bossObj = Instantiate(bossPrefab, spawnPos, Quaternion.identity);
-        BossController bossCtrl = bossObj.GetComponent<BossController>();
+        GameObject bossObject = Instantiate(bossPrefab, spawnPosition, Quaternion.identity);
+        BossController boss = bossObject != null ? bossObject.GetComponent<BossController>() : null;
+        if (boss == null)
+        {
+            bossWavePending = false;
+            yield break;
+        }
 
-        if (bossCtrl == null) yield break;
-
-        activeBoss = bossCtrl;
+        activeBoss = boss;
         bossHasSpawned = true;
+        boss.ConfigureForWave(currentWave);
 
         if (bossIntroSequence != null)
         {
-            bossIntroSequence.boss = bossCtrl;
+            bossIntroSequence.boss = boss;
             bossIntroSequence.Play();
         }
         else
         {
-            // Если нет интро — просто активируем
-            bossCtrl.Activate();
+            boss.Activate();
         }
     }
 
-    void SpawnZombie()
+    void SpawnZombie(int spawnIndex)
     {
-        if (zombiePrefab == null) return;
+        PrototypeEnemyVariant.VariantType type = variantManager != null
+            ? variantManager.PickVariant(currentWave, spawnIndex)
+            : PickFallbackVariant(currentWave, spawnIndex);
 
-        Vector3 spawnPos = GetSpawnPosition();
-        ZombieAI ai = GetZombieInstance(spawnPos);
-        if (ai == null) return;
+        GameObject prefab = GetPrefabForVariant(type);
+        if (prefab == null)
+            return;
 
-        ApplyWaveStats(ai);
-        ai.SetPoolManaged(true);
-        ai.ResetForSpawn(campfireTarget);
-        ai.OnDied -= HandleZombieDied;
-        ai.OnDied += HandleZombieDied;
+        Vector3 spawnPosition = GetSpawnPosition();
+        ZombieAI zombie = GetZombieInstance(prefab, spawnPosition);
+        if (zombie == null)
+            return;
 
-        ai.transform.SetPositionAndRotation(spawnPos, Quaternion.identity);
-        ai.gameObject.SetActive(true);
+        ApplyWaveStats(zombie, prefab);
 
-        if (!activeZombies.Contains(ai))
-            activeZombies.Add(ai);
+        PrototypeEnemyVariant variant = zombie.GetComponent<PrototypeEnemyVariant>();
+        if (variant == null)
+            variant = zombie.gameObject.AddComponent<PrototypeEnemyVariant>();
+        variant.Apply(type, currentWave);
 
+        zombie.SetPoolManaged(true);
+        zombie.SetEnemyDirector(enemyDirector);
+        zombie.ResetForSpawn(campfireTarget);
+        variant.RefreshVisuals();
+        zombie.OnDied -= HandleZombieDied;
+        zombie.OnDied += HandleZombieDied;
+
+        zombie.transform.SetPositionAndRotation(spawnPosition, Quaternion.identity);
+        zombie.gameObject.SetActive(true);
+
+        if (!activeZombies.Contains(zombie))
+            activeZombies.Add(zombie);
+
+        enemyDirector?.RefreshCollisionRules(zombie);
         zombiesAlive = activeZombies.Count;
         UpdateZombieCountUI(false);
     }
 
-    ZombieAI GetZombieInstance(Vector3 spawnPos)
+    ZombieAI GetZombieInstance(GameObject prefab, Vector3 spawnPosition)
     {
-        while (zombiePool.Count > 0)
+        Queue<ZombieAI> pool = GetPool(prefab);
+        while (pool.Count > 0)
         {
-            ZombieAI pooledZombie = zombiePool.Dequeue();
-            if (pooledZombie == null) continue;
+            ZombieAI pooledZombie = pool.Dequeue();
+            pooledZombieCount = Mathf.Max(0, pooledZombieCount - 1);
+            if (pooledZombie == null)
+                continue;
 
-            pooledZombie.transform.SetPositionAndRotation(spawnPos, Quaternion.identity);
+            pooledZombie.transform.SetPositionAndRotation(spawnPosition, Quaternion.identity);
+            zombieSources[pooledZombie] = prefab;
             return pooledZombie;
         }
 
-        GameObject zombie = Instantiate(zombiePrefab, spawnPos, Quaternion.identity);
+        GameObject zombieObject = Instantiate(prefab, spawnPosition, Quaternion.identity);
+        if (zombieObject == null)
+            return null;
+
+        zombieObject.SetActive(false);
+        ZombieAI zombie = zombieObject.GetComponent<ZombieAI>();
         if (zombie == null)
-            return null;
-
-        ZombieAI ai = zombie.GetComponent<ZombieAI>();
-        if (ai == null)
         {
-            Destroy(zombie);
+            Destroy(zombieObject);
             return null;
         }
 
-        return ai;
+        zombieSources[zombie] = prefab;
+        return zombie;
     }
 
-    void CacheZombieBaseStats()
+    void CacheConfiguredPrefabStats()
     {
-        if (zombiePrefab == null) return;
-
-        ZombieAI ai = zombiePrefab.GetComponent<ZombieAI>();
-        if (ai == null) return;
-
-        baseZombieHealth = ai.maxHealth;
-        baseZombieMoveSpeed = ai.moveSpeed;
-        baseZombieRunSpeed = ai.runSpeed;
-        baseZombieAttackDamage = ai.attackDamage;
-        hasZombieBaseStats = true;
+        CachePrefabStats(zombiePrefab);
+        CachePrefabStats(runnerZombiePrefab);
+        CachePrefabStats(tankZombiePrefab);
+        CachePrefabStats(exploderZombiePrefab);
+        CachePrefabStats(miniBossZombiePrefab);
     }
 
-    void ApplyWaveStats(ZombieAI ai)
+    void CachePrefabStats(GameObject prefab)
     {
-        if (ai == null) return;
+        if (prefab == null || prefabBaseStats.ContainsKey(prefab))
+            return;
 
-        if (!hasZombieBaseStats)
+        ZombieAI zombie = prefab.GetComponent<ZombieAI>();
+        if (zombie == null)
+            return;
+
+        prefabBaseStats[prefab] = new ZombieBaseStats
         {
-            baseZombieHealth = ai.maxHealth;
-            baseZombieMoveSpeed = ai.moveSpeed;
-            baseZombieRunSpeed = ai.runSpeed;
-            baseZombieAttackDamage = ai.attackDamage;
-            hasZombieBaseStats = true;
+            Health = zombie.maxHealth,
+            MoveSpeed = zombie.moveSpeed,
+            RunSpeed = zombie.runSpeed,
+            AttackDamage = zombie.attackDamage,
+            AmmoDropChance = zombie.ammoDropChance
+        };
+    }
+
+    void ApplyWaveStats(ZombieAI zombie, GameObject sourcePrefab)
+    {
+        if (zombie == null)
+            return;
+
+        if (!prefabBaseStats.TryGetValue(sourcePrefab, out ZombieBaseStats stats))
+        {
+            stats = new ZombieBaseStats
+            {
+                Health = zombie.maxHealth,
+                MoveSpeed = zombie.moveSpeed,
+                RunSpeed = zombie.runSpeed,
+                AttackDamage = zombie.attackDamage,
+                AmmoDropChance = zombie.ammoDropChance
+            };
+            prefabBaseStats[sourcePrefab] = stats;
         }
 
-        float waveBonus = currentWave - 1;
-        ai.maxHealth = baseZombieHealth + waveBonus * zombieHealthIncrease;
-        ai.moveSpeed = baseZombieMoveSpeed + waveBonus * zombieSpeedIncrease;
-        ai.runSpeed = baseZombieRunSpeed + waveBonus * zombieSpeedIncrease;
-        ai.attackDamage = baseZombieAttackDamage + waveBonus * zombieDamageIncrease;
+        float waveBonus = Mathf.Max(0, currentWave - 1);
+        zombie.maxHealth = stats.Health + waveBonus * zombieHealthIncrease;
+        zombie.moveSpeed = Mathf.Min(maxZombieMoveSpeed, stats.MoveSpeed + waveBonus * zombieSpeedIncrease);
+        zombie.runSpeed = Mathf.Min(maxZombieRunSpeed, stats.RunSpeed + waveBonus * zombieSpeedIncrease);
+        zombie.attackDamage = Mathf.Min(maxZombieAttackDamage, stats.AttackDamage + waveBonus * zombieDamageIncrease);
+        zombie.ammoDropChance = Mathf.Clamp01(stats.AmmoDropChance + ammoDropChanceBonus);
     }
 
     void PrewarmZombiePool()
     {
-        if (zombiePrefab == null || initialZombiePoolSize <= 0) return;
+        if (zombiePrefab == null || initialZombiePoolSize <= 0)
+            return;
 
-        for (int i = 0; i < initialZombiePoolSize; i++)
+        Queue<ZombieAI> pool = GetPool(zombiePrefab);
+        int count = Mathf.Min(initialZombiePoolSize, maxZombiePoolSize);
+        for (int i = 0; i < count; i++)
         {
-            GameObject zombie = Instantiate(zombiePrefab);
-            ZombieAI ai = zombie != null ? zombie.GetComponent<ZombieAI>() : null;
-            if (ai == null)
+            GameObject zombieObject = Instantiate(zombiePrefab);
+            if (zombieObject == null)
+                continue;
+
+            zombieObject.SetActive(false);
+            ZombieAI zombie = zombieObject.GetComponent<ZombieAI>();
+            if (zombie == null)
             {
-                if (zombie != null) Destroy(zombie);
+                Destroy(zombieObject);
                 continue;
             }
 
-            ai.SetPoolManaged(true);
-            ai.OnDied -= HandleZombieDied;
-            Registry.UnregisterZombie(ai);
-            zombie.SetActive(false);
-            zombiePool.Enqueue(ai);
+            zombie.SetPoolManaged(true);
+            zombie.SetEnemyDirector(enemyDirector);
+            zombie.OnDied -= HandleZombieDied;
+            Registry.UnregisterZombie(zombie);
+            zombieSources[zombie] = zombiePrefab;
+            pool.Enqueue(zombie);
+            pooledZombieCount++;
         }
     }
 
@@ -320,27 +426,77 @@ public class WaveManager : MonoBehaviour
     {
         yield return new WaitForSeconds(zombie.DeathDespawnDelay);
 
-        if (zombie == null) yield break;
+        if (zombie == null)
+            yield break;
 
         GameObject zombieObject = zombie.gameObject;
-
-        if (zombiePool.Count >= maxZombiePoolSize)
+        if (pooledZombieCount >= maxZombiePoolSize || !zombieSources.TryGetValue(zombie, out GameObject sourcePrefab))
         {
+            zombieSources.Remove(zombie);
             Destroy(zombieObject);
             yield break;
         }
 
         zombieObject.SetActive(false);
-        zombiePool.Enqueue(zombie);
+        GetPool(sourcePrefab).Enqueue(zombie);
+        pooledZombieCount++;
+    }
+
+    Queue<ZombieAI> GetPool(GameObject prefab)
+    {
+        if (!zombiePools.TryGetValue(prefab, out Queue<ZombieAI> pool))
+        {
+            pool = new Queue<ZombieAI>();
+            zombiePools[prefab] = pool;
+        }
+
+        return pool;
+    }
+
+    GameObject GetPrefabForVariant(PrototypeEnemyVariant.VariantType type)
+    {
+        switch (type)
+        {
+            case PrototypeEnemyVariant.VariantType.Runner:
+                return runnerZombiePrefab != null ? runnerZombiePrefab : zombiePrefab;
+            case PrototypeEnemyVariant.VariantType.Tank:
+                return tankZombiePrefab != null ? tankZombiePrefab : zombiePrefab;
+            case PrototypeEnemyVariant.VariantType.Exploder:
+                return exploderZombiePrefab != null ? exploderZombiePrefab : zombiePrefab;
+            case PrototypeEnemyVariant.VariantType.MiniBoss:
+                return miniBossZombiePrefab != null ? miniBossZombiePrefab : zombiePrefab;
+            default:
+                return zombiePrefab;
+        }
+    }
+
+    static PrototypeEnemyVariant.VariantType PickFallbackVariant(int wave, int spawnIndex)
+    {
+        if (wave <= 1)
+            return PrototypeEnemyVariant.VariantType.Grunt;
+        if (wave == 2 && spawnIndex % 4 == 0)
+            return PrototypeEnemyVariant.VariantType.Runner;
+
+        switch (spawnIndex % 10)
+        {
+            case 1:
+            case 6:
+                return PrototypeEnemyVariant.VariantType.Runner;
+            case 3:
+            case 8:
+                return PrototypeEnemyVariant.VariantType.Tank;
+            case 5:
+                return PrototypeEnemyVariant.VariantType.Exploder;
+            default:
+                return PrototypeEnemyVariant.VariantType.Grunt;
+        }
     }
 
     Vector3 GetSpawnPosition()
     {
         Transform point = GetRandomSpawnPoint();
         if (useSpawnPointsWhenAvailable && point != null)
-        {
             return point.position + (Vector3)(Random.insideUnitCircle * spawnPointJitter);
-        }
 
         Vector3 center = campfireTarget != null ? campfireTarget.position : Vector3.zero;
         float angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
@@ -350,13 +506,15 @@ public class WaveManager : MonoBehaviour
 
     Transform GetRandomSpawnPoint()
     {
-        if (spawnPoints == null || spawnPoints.Length == 0) return null;
+        if (spawnPoints == null || spawnPoints.Length == 0)
+            return null;
 
         int startIndex = Random.Range(0, spawnPoints.Length);
         for (int i = 0; i < spawnPoints.Length; i++)
         {
             Transform point = spawnPoints[(startIndex + i) % spawnPoints.Length];
-            if (point != null) return point;
+            if (point != null)
+                return point;
         }
 
         return null;
@@ -364,24 +522,31 @@ public class WaveManager : MonoBehaviour
 
     void UpdateZombieCountUI(bool force)
     {
-        if (!force && zombiesAlive == lastDisplayedZombiesAlive)
+        int remaining = Mathf.Max(0, totalZombiesThisWave - spawnedZombiesThisWave);
+        if (!force && zombiesAlive == lastDisplayedZombiesAlive && remaining == lastDisplayedRemaining)
             return;
 
         lastDisplayedZombiesAlive = zombiesAlive;
+        lastDisplayedRemaining = remaining;
 
-        if (zombieCountText != null)
-        {
-            zombieCountText.text = "Zombies: " + zombiesAlive + "/" + totalZombiesThisWave;
-        }
+        if (zombieCountText == null)
+            return;
+
+        zombieCountText.text = remaining > 0
+            ? $"Zombies: {zombiesAlive}  Reinforcements: {remaining}"
+            : "Zombies: " + zombiesAlive;
     }
 
-    // Босс-волна не завершается, пока босс не появился и не повержен.
     bool IsBossBlockingWaveEnd()
     {
-        if (!bossWavePending) return false;
-        if (!bossHasSpawned) return true;                       // ещё спавнится / играет интро
-        if (activeBoss != null && activeBoss.IsAlive) return true; // жив — держим волну
-        bossWavePending = false;                                // повержен — снимаем блок
+        if (!bossWavePending)
+            return false;
+        if (!bossHasSpawned)
+            return true;
+        if (activeBoss != null && activeBoss.IsAlive)
+            return true;
+
+        bossWavePending = false;
         return false;
     }
 
@@ -389,6 +554,20 @@ public class WaveManager : MonoBehaviour
     public int GetZombiesAlive() => zombiesAlive;
     public bool IsWaveInProgress() => waveInProgress;
     public bool IsBossAlive() => bossWavePending && bossHasSpawned && activeBoss != null && activeBoss.IsAlive;
+
+    public void SetAmmoDropChanceBonus(float bonus)
+    {
+        ammoDropChanceBonus = Mathf.Clamp(bonus, 0f, 0.5f);
+        for (int i = 0; i < activeZombies.Count; i++)
+        {
+            ZombieAI zombie = activeZombies[i];
+            if (zombie == null || !zombieSources.TryGetValue(zombie, out GameObject sourcePrefab))
+                continue;
+
+            if (prefabBaseStats.TryGetValue(sourcePrefab, out ZombieBaseStats stats))
+                zombie.ammoDropChance = Mathf.Clamp01(stats.AmmoDropChance + ammoDropChanceBonus);
+        }
+    }
 
     static Transform FindCampfireTransform()
     {

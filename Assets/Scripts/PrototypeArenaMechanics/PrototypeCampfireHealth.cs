@@ -9,9 +9,10 @@ public class PrototypeCampfireHealth : MonoBehaviour
     [Header("Campfire")]
     public Transform campfire;
     public float maxHealth = 220f;
-    public float contactDamagePerZombie = 8f;
+    public float contactDamagePerZombie = 5f;
     public float damageRadius = 1.7f;
     public float damageTickInterval = 0.5f;
+    [Min(1)] public int maxSimultaneousAttackers = 4;
 
     [Header("Serialized HUD")]
     public TextMeshProUGUI healthText;
@@ -21,6 +22,7 @@ public class PrototypeCampfireHealth : MonoBehaviour
     private float tickTimer;
     private bool destroyed;
     private readonly Collider2D[] damageHitBuffer = new Collider2D[64];
+    private readonly System.Collections.Generic.HashSet<ZombieAI> countedAttackers = new System.Collections.Generic.HashSet<ZombieAI>();
 
     public float CurrentHealth => currentHealth;
     public float MaxHealth => maxHealth;
@@ -97,7 +99,9 @@ public class PrototypeCampfireHealth : MonoBehaviour
     void DamageFromNearbyZombies()
     {
         int hitCount = Physics2D.OverlapCircleNonAlloc(campfire.position, damageRadius, damageHitBuffer);
-        float damage = 0f;
+        int attackers = 0;
+        countedAttackers.Clear();
+        EnemyDirector director = EnemyDirector.Instance;
 
         for (int i = 0; i < hitCount; i++)
         {
@@ -109,12 +113,19 @@ public class PrototypeCampfireHealth : MonoBehaviour
             if (zombie == null)
                 zombie = hit.GetComponentInParent<ZombieAI>();
 
-            if (zombie != null && zombie.IsAlive)
-                damage += contactDamagePerZombie;
+            if (zombie == null || !zombie.IsAlive || !countedAttackers.Add(zombie))
+                continue;
+
+            if (director != null && !director.HasCampfireAttackSlot(zombie))
+                continue;
+
+            attackers++;
+            if (attackers >= Mathf.Max(1, maxSimultaneousAttackers))
+                break;
         }
 
-        if (damage > 0f)
-            TakeDamage(damage);
+        if (attackers > 0)
+            TakeDamage(attackers * contactDamagePerZombie);
     }
 
     void DestroyCampfire()

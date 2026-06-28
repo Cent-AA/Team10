@@ -356,10 +356,10 @@ RectTransform:
   - {fileID: 2140790981}
   m_Father: {fileID: 1310909079}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -825, y: 377.5}
+  m_SizeDelta: {x: -1720, y: -825}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &62201644
 MonoBehaviour:
@@ -6163,7 +6163,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 800, y: 400}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 200, y: 250}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &413753462
@@ -6336,10 +6336,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1310909079}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 581, y: 473}
-  m_SizeDelta: {x: 100, y: 50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 595, y: 475}
+  m_SizeDelta: {x: -1750, y: -1030}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &481938678
 GameObject:
@@ -8194,7 +8194,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -800, y: 400}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 200, y: 250}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1064700528
@@ -8345,10 +8345,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1310909079}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 481, y: 473}
-  m_SizeDelta: {x: 100, y: 50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 425, y: 475}
+  m_SizeDelta: {x: -1750, y: -1030}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1189789996
 MonoBehaviour:
@@ -8791,10 +8791,10 @@ RectTransform:
   - {fileID: 413753461}
   m_Father: {fileID: 1310909079}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 825, y: 377.5}
+  m_SizeDelta: {x: -1720, y: -825}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1289509751
 MonoBehaviour:
@@ -9190,7 +9190,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 800, y: 400}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 200, y: 250}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1424276250
@@ -10267,6 +10267,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WaveManager
   zombiePrefab: {fileID: 4324192285725456188, guid: b045696430283a2478655e60700211e2, type: 3}
+  runnerZombiePrefab: {fileID: 0}
+  tankZombiePrefab: {fileID: 0}
+  exploderZombiePrefab: {fileID: 0}
+  miniBossZombiePrefab: {fileID: 0}
   spawnPoints:
   - {fileID: 939095877}
   - {fileID: 1843468818}
@@ -10281,13 +10285,19 @@ MonoBehaviour:
   spawnRingRandomness: 3
   initialZombiePoolSize: 32
   maxZombiePoolSize: 64
+  maxActiveZombies: 32
   startZombies: 3
   zombiesPerWave: 2
   spawnInterval: 0.5
   timeBetweenWaves: 5
-  zombieHealthIncrease: 10
-  zombieSpeedIncrease: 0.3
-  zombieDamageIncrease: 2
+  zombieHealthIncrease: 8
+  zombieSpeedIncrease: 0.09
+  zombieDamageIncrease: 1
+  maxZombieMoveSpeed: 5.5
+  maxZombieRunSpeed: 6.75
+  maxZombieAttackDamage: 30
+  enemyDirector: {fileID: 0}
+  variantManager: {fileID: 2147000006}
   waveText: {fileID: 1189789996}
   zombieCountText: {fileID: 479050543}
   waveTextDisplayTime: 3
@@ -11216,7 +11226,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -800, y: 400}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 200, y: 250}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2140790982
@@ -11328,9 +11338,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PrototypeCampfireHealth
   campfire: {fileID: 618099599}
   maxHealth: 220
-  contactDamagePerZombie: 8
+  contactDamagePerZombie: 5
   damageRadius: 1.7
   damageTickInterval: 0.5
+  maxSimultaneousAttackers: 4
   healthText: {fileID: 2147200033}
   healthFill: {fileID: 2147200023}
 --- !u!114 &2147000005
@@ -11370,7 +11381,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PrototypeEnemyVariantManager
   miniBossEveryWave: 5
-  scanInterval: 0.2
 --- !u!114 &2147000007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11685,10 +11695,10 @@ RectTransform:
   - {fileID: 2147200032}
   m_Father: {fileID: 2147200002}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 1}
-  m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -34}
-  m_SizeDelta: {x: 520, y: 54}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 477.5}
+  m_SizeDelta: {x: -1400, y: -1025}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2147200013
 MonoBehaviour:
@@ -11957,7 +11967,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2147200052
 RectTransform:
   m_ObjectHideFlags: 0

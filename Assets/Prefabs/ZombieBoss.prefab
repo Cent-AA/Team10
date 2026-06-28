@@ -324,28 +324,46 @@ MonoBehaviour:
   moveSpeed: 2
   stopRange: 2.5
   maxHealth: 1200
+  phaseTwoHealth: 0.7
+  phaseThreeHealth: 0.35
+  phaseTwoSpeedMultiplier: 1.15
+  phaseThreeSpeedMultiplier: 1.3
+  phaseTwoDashCooldownMultiplier: 0.85
+  phaseThreeDashCooldownMultiplier: 0.7
+  phasePulseTelegraph: 0.75
+  phasePulseRadius: 5
+  phaseTwoPulseDamage: 8
+  phaseThreePulseDamage: 12
+  phasePulseKnockback: 18
+  targetDecisionInterval: 0.25
+  contactCheckInterval: 0.1
   screamDuration: 3.05
   leftArm: {fileID: 5731069587833308963}
   rightArm: {fileID: 1640183208401988013}
   head: {fileID: 6300768182394289564}
   torso: {fileID: 6596361454310094547}
   legs: {fileID: 2308146568749363668}
-  dashAnimDuration: 3
-  dashHitTime: 2.5
-  dashSlideDuration: 2.5
-  dashWindupDuration: 0.25
-  dashCooldown: 15
-  dashCircleDistance: 7
-  dashCircleRadius: 4.5
-  dashApproachSpeed: 14
-  dashCircleSpeed: 120
-  dashCircleSlowdown: 0.5
-  dashHitRadius: 4
-  dashDamage: 30
-  dashKnockback: 14
-  dashKnockbackDuration: 0.25
-  hitsToStun: 3
-  stunDuration: 1
+  dashCooldown: 10
+  dashRange: 13
+  dashMinRange: 1.5
+  telegraphDuration: 0.5
+  telegraphRecoil: 1.1
+  lungeSpeed: 30
+  lungeMaxDuration: 0.5
+  lungeOvershoot: 2
+  recoverDuration: 0.55
+  dashHitRadius: 3.2
+  dashHitForwardOffset: 1.6
+  dashDamage: 24
+  dashKnockback: 24
+  dashThrowDownDuration: 1.5
+  telegraphFlash: {r: 1, g: 0.35, b: 0.2, a: 1}
+  hitsToStun: 5
+  stunDuration: 2
+  contactDamage: 10
+  contactKnockback: 12
+  contactKnockbackDuration: 0.25
+  contactCooldown: 0.9
   hpBarWorldOffset: {x: 0, y: 2.5}
   hpBarPixelSize: {x: 220, y: 22}
   stunBarPixelSize: {x: 160, y: 8}
@@ -354,6 +372,10 @@ MonoBehaviour:
   hpBarBgColor: {r: 0, g: 0, b: 0, a: 0.75}
   stunBarColor: {r: 1, g: 0.85, b: 0.15, a: 1}
   stunBarBgColor: {r: 0, g: 0, b: 0, a: 0.75}
+  contactRadius: 1.9
+  contactYOffset: 0
+  arenaBounds: {fileID: 0}
+  arenaMargin: 0.5
 --- !u!95 &3695926138832037062
 Animator:
   serializedVersion: 7

@@ -15,6 +15,23 @@ public class BossController : MonoBehaviour
     public float stopRange = 2.5f;
     public float maxHealth = 500f;
 
+    [Header("Phases")]
+    [Range(0.05f, 0.95f)] public float phaseTwoHealth = 0.7f;
+    [Range(0.05f, 0.95f)] public float phaseThreeHealth = 0.35f;
+    public float phaseTwoSpeedMultiplier = 1.15f;
+    public float phaseThreeSpeedMultiplier = 1.3f;
+    public float phaseTwoDashCooldownMultiplier = 0.85f;
+    public float phaseThreeDashCooldownMultiplier = 0.7f;
+    public float phasePulseTelegraph = 0.75f;
+    public float phasePulseRadius = 5f;
+    public float phaseTwoPulseDamage = 8f;
+    public float phaseThreePulseDamage = 12f;
+    public float phasePulseKnockback = 18f;
+
+    [Header("Decision Budget")]
+    [Min(0.05f)] public float targetDecisionInterval = 0.25f;
+    [Min(0.02f)] public float contactCheckInterval = 0.1f;
+
     [Header("Animation")]
     public float screamDuration = 3.05f;
 
@@ -92,12 +109,18 @@ public class BossController : MonoBehaviour
     private Coroutine activationRoutine;
     private Coroutine dashRoutine;
     private Coroutine stunRoutine;
+    private Coroutine phaseRoutine;
     private bool hasStateParameter;
     private bool hasHitTrigger;
     private float dashTimer;
     private int hitCounter;
     private bool isStunned;
     private bool isDashing;
+    private int currentPhase = 1;
+    private float baseMoveSpeed;
+    private float baseDashCooldown;
+    private float targetDecisionTimer;
+    private float contactCheckTimer;
     private readonly System.Collections.Generic.Dictionary<Transform, float> contactHitTimers = new System.Collections.Generic.Dictionary<Transform, float>();
     private readonly System.Collections.Generic.HashSet<Transform> dashHitThisLunge = new System.Collections.Generic.HashSet<Transform>();
     private readonly Collider2D[] hitBuffer = new Collider2D[16];
@@ -129,6 +152,8 @@ public class BossController : MonoBehaviour
     {
         anim = GetComponent<Animator>();
         currentHealth = maxHealth;
+        baseMoveSpeed = moveSpeed;
+        baseDashCooldown = dashCooldown;
         CacheBodySprites();
     }
 
@@ -161,12 +186,27 @@ public class BossController : MonoBehaviour
     {
         ValidateAnimator();
         currentHealth = maxHealth;
+        baseMoveSpeed = moveSpeed;
+        baseDashCooldown = dashCooldown;
+        currentPhase = 1;
         SetState(IdleState);
         CreateBarsUI();
         dashTimer = dashCooldown;
 
         // Босс спавнится в рантайме и не может ссылаться на сцену — берём границы у камеры.
         if (arenaBounds == null) arenaBounds = ArenaCamera.MapSprite;
+    }
+
+    public void ConfigureForWave(int wave)
+    {
+        currentHealth = maxHealth;
+        currentPhase = 1;
+        moveSpeed = baseMoveSpeed;
+        dashCooldown = baseDashCooldown;
+        dashTimer = dashCooldown;
+        targetDecisionTimer = Random.Range(0f, Mathf.Max(0.05f, targetDecisionInterval));
+        contactCheckTimer = 0f;
+        UpdateHpBar();
     }
 
     public void Activate()
@@ -201,10 +241,20 @@ public class BossController : MonoBehaviour
     {
         if (!isActive || isDashing || isStunned) return;
 
-        currentTarget = GetClosestPlayer();
+        targetDecisionTimer -= Time.deltaTime;
+        if (currentTarget == null || targetDecisionTimer <= 0f)
+        {
+            targetDecisionTimer = Mathf.Max(0.05f, targetDecisionInterval);
+            currentTarget = GetClosestPlayer();
+        }
         if (currentTarget == null) return;
 
-        CheckContactDamage();
+        contactCheckTimer -= Time.deltaTime;
+        if (contactCheckTimer <= 0f)
+        {
+            contactCheckTimer = Mathf.Max(0.02f, contactCheckInterval);
+            CheckContactDamage();
+        }
 
         float dist = Vector3.Distance(transform.position, currentTarget.position);
 
@@ -471,13 +521,96 @@ public class BossController : MonoBehaviour
         hitCounter++;
         if (hasHitTrigger) anim.SetTrigger("Hit");
 
-        if (hitCounter >= hitsToStun)
+        bool phaseChanged = EvaluatePhaseTransition();
+
+        if (!phaseChanged && hitCounter >= hitsToStun)
         {
             hitCounter = 0;
             EnterStun();
         }
 
         if (currentHealth <= 0f) Die();
+    }
+
+    bool EvaluatePhaseTransition()
+    {
+        if (currentHealth <= 0f || maxHealth <= 0f)
+            return false;
+
+        float healthPercent = currentHealth / maxHealth;
+        int nextPhase = healthPercent <= phaseThreeHealth ? 3 : healthPercent <= phaseTwoHealth ? 2 : 1;
+        if (nextPhase <= currentPhase)
+            return false;
+
+        currentPhase = nextPhase;
+        float speedMultiplier = currentPhase >= 3 ? phaseThreeSpeedMultiplier : phaseTwoSpeedMultiplier;
+        float cooldownMultiplier = currentPhase >= 3 ? phaseThreeDashCooldownMultiplier : phaseTwoDashCooldownMultiplier;
+        moveSpeed = baseMoveSpeed * speedMultiplier;
+        dashCooldown = Mathf.Max(1f, baseDashCooldown * cooldownMultiplier);
+        dashTimer = Mathf.Min(dashTimer, dashCooldown);
+
+        if (phaseRoutine != null)
+            StopCoroutine(phaseRoutine);
+        phaseRoutine = StartCoroutine(PhasePulseRoutine(currentPhase));
+        return true;
+    }
+
+    IEnumerator PhasePulseRoutine(int phase)
+    {
+        if (stunRoutine != null)
+        {
+            StopCoroutine(stunRoutine);
+            stunRoutine = null;
+        }
+        isStunned = false;
+        if (stunBarRoot != null)
+            stunBarRoot.gameObject.SetActive(false);
+
+        if (dashRoutine != null)
+        {
+            StopCoroutine(dashRoutine);
+            dashRoutine = null;
+        }
+        isDashing = false;
+        dashHitThisLunge.Clear();
+        RestoreBodyTint();
+
+        bool wasActive = isActive;
+        isActive = false;
+        SetState(ScreamState);
+
+        float duration = Mathf.Max(0.1f, phasePulseTelegraph);
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float pulse = Mathf.PingPong(elapsed * 6f, 1f);
+            TintBody(telegraphFlash, pulse);
+            yield return null;
+        }
+
+        RestoreBodyTint();
+        dashHitThisLunge.Clear();
+        float damage = phase >= 3 ? phaseThreePulseDamage : phaseTwoPulseDamage;
+        int count = Physics2D.OverlapCircleNonAlloc(transform.position, phasePulseRadius, hitBuffer);
+        for (int i = 0; i < count; i++)
+        {
+            Collider2D hit = hitBuffer[i];
+            if (hit == null)
+                continue;
+
+            Transform root = ResolvePlayerRoot(hit);
+            if (root == null || !dashHitThisLunge.Add(root))
+                continue;
+
+            HitPlayer(root, damage, phasePulseKnockback, 0.35f, false);
+        }
+
+        dashHitThisLunge.Clear();
+        ArenaCamera.Shake(0.65f, 0.35f);
+        isActive = wasActive;
+        SetState(isActive ? WalkState : IdleState);
+        phaseRoutine = null;
     }
 
     void EnterStun()
@@ -516,6 +649,7 @@ public class BossController : MonoBehaviour
         StopActivationRoutine();
         if (dashRoutine != null) StopCoroutine(dashRoutine);
         if (stunRoutine != null) StopCoroutine(stunRoutine);
+        if (phaseRoutine != null) StopCoroutine(phaseRoutine);
         isActive = false;
         isDashing = false;
         RestoreBodyTint();
@@ -570,15 +704,31 @@ public class BossController : MonoBehaviour
 
     Transform GetClosestPlayer()
     {
+        Registry.CleanupPlayers();
         Transform closest = null;
         float minDist = float.MaxValue;
         foreach (Transform player in Registry.Players)
         {
-            if (player == null) continue;
+            if (!IsLivingPlayer(player)) continue;
             float d = Vector3.Distance(transform.position, player.position);
             if (d < minDist) { minDist = d; closest = player; }
         }
         return closest;
+    }
+
+    bool IsLivingPlayer(Transform player)
+    {
+        if (player == null || !player.gameObject.activeInHierarchy)
+            return false;
+
+        PlayerController heavy = Registry.GetPlayerController(player);
+        if (heavy != null)
+            return heavy.currentHealth > 0f;
+
+        EngineerController engineer = player.GetComponent<EngineerController>();
+        if (engineer == null) engineer = player.GetComponentInChildren<EngineerController>();
+        if (engineer == null) engineer = player.GetComponentInParent<EngineerController>();
+        return engineer != null && engineer.currentHealth > 0f;
     }
 
     public float GetHealthPercent() => maxHealth > 0f ? currentHealth / maxHealth : 0f;
@@ -707,5 +857,7 @@ public class BossController : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position + facing * dashHitForwardOffset, dashHitRadius);
         Gizmos.color = new Color(1f, 0f, 0f, 0.5f);
         Gizmos.DrawWireSphere(transform.position + Vector3.up * contactYOffset, contactRadius);
+        Gizmos.color = new Color(1f, 0.2f, 0.8f, 0.45f);
+        Gizmos.DrawWireSphere(transform.position, phasePulseRadius);
     }
 }

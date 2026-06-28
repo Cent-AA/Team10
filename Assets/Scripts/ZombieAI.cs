@@ -19,6 +19,7 @@ public class ZombieAI : MonoBehaviour
     public float attackRange = 1.5f;
     public float loseTargetTime = 3f;
     public float targetRefreshInterval = 0.2f;
+    public float targetRefreshJitter = 0.1f;
     public float attackerSwitchRange = 5f;
     public float groupedPlayersDistance = 2.5f;
     public float groupedLockDelay = 2f;
@@ -27,6 +28,11 @@ public class ZombieAI : MonoBehaviour
     public float attackCooldown = 1.5f;
     public float attackDamage = 15f;
     public float knockbackForce = 3f;
+
+    [Header("Crowd Movement")]
+    public float separationRadius = 0.85f;
+    public float separationStrength = 1.4f;
+    public float separationRefreshInterval = 0.1f;
 
     [Header("Components")]
     public Animator animator;
@@ -59,10 +65,24 @@ public class ZombieAI : MonoBehaviour
     private bool poolManaged;
     private Color originalColor;
     private bool isDead;
+    private EnemyDirector enemyDirector;
+    private Vector2 desiredVelocity;
+    private Vector2 separationVelocity;
+    private Vector2 strategicDestination;
+    private float separationTimer;
+    private float knockbackResistance = 1f;
+    private bool lastAnimatorMoving;
+    private bool lastAnimatorRunning;
+    private bool animatorStateInitialized;
+    private PrototypeEnemyVariant.VariantType archetype = PrototypeEnemyVariant.VariantType.Grunt;
+    private readonly Collider2D[] separationBuffer = new Collider2D[12];
 
     public bool IsAlive => !isDead;
     public bool HasActiveCollider => cachedCollider != null && cachedCollider.enabled;
     public float DeathDespawnDelay => deathDespawnDelay;
+    public Collider2D CachedCollider => cachedCollider;
+    public bool IsTank => archetype == PrototypeEnemyVariant.VariantType.Tank;
+    public PrototypeEnemyVariant.VariantType Archetype => archetype;
     public System.Action<ZombieAI> OnDied;
 
     void Awake()
@@ -75,6 +95,8 @@ public class ZombieAI : MonoBehaviour
     {
         CacheComponents();
         EnsureCampfireTarget();
+        if (enemyDirector == null)
+            enemyDirector = EnemyDirector.Instance;
         Registry.RegisterZombie(this);
     }
 
@@ -85,6 +107,8 @@ public class ZombieAI : MonoBehaviour
 
     void OnDisable()
     {
+        if (enemyDirector != null)
+            enemyDirector.ReleaseZombie(this);
         Registry.UnregisterZombie(this);
     }
 
@@ -105,7 +129,7 @@ public class ZombieAI : MonoBehaviour
 
         if (targetRefreshTimer <= 0f)
         {
-            targetRefreshTimer = targetRefreshInterval;
+            targetRefreshTimer = GetNextDecisionDelay();
             RefreshTarget();
         }
 
@@ -129,6 +153,28 @@ public class ZombieAI : MonoBehaviour
         UpdateFacing();
     }
 
+    void FixedUpdate()
+    {
+        if (isDead || currentState == ZombieState.Attack || currentState == ZombieState.Hit)
+            return;
+
+        separationTimer -= Time.fixedDeltaTime;
+        if (separationTimer <= 0f)
+        {
+            separationTimer = Mathf.Max(0.05f, separationRefreshInterval);
+            RefreshSeparation();
+        }
+
+        Vector2 velocity = desiredVelocity + separationVelocity;
+        if (velocity.sqrMagnitude <= 0.0001f)
+            return;
+
+        float maxSpeed = Mathf.Max(moveSpeed, runSpeed) + Mathf.Max(0f, separationStrength);
+        velocity = Vector2.ClampMagnitude(velocity, maxSpeed);
+        Vector2 nextPosition = GetMovementPosition() + velocity * Time.fixedDeltaTime;
+        MoveCharacter(nextPosition);
+    }
+
     public void SetCampfireTarget(Transform newTarget)
     {
         campfireTarget = newTarget;
@@ -137,6 +183,17 @@ public class ZombieAI : MonoBehaviour
     public void SetPoolManaged(bool managed)
     {
         poolManaged = managed;
+    }
+
+    public void SetEnemyDirector(EnemyDirector director)
+    {
+        enemyDirector = director;
+    }
+
+    public void SetArchetype(PrototypeEnemyVariant.VariantType type)
+    {
+        archetype = type;
+        knockbackResistance = type == PrototypeEnemyVariant.VariantType.Tank ? 0.25f : 1f;
     }
 
     public void ResetForSpawn(Transform newCampfireTarget)
@@ -157,10 +214,15 @@ public class ZombieAI : MonoBehaviour
         targetEngineer = null;
         attackTimer = 0f;
         loseTargetTimer = loseTargetTime;
-        targetRefreshTimer = 0f;
+        targetRefreshTimer = Random.Range(0f, GetNextDecisionDelay());
         groupedPlayersTimer = 0f;
         currentTargetDistanceSqr = 0f;
         committedToTarget = false;
+        desiredVelocity = Vector2.zero;
+        separationVelocity = Vector2.zero;
+        strategicDestination = campfireTarget != null ? campfireTarget.position : transform.position;
+        separationTimer = Random.Range(0f, Mathf.Max(0.05f, separationRefreshInterval));
+        animatorStateInitialized = false;
 
         if (cachedCollider != null) cachedCollider.enabled = true;
 
@@ -180,6 +242,27 @@ public class ZombieAI : MonoBehaviour
     void RefreshTarget()
     {
         if (currentState == ZombieState.Attack || currentState == ZombieState.Hit) return;
+
+        if (enemyDirector == null)
+            enemyDirector = EnemyDirector.Instance;
+
+        if (enemyDirector != null)
+        {
+            EnemyDirector.Assignment assignment = enemyDirector.Evaluate(this);
+            strategicDestination = assignment.Destination;
+
+            if (assignment.PlayerTarget != null)
+            {
+                if (target != assignment.PlayerTarget)
+                    SetTarget(assignment.PlayerTarget);
+            }
+            else if (target != null)
+            {
+                ClearTarget();
+            }
+
+            return;
+        }
 
         if (!IsValidPlayerTarget(target))
         {
@@ -327,25 +410,26 @@ public class ZombieAI : MonoBehaviour
 
     void MoveToCampfire()
     {
-        EnsureCampfireTarget();
         if (campfireTarget == null)
         {
             currentState = ZombieState.Idle;
+            desiredVelocity = Vector2.zero;
             return;
         }
 
         Vector2 currentPosition = GetMovementPosition();
-        Vector2 destination = campfireTarget.position;
+        Vector2 destination = enemyDirector != null ? strategicDestination : (Vector2)campfireTarget.position;
         Vector2 delta = destination - currentPosition;
 
         if (delta.sqrMagnitude <= campfireStopDistance * campfireStopDistance)
         {
             currentState = ZombieState.Idle;
+            desiredVelocity = Vector2.zero;
             return;
         }
 
         currentState = ZombieState.MoveToCampfire;
-        MoveCharacter(currentPosition + delta.normalized * moveSpeed * Time.deltaTime);
+        desiredVelocity = delta.normalized * moveSpeed;
     }
 
     void UpdateChase()
@@ -353,12 +437,13 @@ public class ZombieAI : MonoBehaviour
         if (target == null)
         {
             ClearTarget();
+            desiredVelocity = Vector2.zero;
             return;
         }
 
         Vector2 currentPosition = GetMovementPosition();
-        Vector2 delta = (Vector2)target.position - currentPosition;
-        float distSqr = delta.sqrMagnitude;
+        Vector2 targetDelta = (Vector2)target.position - currentPosition;
+        float distSqr = targetDelta.sqrMagnitude;
         currentTargetDistanceSqr = distSqr;
 
         if (distSqr > chaseRange * chaseRange)
@@ -367,6 +452,7 @@ public class ZombieAI : MonoBehaviour
             if (loseTargetTimer <= 0f)
             {
                 ClearTarget();
+                desiredVelocity = Vector2.zero;
                 return;
             }
         }
@@ -378,16 +464,31 @@ public class ZombieAI : MonoBehaviour
         if (distSqr <= attackRange * attackRange && attackTimer <= 0f)
         {
             currentState = ZombieState.Attack;
+            desiredVelocity = Vector2.zero;
             PerformAttack();
             return;
         }
 
-        if (distSqr <= 0.0001f)
+        if (distSqr <= attackRange * attackRange)
+        {
+            desiredVelocity = Vector2.zero;
             return;
+        }
+
+        if (distSqr <= 0.0001f)
+        {
+            desiredVelocity = Vector2.zero;
+            return;
+        }
 
         float runThresholdSqr = detectRange * detectRange * 0.25f;
         float speed = distSqr > runThresholdSqr ? runSpeed : moveSpeed;
-        MoveCharacter(currentPosition + delta.normalized * speed * Time.deltaTime);
+        Vector2 movementDelta = enemyDirector != null
+            ? strategicDestination - currentPosition
+            : targetDelta;
+        if (movementDelta.sqrMagnitude <= 0.01f)
+            movementDelta = targetDelta;
+        desiredVelocity = movementDelta.normalized * speed;
     }
 
     void PerformAttack()
@@ -451,6 +552,11 @@ public class ZombieAI : MonoBehaviour
     {
         if (isDead) return;
 
+        if (enemyDirector == null)
+            enemyDirector = EnemyDirector.Instance;
+        if (enemyDirector != null)
+            enemyDirector.ReportThreat(attacker, damage);
+
         TrySwitchToAttacker(attacker);
         currentHealth -= damage;
 
@@ -481,6 +587,12 @@ public class ZombieAI : MonoBehaviour
 
         if (!IsValidPlayerTarget(attacker)) return;
 
+        if (enemyDirector != null)
+        {
+            targetRefreshTimer = 0f;
+            return;
+        }
+
         float distSqr = ((Vector2)attacker.position - (Vector2)transform.position).sqrMagnitude;
         if (distSqr > attackerSwitchRange * attackerSwitchRange) return;
 
@@ -504,12 +616,13 @@ public class ZombieAI : MonoBehaviour
 
     System.Collections.IEnumerator Knockback(Vector2 dir)
     {
+        desiredVelocity = Vector2.zero;
         float elapsed = 0f;
         while (elapsed < 0.15f)
         {
             elapsed += Time.fixedDeltaTime;
             Vector2 currentPosition = GetMovementPosition();
-            MoveCharacter(currentPosition + dir * knockbackForce * Time.fixedDeltaTime);
+            MoveCharacter(currentPosition + dir * knockbackForce * knockbackResistance * Time.fixedDeltaTime);
             yield return new WaitForFixedUpdate();
         }
     }
@@ -518,7 +631,10 @@ public class ZombieAI : MonoBehaviour
     {
         isDead = true;
         currentState = ZombieState.Dead;
+        desiredVelocity = Vector2.zero;
         CancelInvoke();
+        if (enemyDirector != null)
+            enemyDirector.ReleaseZombie(this);
         Registry.UnregisterZombie(this);
 
         if (animator != null) animator.SetTrigger("die");
@@ -557,8 +673,19 @@ public class ZombieAI : MonoBehaviour
                          target != null &&
                          currentTargetDistanceSqr > detectRange * detectRange * 0.25f;
 
-        animator.SetBool("isMoving", isMoving);
-        animator.SetBool("isRunning", isRunning);
+        if (!animatorStateInitialized || isMoving != lastAnimatorMoving)
+        {
+            animator.SetBool("isMoving", isMoving);
+            lastAnimatorMoving = isMoving;
+        }
+
+        if (!animatorStateInitialized || isRunning != lastAnimatorRunning)
+        {
+            animator.SetBool("isRunning", isRunning);
+            lastAnimatorRunning = isRunning;
+        }
+
+        animatorStateInitialized = true;
     }
 
     void UpdateFacing()
@@ -571,7 +698,6 @@ public class ZombieAI : MonoBehaviour
             return;
         }
 
-        EnsureCampfireTarget();
         if (campfireTarget == null) return;
 
         Vector2 destination = campfireTarget.position;
@@ -614,6 +740,49 @@ public class ZombieAI : MonoBehaviour
 
         if (campfireObject != null)
             campfireTarget = campfireObject.transform;
+    }
+
+    float GetNextDecisionDelay()
+    {
+        if (enemyDirector != null)
+            return enemyDirector.GetNextDecisionDelay();
+
+        float min = Mathf.Max(0.05f, targetRefreshInterval);
+        return min + Random.Range(0f, Mathf.Max(0f, targetRefreshJitter));
+    }
+
+    void RefreshSeparation()
+    {
+        separationVelocity = Vector2.zero;
+        if (cachedCollider == null || separationRadius <= 0f || separationStrength <= 0f)
+            return;
+
+        Vector2 position = GetMovementPosition();
+        int count = Physics2D.OverlapCircleNonAlloc(position, separationRadius, separationBuffer);
+        Vector2 push = Vector2.zero;
+        int neighbours = 0;
+
+        for (int i = 0; i < count; i++)
+        {
+            Collider2D hit = separationBuffer[i];
+            if (hit == null || hit == cachedCollider)
+                continue;
+
+            ZombieAI other = hit.GetComponentInParent<ZombieAI>();
+            if (other == null || other == this || !other.IsAlive)
+                continue;
+
+            Vector2 away = position - (Vector2)other.transform.position;
+            float distance = away.magnitude;
+            if (distance <= 0.001f || distance >= separationRadius)
+                continue;
+
+            push += away / distance * (1f - distance / separationRadius);
+            neighbours++;
+        }
+
+        if (neighbours > 0)
+            separationVelocity = push / neighbours * separationStrength;
     }
 
     Vector2 GetMovementPosition()
